@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizlet Match - Custom Vocabulary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #4255ff 0%, #5764ff 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4255ff 0%, #5764ff 100%);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 80px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "Q";
+            background: white;
+            color: #4255ff;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .game-container {
+            background: white;
+            height: calc(100vh - 80px);
+            display: flex;
+        }
+
+        /* SETUP MODE STYLES */
+        .setup-container {
+            width: 100%;
+            padding: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 3rem;
+        }
+
+        .setup-panel {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .setup-header h1 {
+            color: #4255ff;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .setup-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .csv-input {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: monospace;
+            resize: vertical;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .csv-input:focus {
+            outline: none;
+            border-color: #4255ff;
+            box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.1);
+        }
+
+        .csv-help {
+            background: #e8f2ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .csv-help strong {
+            color: #4255ff;
+        }
+
+        .setup-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #4255ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3444dd;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-play {
+            background: #00d4aa;
+            color: white;
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-play:hover {
+            background: #00c299;
+            transform: translateY(-2px);
+        }
+
+        .btn-play:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            border: 1px solid #ffcccc;
+            color: #cc0000;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .cards-preview {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+        }
+
+        .preview-header {
+            background: #f0f0f0;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #666;
+            position: sticky;
+            top: 0;
+        }
+
+        .preview-pair {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .preview-pair:last-child {
+            border-bottom: none;
+        }
+
+        .preview-term {
+            font-weight: 600;
+            color: #4255ff;
+        }
+
+        .preview-definition {
+            color: #666;
+        }
+
+        /* GAMEPLAY MODE STYLES */
+        .gameplay-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f7f7f7;
+            border-right: 1px solid #e0e0e0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .quit-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .quit-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .quit-btn::before {
+            content: "←";
+            font-size: 1.2rem;
+        }
+
+        .game-mode {
+            margin-bottom: 2rem;
+        }
+
+        .game-mode h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4255ff;
+            margin-bottom: 1rem;
+        }
+
+        .game-mode h2::before {
+            content: "⚡";
+            background: #4255ff;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .game-info {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .game-info h4 {
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .pairs-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4255ff;
+        }
+
+        .time-section h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .time-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4255ff;
+        }
+
+        .game-area {
+            flex: 1;
+            padding: 2rem;
+            background: #f0f0f0;
+            position: relative;
+            height: 100%;
+        }
+
+        .cards-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .card {
+            position: absolute;
+            background: white;
+            border-radius: 6px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: grab;
+            border: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 120px;
+            max-width: 200px;
+            text-align: center;
+            user-select: none;
+            z-index: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        .card.dragging {
+            z-index: 1000;
+            cursor: grabbing;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .card.drop-target {
+            border-color: #4255ff;
+            background: #f0f4ff;
+            transform: scale(1.05);
+        }
+
+        .card.matched {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .card.incorrect {
+            border-color: #ff4444;
+            background: #fff0f0;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .game-completed {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+            display: none;
+            z-index: 2000;
+            min-width: 350px;
+        }
+
+        .game-completed.show {
+            display: block;
+            animation: popup 0.3s ease-out;
+        }
+
+        @keyframes popup {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .completion-time {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4255ff;
+            margin-bottom: 1rem;
+        }
+
+        .completion-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .completion-buttons .btn {
+            min-width: 120px;
+        }
+
+        .penalty-message {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #ff4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1500;
+        }
+
+        .penalty-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+    </div>
+
+    <div class="game-container">
+        <!-- SETUP MODE -->
+        <div class="setup-container" id="setupContainer">
+            <div class="setup-panel">
+                <div class="setup-header">
+                    <h1>Create Your Matching Game</h1>
+                    <p>Enter your vocabulary pairs to get started</p>
+                </div>
+
+                <div class="csv-help">
+                    <strong>Format:</strong> Enter each pair on a new line separated by a comma<br>
+                    <strong>Example:</strong><br>
+                    Term 1, Definition 1<br>
+                    Term 2, Definition 2<br>
+                    <em>Tip: Use quotes if your terms contain commas: "Hello, friend", Greeting</em>
+                </div>
+                
+                <textarea class="csv-input" id="csvInput" placeholder="Algorithm, A step-by-step procedure for solving a problem or performing a task.
+Variable, A storage location identified by a name used to hold data.
+Function, A block of organized, reusable code that performs a single action.
+Loop, A sequence of instructions that repeats until a certain condition is met.
+Array, A collection of elements identified by index or key.
+Class, A blueprint for creating objects in object-oriented programming."></textarea>
+                
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="setup-buttons">
+                    <button class="btn btn-secondary" onclick="loadDefaultCards()">Load Example</button>
+                    <button class="btn btn-primary" onclick="validateCards()">Validate Cards</button>
+                </div>
+
+                <div class="cards-preview hidden" id="cardsPreview">
+                    <div class="preview-header">
+                        <span id="previewCount">0 pairs loaded</span>
+                    </div>
+                    <div id="previewList">
+                        <!-- Preview pairs will be populated here -->
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-play" id="playButton" onclick="startGameplay()" disabled>
+                        🎮 Start Game
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAMEPLAY MODE -->
+        <div class="gameplay-container" id="gameplayContainer">
+            <div class="sidebar">
+                <button class="quit-btn" onclick="quitGame()">Quit Game</button>
+                
+                <div class="game-mode">
+                    <h2>Match</h2>
+                </div>
+
+                <div class="game-info">
+                    <h4>Card Pairs</h4>
+                    <div class="pairs-count" id="pairsCount">0</div>
+                </div>
+                
+                <div class="time-section">
+                    <h3>TIME</h3>
+                    <div class="time-display" id="timeDisplay">0.0</div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="penalty-message" id="penaltyMessage">
+                    +1 second penalty for incorrect match!
+                </div>
+                
+                <div class="cards-container" id="cardsContainer">
+                    <!-- Game cards will be generated here -->
+                </div>
+
+                <div class="game-completed" id="gameCompleted">
+                    <h2>🎉 Congratulations!</h2>
+                    <div class="completion-time" id="completionTime">0.0</div>
+                    <p>You matched all pairs!</p>
+                    <div class="completion-buttons">
+                        <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+                        <button class="btn btn-secondary" onclick="changeCards()">Change Cards</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Computer Science vocabulary pairs
+        const defaultVocabularyPairs = [
+            { term: "Algorithm", definition: "A step-by-step procedure for solving a problem or performing a task." },
+            { term: "Variable", definition: "A storage location identified by a name used to hold data." },
+            { term: "Function", definition: "A block of organized, reusable code that performs a single action." },
+            { term: "Loop", definition: "A sequence of instructions that repeats until a certain condition is met." },
+            { term: "Array", definition: "A collection of elements identified by index or key." },
+            { term: "Class", definition: "A blueprint for creating objects in object-oriented programming." },
+            { term: "Object", definition: "An instance of a class containing data and behavior." },
+            { term: "Compiler", definition: "A program that translates source code into executable code." },
+            { term: "Database", definition: "An organized collection of structured information or data." },
+            { term: "Network", definition: "A group of interconnected computers that can share resources and information." }
+        ];
+
+        // Game state
+        let currentVocabularyPairs = [];
+        let gameCards = [];
+        let draggedCard = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let matchedPairs = 0;
+        let startTime;
+        let gameTimer;
+        let currentTime = 0;
+        let penalties = 0;
+        let gameActive = false;
+        let gameMode = 'setup';
+
+        // CSV parsing functions
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const pairs = [];
+            const errors = [];
+
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
+
+                const commaIndex = findFirstUnquotedComma(trimmedLine);
+                
+                if (commaIndex === -1) {
+                    errors.push(`Line ${index + 1}: Expected comma separator between term and definition`);
+                    return;
+                }
+
+                const term = trimmedLine.substring(0, commaIndex).trim();
+                const definition = trimmedLine.substring(commaIndex + 1).trim();
+
+                const cleanTerm = removeWrappingQuotes(term);
+                const cleanDefinition = removeWrappingQuotes(definition);
+
+                if (!cleanTerm || !cleanDefinition) {
+                    errors.push(`Line ${index + 1}: Both term and definition must be non-empty`);
+                    return;
+                }
+
+                pairs.push({ term: cleanTerm, definition: cleanDefinition });
+            });
+
+            return { pairs, errors };
+        }
+
+        function findFirstUnquotedComma(line) {
+            let inQuotes = false;
+            let quoteChar = '';
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (!inQuotes && (char === '"' || char === "'")) {
+                    inQuotes = true;
+                    quoteChar = char;
+                } else if (inQuotes && char === quoteChar) {
+                    if (i + 1 < line.length && line[i + 1] === quoteChar) {
+                        i++;
+                        continue;
+                    }
+                    inQuotes = false;
+                    quoteChar = '';
+                } else if (!inQuotes && char === ',') {
+                    return i;
+                }
+            }
+            
+            return -1;
+        }
+
+        function removeWrappingQuotes(text) {
+            const trimmed = text.trim();
+            if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+                (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+                return trimmed.slice(1, -1);
+            }
+            return trimmed;
+        }
+
+        // Setup mode functions
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function updatePreview(pairs) {
+            const preview = document.getElementById('cardsPreview');
+            const previewCount = document.getElementById('previewCount');
+            const previewList = document.getElementById('previewList');
+            const playButton = document.getElementById('playButton');
+            
+            if (pairs.length === 0) {
+                preview.classList.add('hidden');
+                playButton.disabled = true;
+                return;
+            }
+
+            previewCount.textContent = `${pairs.length} pairs loaded`;
+            previewList.innerHTML = '';
+            
+            pairs.slice(0, 20).forEach(pair => {
+                const pairElement = document.createElement('div');
+                pairElement.className = 'preview-pair';
+                pairElement.innerHTML = `
+                    <div class="preview-term">${pair.term}</div>
+                    <div class="preview-definition">${pair.definition}</div>
+                `;
+                previewList.appendChild(pairElement);
+            });
+
+            if (pairs.length > 20) {
+                const moreElement = document.createElement('div');
+                moreElement.className = 'preview-pair';
+                moreElement.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; font-style: italic; color: #999;">
+                        ... and ${pairs.length - 20} more pairs
+                    </div>
+                `;
+                previewList.appendChild(moreElement);
+            }
+
+            preview.classList.remove('hidden');
+            playButton.disabled = false;
+        }
+
+        function validateCards() {
+            const csvText = document.getElementById('csvInput').value;
+            
+            if (!csvText.trim()) {
+                showError('Please enter some card pairs in CSV format.');
+                return;
+            }
+
+            const { pairs, errors } = parseCSV(csvText);
+            
+            if (errors.length > 0) {
+                showError('Errors found:\n' + errors.join('\n'));
+                return;
+            }
+
+            if (pairs.length < 2) {
+                showError('Please enter at least 2 card pairs to play the game.');
+                return;
+            }
+
+            if (pairs.length > 50) {
+                showError('Maximum 50 card pairs allowed. Please reduce the number of pairs.');
+                return;
+            }
+
+            hideError();
+            currentVocabularyPairs = pairs;
+            updatePreview(pairs);
+        }
+
+        function loadDefaultCards() {
+            hideError();
+            const csvText = defaultVocabularyPairs.map(pair => {
+                const term = pair.term.includes(',') || pair.term.includes('"') ? `"${pair.term}"` : pair.term;
+                const definition = pair.definition.includes(',') || pair.definition.includes('"') ? `"${pair.definition}"` : pair.definition;
+                return `${term}, ${definition}`;
+            }).join('\n');
+            
+            document.getElementById('csvInput').value = csvText;
+            currentVocabularyPairs = [...defaultVocabularyPairs];
+            updatePreview(currentVocabularyPairs);
+        }
+
+        // Mode switching functions
+        function startGameplay() {
+            if (currentVocabularyPairs.length < 2) return;
+            
+            gameMode = 'gameplay';
+            document.getElementById('setupContainer').classList.add('hidden');
+            document.getElementById('gameplayContainer').style.display = 'flex';
+            
+            startGame();
+        }
+
+        function quitGame() {
+            gameMode = 'setup';
+            gameActive = false;
+            if (gameTimer) clearInterval(gameTimer);
+            
+            document.getElementById('gameplayContainer').style.display = 'none';
+            document.getElementById('setupContainer').classList.remove('hidden');
+        }
+
+        function playAgain() {
+            document.getElementById('gameCompleted').classList.remove('show');
+            startGame();
+        }
+
+        function changeCards() {
+            quitGame();
+        }
+
+        // Game logic functions
+        function createGameCards() {
+            const maxPairs = Math.min(12, currentVocabularyPairs.length);
+            const selectedPairs = currentVocabularyPairs.slice(0, maxPairs);
+            
+            const cards = [];
+            selectedPairs.forEach((pair, index) => {
+                cards.push({
+                    id: `term-${index}`,
+                    text: pair.term,
+                    pairId: index,
+                    type: 'term'
+                });
+                cards.push({
+                    id: `definition-${index}`,
+                    text: pair.definition,
+                    pairId: index,
+                    type: 'definition'
+                });
+            });
+
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+
+            return cards;
+        }
+
+        function isOverlapping(rect1, rect2, margin = 10) {
+            return !(rect1.right + margin < rect2.left || 
+                    rect2.right + margin < rect1.left || 
+                    rect1.bottom + margin < rect2.top || 
+                    rect2.bottom + margin < rect1.top);
+        }
+
+        function getRandomNonOverlappingPosition(containerWidth, containerHeight, cardWidth, cardHeight, existingPositions) {
+            const margin = 20;
+            let attempts = 0;
+            let position;
+            
+            do {
+                position = {
+                    x: Math.random() * (containerWidth - cardWidth - margin * 2) + margin,
+                    y: Math.random() * (containerHeight - cardHeight - margin * 2) + margin
+                };
+                
+                const newRect = {
+                    left: position.x,
+                    top: position.y,
+                    right: position.x + cardWidth,
+                    bottom: position.y + cardHeight
+                };
+                
+                const overlapping = existingPositions.some(existing => 
+                    isOverlapping(newRect, existing)
+                );
+                
+                if (!overlapping) {
+                    existingPositions.push(newRect);
+                    return position;
+                }
+                
+                attempts++;
+            } while (attempts < 100);
+            
+            const cols = Math.floor(containerWidth / (cardWidth + 30));
+            const index = existingPositions.length;
+            const col = index % cols;
+            const row = Math.floor(index / cols);
+            
+            return {
+                x: margin + col * (cardWidth + 30),
+                y: margin + row * (cardHeight + 30)
+            };
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            const containerRect = container.getBoundingClientRect();
+            const cardWidth = 180;
+            const cardHeight = 60;
+            const existingPositions = [];
+
+            gameCards.forEach((card) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.textContent = card.text;
+                cardElement.id = card.id;
+
+                const position = getRandomNonOverlappingPosition(
+                    containerRect.width, 
+                    containerRect.height, 
+                    cardWidth, 
+                    cardHeight, 
+                    existingPositions
+                );
+
+                cardElement.style.left = position.x + 'px';
+                cardElement.style.top = position.y + 'px';
+
+                cardElement.addEventListener('mousedown', handleMouseDown);
+                cardElement.addEventListener('selectstart', e => e.preventDefault());
+
+                container.appendChild(cardElement);
+            });
+        }
+
+        // Drag and drop handlers
+        function handleMouseDown(e) {
+            if (this.classList.contains('matched') || !gameActive) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isDragging = true;
+            draggedCard = this;
+            
+            const rect = this.getBoundingClientRect();
+            
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            this.classList.add('dragging');
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging || !draggedCard || !gameActive) return;
+            
+            const containerRect = document.getElementById('cardsContainer').getBoundingClientRect();
+            
+            const x = e.clientX - containerRect.left - dragOffset.x;
+            const y = e.clientY - containerRect.top - dragOffset.y;
+            
+            const boundedX = Math.max(0, Math.min(x, containerRect.width - draggedCard.offsetWidth));
+            const boundedY = Math.max(0, Math.min(y, containerRect.height - draggedCard.offsetHeight));
+            
+            draggedCard.style.left = boundedX + 'px';
+            draggedCard.style.top = boundedY + 'px';
+            
+            checkDropTargets();
+        }
+
+        function handleMouseUp(e) {
+            if (!isDragging || !draggedCard || !gameActive) return;
+            
+            isDragging = false;
+            
+            const dropTarget = document.querySelector('.card.drop-target');
+            
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('drop-target');
+            });
+            
+            if (dropTarget && dropTarget !== draggedCard) {
+                checkMatch(draggedCard, dropTarget);
+            }
+            
+            draggedCard.classList.remove('dragging');
+            draggedCard = null;
+            
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function checkDropTargets() {
+            if (!draggedCard) return;
+            
+            const draggedRect = draggedCard.getBoundingClientRect();
+            
+            document.querySelectorAll('.card:not(.dragging):not(.matched)').forEach(card => {
+                const cardRect = card.getBoundingClientRect();
+                
+                if (isCardsOverlapping(draggedRect, cardRect)) {
+                    card.classList.add('drop-target');
+                } else {
+                    card.classList.remove('drop-target');
+                }
+            });
+        }
+
+        function isCardsOverlapping(rect1, rect2) {
+            const threshold = 30;
+            return !(rect1.right - threshold < rect2.left || 
+                    rect2.right - threshold < rect1.left || 
+                    rect1.bottom - threshold < rect2.top || 
+                    rect2.bottom - threshold < rect1.top);
+        }
+
+        function checkMatch(card1Element, card2Element) {
+            const card1 = gameCards.find(c => c.id === card1Element.id);
+            const card2 = gameCards.find(c => c.id === card2Element.id);
+
+            if (card1.pairId === card2.pairId && card1.type !== card2.type) {
+                setTimeout(() => {
+                    card1Element.classList.add('matched');
+                    card2Element.classList.add('matched');
+                }, 200);
+                
+                matchedPairs++;
+
+                const totalPairs = Math.min(12, currentVocabularyPairs.length);
+                if (matchedPairs === totalPairs) {
+                    setTimeout(completeGame, 500);
+                }
+            } else {
+                card1Element.classList.add('incorrect');
+                card2Element.classList.add('incorrect');
+                
+                penalties++;
+                showPenaltyMessage();
+                
+                setTimeout(() => {
+                    card1Element.classList.remove('incorrect');
+                    card2Element.classList.remove('incorrect');
+                }, 1000);
+            }
+        }
+
+        function showPenaltyMessage() {
+            const message = document.getElementById('penaltyMessage');
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 2000);
+        }
+
+        function updateTimer() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            currentTime = elapsed + penalties;
+            document.getElementById('timeDisplay').textContent = currentTime.toFixed(1);
+        }
+
+        function startGame() {
+            if (currentVocabularyPairs.length < 2) return;
+
+            matchedPairs = 0;
+            penalties = 0;
+            currentTime = 0;
+            gameActive = true;
+            
+            const totalPairs = Math.min(12, currentVocabularyPairs.length);
+            document.getElementById('pairsCount').textContent = totalPairs;
+            
+            gameCards = createGameCards();
+            setTimeout(renderCards, 100);
+            
+            startTime = Date.now();
+            gameTimer = setInterval(updateTimer, 100);
+            
+            document.getElementById('gameCompleted').classList.remove('show');
+        }
+
+        function completeGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            const finalTime = currentTime.toFixed(1);
+            document.getElementById('completionTime').textContent = finalTime;
+            document.getElementById('gameCompleted').classList.add('show');
+        }
+
+        // Initialize with computer science vocabulary
+        window.onload = () => {
+            loadDefaultCards();
+        };
+    </script>
+</body>
+</html>
