@@ -428,6 +428,7 @@
             <button class="btn" onclick="checkAnswers()">Check Answers</button>
             <button class="btn reset" onclick="resetCards()">Reset All</button>
             <button class="btn" onclick="showHint()">Show Hint</button>
+            <button class="btn" onclick="shuffleCards()">Shuffle Cards</button>
             <div class="progress">
                 <span id="progress">Cards remaining: <span id="cardCount">23</span></span>
             </div>
@@ -438,7 +439,8 @@
     </div>
 
     <script>
-        const statements = [
+        // Original statements array - now will be shuffled
+        const originalStatements = [
             "Cheaper than custom development",
             "Ready to install immediately",
             "Well-tested and reliable",
@@ -463,6 +465,9 @@
             "Developer dependency for support",
             "Risk of project failure"
         ];
+
+        // This will hold the shuffled statements
+        let statements = [];
 
         const correctAnswers = {
             "ots-advantages": [
@@ -504,6 +509,21 @@
 
         let draggedCard = null;
 
+        // Function to shuffle an array using Fisher-Yates algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array]; // Create a copy
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Initialize with shuffled statements
+        function initializeStatements() {
+            statements = shuffleArray(originalStatements);
+        }
+
         function initializeCards() {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
@@ -525,6 +545,15 @@
             
             updateProgress();
             updateAllCardCounts();
+        }
+
+        function shuffleCards() {
+            // First, return all cards to the statement list
+            resetCards();
+            
+            // Then shuffle and recreate
+            initializeStatements();
+            initializeCards();
         }
 
         function handleCardClick(e) {
@@ -714,7 +743,10 @@
                 "💡 Consider time: Which model is ready immediately vs needs development?",
                 "💡 Customisation: Which models allow modification and to what degree?",
                 "💡 Support: Which models offer different types of support?",
-                "💡 Look at the card limits - they show how many cards belong in each section!"
+                "💡 Look at the card limits - they show how many cards belong in each section!",
+                "💡 Off-the-shelf software is like buying clothes from a store - quick and cheap but may not fit perfectly.",
+                "💡 Custom off-the-shelf is like getting store clothes tailored - faster than making new but costs more.",
+                "💡 Bespoke is like having clothes made from scratch - perfect fit but expensive and time-consuming."
             ];
             
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
@@ -723,6 +755,7 @@
 
         // Initialize the activity
         document.addEventListener('DOMContentLoaded', function() {
+            initializeStatements(); // Shuffle the statements first
             initializeCards();
             setupDropZones();
         });
