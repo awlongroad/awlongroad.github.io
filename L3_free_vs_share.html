@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareware vs Freeware Sort</title>
+    <style>
+        /* ============================================
+           DYSLEXIA-FRIENDLY ACCESSIBILITY FEATURES
+           ============================================ */
+
+        body {
+            font-family: 'Arial', sans-serif; /* Sans-serif font for maximum legibility */
+            margin: 0;
+            padding: 20px;
+            background: #f5f5dc; /* Soft beige background instead of harsh white */
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fafafa; /* Soft off-white background */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #2c3e50; /* Dark blue-grey text for high contrast */
+            line-height: 1.3;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #2c3e50; /* Dark text for better readability */
+            line-height: 1.5;
+        }
+
+        .unsorted-items {
+            margin-bottom: 30px;
+        }
+
+        .unsorted-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            padding: 20px;
+            border: 3px solid #2c3e50; /* Dark border for definition */
+            border-radius: 12px;
+            color: #2c3e50; /* Dark text on light background */
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            user-select: none;
+            background: #e8e8e8; /* Light grey background */
+            line-height: 1.4; /* Good line spacing for readability */
+        }
+
+        .item-card:hover:not(.placed) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: #d0d0d0;
+        }
+
+        .item-card.dragging {
+            opacity: 0.8;
+            transform: rotate(1deg) scale(1.02);
+            z-index: 1000;
+        }
+
+        .item-card.placed {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .group {
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 300px;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        /* Dyslexia-friendly pastel colours with good contrast */
+        .group.shareware {
+            background: #fff4e6; /* Very light orange pastel */
+            border-color: #2c3e50;
+        }
+
+        .group.freeware {
+            background: #e6ffe6; /* Very light green pastel */
+            border-color: #2c3e50;
+        }
+
+        .group.drag-over {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .group.shareware.drag-over {
+            background: #ffe5cc; /* Slightly darker orange on drag */
+        }
+
+        .group.freeware.drag-over {
+            background: #ccffcc; /* Slightly darker green on drag */
+        }
+
+        .group-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            color: #fafafa; /* Light text on dark background */
+            background: #2c3e50; /* Dark background for title contrast */
+            line-height: 1.3;
+        }
+
+        .group-description {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            color: #555;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .group-items {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .group-item {
+            padding: 15px 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2c3e50; /* Dark text for readability */
+            background: rgba(255,255,255,0.9);
+            border: 2px solid transparent;
+            line-height: 1.4;
+        }
+
+        .group-item:hover {
+            background: rgba(255,255,255,1);
+            transform: translateX(5px);
+            border-color: #2c3e50;
+        }
+
+        .group-item.correct {
+            background: #e6ffe6; /* Very light green pastel */
+            border-color: #2c3e50;
+            color: #2c3e50;
+        }
+
+        .group-item.incorrect {
+            background: #f0e6ff; /* Very light lavender pastel */
+            border-color: #2c3e50;
+            color: #2c3e50;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .submit-btn, .reset-btn {
+            background: #e8e8e8; /* Light grey background */
+            color: #2c3e50; /* Dark text for readability */
+            border: 2px solid #2c3e50;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 12px;
+        }
+
+        .submit-btn:hover, .reset-btn:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            color: #2c3e50;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(44, 62, 80, 0.9);
+            color: #fafafa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* Mobile responsive accessibility */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.8rem; /* Scaled down but still readable */
+            }
+            
+            .groups-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .items-container {
+                grid-template-columns: 1fr;
+            }
+
+            .item-card {
+                font-size: 0.9rem;
+                padding: 15px;
+            }
+
+            .group-title {
+                font-size: 1.5rem;
+            }
+
+            .submit-btn, .reset-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+                margin: 5px;
+            }
+        }
+
+        /* Focus indicators for keyboard navigation */
+        .item-card:focus,
+        .group-item:focus,
+        .submit-btn:focus,
+        .reset-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.3); /* Soft focus indicator */
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info" id="debugInfo">Debug Info</div>
+    
+    <div class="game-container">
+        <h1 class="title">Shareware vs Freeware Sort</h1>
+        <p class="subtitle">Topic 1.3.2: Software Distribution Models</p>
+        <p class="instructions">Drag each software example below into the correct category: Shareware or Freeware</p>
+        
+        <div class="unsorted-items">
+            <h3 class="unsorted-title">Software Examples to Sort</h3>
+            <div class="items-container" id="itemsContainer">
+                <div class="item-card" data-item="WinRAR" data-correct-group="shareware" tabindex="0">WinRAR</div>
+                <div class="item-card" data-item="VLC Media Player" data-correct-group="freeware" tabindex="0">VLC Media Player</div>
+                <div class="item-card" data-item="WinZip" data-correct-group="shareware" tabindex="0">WinZip</div>
+                <div class="item-card" data-item="Google Chrome" data-correct-group="freeware" tabindex="0">Google Chrome</div>
+                <div class="item-card" data-item="Minecraft Java Edition Trial" data-correct-group="shareware" tabindex="0">Minecraft Java Edition Trial</div>
+                <div class="item-card" data-item="Audacity" data-correct-group="freeware" tabindex="0">Audacity</div>
+                <div class="item-card" data-item="Malwarebytes Premium Trial" data-correct-group="shareware" tabindex="0">Malwarebytes Premium Trial</div>
+                <div class="item-card" data-item="Paint.NET" data-correct-group="freeware" tabindex="0">Paint.NET</div>
+                <div class="item-card" data-item="Spotify Free (with adverts)" data-correct-group="shareware" tabindex="0">Spotify Free (with adverts)</div>
+                <div class="item-card" data-item="Mozilla Firefox" data-correct-group="freeware" tabindex="0">Mozilla Firefox</div>
+                <div class="item-card" data-item="Adobe Acrobat Reader Trial" data-correct-group="shareware" tabindex="0">Adobe Acrobat Reader Trial</div>
+                <div class="item-card" data-item="OBS Studio" data-correct-group="freeware" tabindex="0">OBS Studio</div>
+            </div>
+        </div>
+
+        <div class="groups-container">
+            <div class="group shareware" data-group="shareware">
+                <div class="group-title">Shareware</div>
+                <div class="group-description">Trial version • Limited time/features • "Try before you buy"</div>
+                <div class="group-items" id="sharewareItems">
+                    <!-- Items will be dropped here -->
+                </div>
+            </div>
+            
+            <div class="group freeware" data-group="freeware">
+                <div class="group-title">Freeware</div>
+                <div class="group-description">Completely free • No time limits • Closed-source but free to use</div>
+                <div class="group-items" id="freewareItems">
+                    <!-- Items will be dropped here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="submit-btn" onclick="submitAnswers()" tabindex="0">Check Answers</button>
+            <button class="reset-btn" onclick="resetGame()" tabindex="0">Reset Game</button>
+        </div>
+
+        <div class="score" id="score">Items Sorted: 0/12</div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            sortedItems: {
+                "shareware": [],
+                "freeware": []
+            },
+            currentDraggedItem: null,
+            currentDraggedElement: null,
+            totalItems: 12,
+            hasBeenChecked: false
+        };
+
+        // Debug function
+        function debug(message) {
+            console.log(message);
+            const debugEl = document.getElementById('debugInfo');
+            debugEl.textContent = message;
+            debugEl.style.display = 'block';
+            setTimeout(() => {
+                debugEl.style.display = 'none';
+            }, 2000);
+        }
+
+        // Shuffle items
+        function shuffleItems() {
+            const container = document.getElementById('itemsContainer');
+            const items = Array.from(container.children);
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => container.appendChild(item));
+        }
+
+        // Initialize drag and drop
+        function initializeDragAndDrop() {
+            const itemCards = document.querySelectorAll('.item-card');
+            const groups = document.querySelectorAll('.group');
+
+            // Set up item cards for dragging
+            itemCards.forEach(card => {
+                card.draggable = true;
+
+                card.addEventListener('dragstart', function(e) {
+                    if (this.classList.contains('placed')) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    gameState.currentDraggedItem = this.dataset.item;
+                    gameState.currentDraggedElement = this;
+                    
+                    this.classList.add('dragging');
+                    
+                    e.dataTransfer.setData('text/plain', this.dataset.item);
+                    e.dataTransfer.effectAllowed = 'move';
+                    
+                    debug(`Started dragging: ${this.dataset.item}`);
+                });
+
+                card.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    gameState.currentDraggedItem = null;
+                    gameState.currentDraggedElement = null;
+                });
+
+                // Keyboard accessibility for drag and drop
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const itemText = this.dataset.item;
+                        const currentGroup = getCurrentGroup(itemText);
+                        if (currentGroup === 'shareware') {
+                            removeItemFromGroups(itemText);
+                            addItemToGroup(itemText, 'freeware');
+                        } else if (currentGroup === 'freeware') {
+                            removeItemFromGroups(itemText);
+                        } else {
+                            addItemToGroup(itemText, 'shareware');
+                        }
+                    }
+                });
+            });
+
+            // Set up groups for dropping
+            groups.forEach(group => {
+                group.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                group.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+
+                group.addEventListener('dragleave', function(e) {
+                    if (!this.contains(e.relatedTarget)) {
+                        this.classList.remove('drag-over');
+                    }
+                });
+
+                group.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    const droppedItem = e.dataTransfer.getData('text/plain');
+                    const groupType = this.dataset.group;
+                    
+                    debug(`Dropped ${droppedItem} in ${groupType} group`);
+                    
+                    if (droppedItem && gameState.currentDraggedElement) {
+                        addItemToGroup(droppedItem, groupType);
+                    }
+                });
+            });
+
+            // Set up group items for removal (click to remove)
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('group-item')) {
+                    const itemText = e.target.dataset.item;
+                    removeItemFromGroups(itemText);
+                }
+            });
+        }
+
+        // Helper function to get current group of an item
+        function getCurrentGroup(itemText) {
+            for (let groupType in gameState.sortedItems) {
+                if (gameState.sortedItems[groupType].includes(itemText)) {
+                    return groupType;
+                }
+            }
+            return null;
+        }
+
+        // Add item to group
+        function addItemToGroup(itemText, groupType) {
+            const originalCard = gameState.currentDraggedElement || document.querySelector(`.item-card[data-item="${itemText}"]`);
+            if (!originalCard) return;
+
+            // Remove from any existing group first
+            removeItemFromGroups(itemText);
+
+            // Add to new group
+            const groupContainer = document.getElementById(groupType + 'Items');
+            const groupItem = document.createElement('div');
+            groupItem.className = 'group-item';
+            groupItem.dataset.item = itemText;
+            groupItem.textContent = itemText;
+            groupItem.title = 'Click to remove';
+            groupItem.tabIndex = 0;
+            
+            groupContainer.appendChild(groupItem);
+            gameState.sortedItems[groupType].push(itemText);
+
+            // Mark original card as placed
+            originalCard.classList.add('placed');
+            originalCard.draggable = false;
+
+            updateScore();
+            debug(`Added ${itemText} to ${groupType} group`);
+        }
+
+        // Remove item from groups
+        function removeItemFromGroups(itemText) {
+            // Remove from both groups
+            ['shareware', 'freeware'].forEach(groupType => {
+                const index = gameState.sortedItems[groupType].indexOf(itemText);
+                if (index > -1) {
+                    gameState.sortedItems[groupType].splice(index, 1);
+                    
+                    // Remove from DOM
+                    const groupContainer = document.getElementById(groupType + 'Items');
+                    const groupItem = groupContainer.querySelector(`[data-item="${itemText}"]`);
+                    if (groupItem) {
+                        groupItem.remove();
+                    }
+                }
+            });
+
+            // Restore original card
+            const originalCard = document.querySelector(`.item-card[data-item="${itemText}"]`);
+            if (originalCard) {
+                originalCard.classList.remove('placed');
+                originalCard.draggable = true;
+            }
+
+            // Clear any previous checking results
+            gameState.hasBeenChecked = false;
+            document.querySelectorAll('.group-item').forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+            });
+
+            updateScore();
+            debug(`Removed ${itemText} from all groups`);
+        }
+
+        // Update score display
+        function updateScore() {
+            const totalSorted = gameState.sortedItems["shareware"].length + gameState.sortedItems["freeware"].length;
+            document.getElementById('score').textContent = `Items Sorted: ${totalSorted}/${gameState.totalItems}`;
+        }
+
+        // Submit answers and check correctness
+        function submitAnswers() {
+            let correctCount = 0;
+            gameState.hasBeenChecked = true;
+
+            // Check each group
+            ['shareware', 'freeware'].forEach(groupType => {
+                const groupContainer = document.getElementById(groupType + 'Items');
+                const groupItems = groupContainer.querySelectorAll('.group-item');
+                
+                groupItems.forEach(item => {
+                    const itemText = item.dataset.item;
+                    const originalCard = document.querySelector(`.item-card[data-item="${itemText}"]`);
+                    const correctGroup = originalCard ? originalCard.dataset.correctGroup : null;
+                    
+                    if (correctGroup === groupType) {
+                        item.classList.remove('incorrect');
+                        item.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        item.classList.remove('correct');
+                        item.classList.add('incorrect');
+                    }
+                });
+            });
+
+            const totalSorted = gameState.sortedItems["shareware"].length + gameState.sortedItems["freeware"].length;
+            
+            setTimeout(() => {
+                if (correctCount === gameState.totalItems && totalSorted === gameState.totalItems) {
+                    alert('Brilliant! All software examples correctly categorised!');
+                } else if (totalSorted === gameState.totalItems) {
+                    alert(`Well done! You got ${correctCount}/${gameState.totalItems} software examples in the correct categories.`);
+                } else {
+                    alert(`You've sorted ${totalSorted}/${gameState.totalItems} items. ${correctCount} are in the correct categories.`);
+                }
+            }, 100);
+
+            debug(`Checked answers: ${correctCount}/${gameState.totalItems} correct`);
+        }
+
+        // Reset game
+        function resetGame() {
+            // Clear all groups
+            document.getElementById('sharewareItems').innerHTML = '';
+            document.getElementById('freewareItems').innerHTML = '';
+            
+            // Reset game state
+            gameState.sortedItems = {
+                "shareware": [],
+                "freeware": []
+            };
+            gameState.hasBeenChecked = false;
+            
+            // Restore all item cards
+            document.querySelectorAll('.item-card').forEach(card => {
+                card.classList.remove('placed');
+                card.draggable = true;
+            });
+            
+            // Remove any checking results
+            document.querySelectorAll('.group-item').forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+            });
+            
+            // Shuffle items for variety
+            shuffleItems();
+            updateScore();
+            
+            debug('Game reset with new shuffle');
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            debug('Page loaded, initialising...');
+            initializeDragAndDrop();
+            shuffleItems();
+            updateScore();
+        });
+    </script>
+</body>
+</html>
