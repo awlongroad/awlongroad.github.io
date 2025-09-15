@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Detective Challenge - Unit 3 Cover Lesson</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Verdana, Arial, Calibri, sans-serif;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            color: #2d2d2d;
+            background-color: #fefcf5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2d2d2d;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            margin: 30px 0 18px 0;
+            color: #2d2d2d;
+            border-bottom: 2px solid #a8a8a8;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        h3 {
+            font-size: 1.15em;
+            margin: 22px 0 12px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        h4 {
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #2d2d2d;
+            font-size: 1.05em;
+        }
+
+        .intro-box {
+            background: #f0f0e8;
+            color: #2d2d2d;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #d5d5c8;
+        }
+
+        .intro-box p {
+            color: #2d2d2d;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .task-container {
+            background: #f8f8f0;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .category-card {
+            background: #fefcf5;
+            padding: 18px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            background: #f0f0e8;
+        }
+
+        .category-card.selected {
+            border: 2px solid #7a7a6b;
+            background: #f0f0e8;
+        }
+
+        .category-card span {
+            color: #2d2d2d;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .interface-profile {
+            background: #fefcf5;
+            margin: 20px 0;
+            padding: 22px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+            display: none;
+        }
+
+        .interface-profile.active {
+            display: block;
+        }
+
+        .help-box {
+            background: #f2f5f2;
+            border: 2px solid #c8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .help-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .help-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .help-box ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .help-box li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .connection-box {
+            background: #f8f5f0;
+            border: 2px solid #e8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .connection-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .connection-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .interface-counter {
+            background: #f0f0e8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #d5d5c8;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .btn {
+            background: #7a7a6b;
+            color: #fefcf5;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #6a6a5b;
+        }
+
+        .btn:disabled {
+            background: #a8a8a8;
+            cursor: not-allowed;
+        }
+
+        .question-item {
+            background: #fefcf5;
+            margin: 12px 0;
+            padding: 15px;
+            border-left: 4px solid #7a7a6b;
+            border-radius: 5px;
+        }
+
+        .question-item h5 {
+            color: #2d2d2d;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .question-item p {
+            color: #555;
+            font-size: 0.9em;
+            margin-bottom: 0;
+            font-style: italic;
+        }
+
+        .example-box {
+            background: #f0f5f8;
+            border: 2px solid #c8d5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+        }
+
+        .example-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .example-box p {
+            color: #2d2d2d;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .progress-tracker {
+            background: #f8f8f0;
+            border: 2px solid #d5d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #fefcf5;
+            border-radius: 5px;
+        }
+
+        .progress-item.completed {
+            background: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .progress-item.current {
+            background: #fff5e8;
+            border-left: 4px solid #FF9800;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+
+        .annotated-tasks {
+            background: #fff5f0;
+            border: 2px solid #f0c8c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .annotated-tasks h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .annotated-tasks p {
+            color: #2d2d2d;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .annotated-tasks ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .annotated-tasks li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        strong {
+            font-weight: bold;
+            color: #2d2d2d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="intro-box">
+            <h1>🕵️‍♂️ Interface Detective Challenge</h1>
+            <p>Unit 3 Cover Lesson</p>
+            <p><strong>Your Mission:</strong> Investigate how different apps and websites are designed to work with humans!</p>
+            <p><strong>Total Time:</strong> 60-75 minutes (15 minutes per interface + analysis)</p>
+        </div>
+
+        <div class="connection-box">
+            <h4>🎯 What You're Learning</h4>
+            <p>Today you'll discover the secrets behind good (and bad) interface design by becoming an "Interface Detective". You'll:</p>
+            <p>• Explore User Experience (UX) - how interfaces make you feel and behave</p>
+            <p>• Analyse User Interface (UI) - the buttons, colours, and layout you see</p>
+            <p>• Understand how different apps serve different user needs</p>
+            <p>• Build skills for designing your own interfaces later in Unit 3</p>
+        </div>
+
+        <div class="task-container">
+            <h2>🎮 Step 1: Choose Your Investigation Targets</h2>
+            <p>Select <strong>3 different types</strong> of interfaces from the options below. Choose apps/websites you know well!</p>
+            
+            <div class="category-grid">
+                <div class="category-card" onclick="selectInterface(this, 'Streaming')">
+                    <span>📺 Streaming<br><small>Netflix, Disney+, YouTube</small></span>
+                </div>
+                <div class="category-card" onclick="selectInterface(this, 'Social Media')">
+                    <span>📱 Social Media<br><small>Instagram, TikTok, Discord</small></span>
+                </div>
+                <div class="category-card" onclick="selectInterface(this, 'Shopping')">
+                    <span>🛒 Shopping<br><small>Amazon, ASOS, eBay</small></span>
+                </div>
+                <div class="category-card" onclick="selectInterface(this, 'Gaming')">
+                    <span>🎯 Gaming<br><small>Steam, Roblox, Epic Games</small></span>
+                </div>
+                <div class="category-card" onclick="selectInterface(this, 'Food Delivery')">
+                    <span>🍕 Food Delivery<br><small>Just Eat, Deliveroo, McDonald's</small></span>
+                </div>
+                <div class="category-card" onclick="selectInterface(this, 'Education')">
+                    <span>📚 Education<br><small>Google Classroom, Teams, Khan Academy</small></span>
+                </div>
+            </div>
+
+            <div class="interface-counter">
+                <p><strong>Selected Interfaces:</strong> <span id="selectedCount">0</span>/3</p>
+                <p id="selectedList">No interfaces selected yet</p>
+            </div>
+
+            <button class="btn" onclick="startInvestigation()" id="startBtn" disabled>🔍 Start Investigation</button>
+        </div>
+
+        <div class="task-container" id="investigationSection" style="display: none;">
+            <h2>🔍 Step 2: The Detective Work</h2>
+            <p>Spend <strong>15 minutes per interface</strong> investigating and documenting your findings.</p>
+
+            <div class="progress-tracker">
+                <h4>📋 Investigation Progress</h4>
+                <div id="progressList">
+                    <!-- Progress items will be generated here -->
+                </div>
+            </div>
+
+            <div id="currentInvestigation">
+                <!-- Current investigation questions will appear here -->
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn" onclick="previousInterface()" id="prevBtn" disabled>← Previous Interface</button>
+                <button class="btn" onclick="nextInterface()" id="nextBtn">Next Interface →</button>
+            </div>
+        </div>
+
+        <div class="task-container" id="analysisSection" style="display: none;">
+            <h2>📊 Step 3: Detective Analysis</h2>
+            <p>Now compare your findings and draw conclusions!</p>
+
+            <div class="question-item">
+                <h5>🏆 Best Interface Award</h5>
+                <p>Which interface was easiest to use and why? Give specific examples.</p>
+            </div>
+
+            <div class="question-item">
+                <h5>🎪 Most Engaging Interface</h5>
+                <p>Which interface was most fun/engaging and why? What design choices made it engaging?</p>
+            </div>
+
+            <div class="question-item">
+                <h5>🔄 Common Design Patterns</h5>
+                <p>What design similarities did you notice across all three interfaces? (colours, button styles, layouts)</p>
+            </div>
+
+            <div class="question-item">
+                <h5>🎯 Target Audience Success</h5>
+                <p>Which interface best served its intended users? How could you tell?</p>
+            </div>
+
+            <div class="question-item">
+                <h5>📝 Your Design Rules</h5>
+                <p>Based on your investigation, write 5 rules you would follow if designing an interface for teenagers.</p>
+            </div>
+        </div>
+
+        <div class="annotated-tasks">
+            <h4>📝 Annotated Tasks</h4>
+            <p>Complete these additional tasks to demonstrate your understanding:</p>
+            <ul>
+                <li><strong>Screenshot Collection:</strong> Take screenshots of key interface elements you're discussing and annotate them with explanations of good/bad design choices</li>
+                <li><strong>User Journey Mapping:</strong> Create a simple flowchart showing the steps a user takes to complete a main task on each interface</li>
+                <li><strong>Accessibility Audit:</strong> For one interface, create a checklist evaluating how accessible it is (text size, colour contrast, keyboard navigation)</li>
+                <li><strong>Redesign Proposal:</strong> Choose the worst interface element you found and sketch/describe how you would improve it</li>
+                <li><strong>Target User Analysis:</strong> Write a brief description of who you think each interface is designed for and whether it succeeds</li>
+            </ul>
+        </div>
+
+        <div class="help-box">
+            <h4>🔍 Detective Investigation Questions</h4>
+            <p>For each interface, investigate these areas:</p>
+            <ul>
+                <li><strong>Basic Info:</strong> What is it? Who uses it? What's its purpose?</li>
+                <li><strong>First Impressions:</strong> What do you notice first? How does it make you feel?</li>
+                <li><strong>Ease of Use:</strong> Can you figure it out without help? Rate it 1-10.</li>
+                <li><strong>Visual Design:</strong> Colours, text size, button clarity, layout logic</li>
+                <li><strong>Accessibility:</strong> Could someone with vision problems use it easily?</li>
+                <li><strong>Good vs Bad:</strong> What works well? What's confusing or annoying?</li>
+                <li><strong>Improvements:</strong> What would you change as the designer?</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h4>🎯 Detective Example</h4>
+            <p><strong>Interface:</strong> Netflix</p>
+            <p><strong>Key Observation:</strong> "Uses dark background to make colourful film posters stand out. Large 'Play' button is obvious. Auto-playing previews grab attention but can be annoying. Easy to find 'My List' but search could be more prominent."</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f8f8f0; border-radius: 10px; border: 2px solid #d5d5c8;">
+            <h3>🎓 Learning Objectives</h3>
+            <p>By the end of this lesson, you'll be able to:</p>
+            <p>✅ Identify different types of user interfaces and their purposes</p>
+            <p>✅ Explain what makes an interface user-friendly or confusing</p>
+            <p>✅ Analyse how design choices affect user experience</p>
+            <p>✅ Suggest improvements to existing interfaces</p>
+            <p>✅ Consider different user needs and accessibility requirements</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedInterfaces = [];
+        let currentInterfaceIndex = 0;
+
+        const interfaceQuestions = {
+            'Streaming': {
+                emoji: '📺',
+                name: 'Streaming Platform',
+                questions: [
+                    'What streaming service are you investigating?',
+                    'How does it help you discover new content?',
+                    'What happens when you hover over or click on content?',
+                    'How easy is it to find your saved content or continue watching?',
+                    'What colours and layout choices grab your attention?',
+                    'How clear are the playback controls during viewing?',
+                    'What would you improve about the user experience?'
+                ]
+            },
+            'Social Media': {
+                emoji: '📱',
+                name: 'Social Media Platform',
+                questions: [
+                    'Which social media platform are you investigating?',
+                    'How does the main feed draw your attention?',
+                    'How easy is it to create and share content?',
+                    'What notification systems does it use?',
+                    'How does it handle privacy and user safety?',
+                    'What keeps you engaged and scrolling?',
+                    'What frustrates you about the interface?'
+                ]
+            },
+            'Shopping': {
+                emoji: '🛒',
+                name: 'Shopping Platform',
+                questions: [
+                    'What shopping site/app are you investigating?',
+                    'How easy is it to search for specific products?',
+                    'How does it display product information and reviews?',
+                    'What happens when you add items to your basket?',
+                    'How trustworthy does the checkout process feel?',
+                    'What features help you compare products?',
+                    'What would make the shopping experience better?'
+                ]
+            },
+            'Gaming': {
+                emoji: '🎯',
+                name: 'Gaming Platform',
+                questions: [
+                    'Which gaming platform/game are you investigating?',
+                    'How does the main interface organise games and content?',
+                    'How clear are the game installation and launch processes?',
+                    'What social features are available for connecting with friends?',
+                    'How does it handle in-game purchases or monetisation?',
+                    'What accessibility options are available?',
+                    'What interface elements enhance or distract from gaming?'
+                ]
+            },
+            'Food Delivery': {
+                emoji: '🍕',
+                name: 'Food Delivery Service',
+                questions: [
+                    'Which food delivery service are you investigating?',
+                    'How does it help you find restaurants and food options?',
+                    'How clear is the ordering and customisation process?',
+                    'How does it display delivery time and cost information?',
+                    'What features help you track your order?',
+                    'How does it handle payment and tip options?',
+                    'What would improve the food ordering experience?'
+                ]
+            },
+            'Education': {
+                emoji: '📚',
+                name: 'Educational Platform',
+                questions: [
+                    'Which educational platform are you investigating?',
+                    'How does it organise courses, lessons, or assignments?',
+                    'How clear is the navigation between different sections?',
+                    'What feedback systems help you track your progress?',
+                    'How does it handle submission of work or assessments?',
+                    'What features support different learning styles?',
+                    'What would make it more engaging for students?'
+                ]
+            }
+        };
+
+        function selectInterface(card, interfaceType) {
+            if (selectedInterfaces.includes(interfaceType)) {
+                // Deselect
+                selectedInterfaces = selectedInterfaces.filter(i => i !== interfaceType);
+                card.classList.remove('selected');
+            } else if (selectedInterfaces.length < 3) {
+                // Select
+                selectedInterfaces.push(interfaceType);
+                card.classList.add('selected');
+            } else {
+                alert('You can only select 3 interfaces. Please deselect one first.');
+                return;
+            }
+
+            updateSelectedDisplay();
+        }
+
+        function updateSelectedDisplay() {
+            const countSpan = document.getElementById('selectedCount');
+            const listSpan = document.getElementById('selectedList');
+            const startBtn = document.getElementById('startBtn');
+
+            countSpan.textContent = selectedInterfaces.length;
+            
+            if (selectedInterfaces.length === 0) {
+                listSpan.textContent = 'No interfaces selected yet';
+                startBtn.disabled = true;
+            } else {
+                listSpan.textContent = selectedInterfaces.join(', ');
+                startBtn.disabled = selectedInterfaces.length !== 3;
+            }
+
+            // Update counter styling
+            const counterDiv = document.querySelector('.interface-counter');
+            if (selectedInterfaces.length === 3) {
+                counterDiv.style.background = '#e8f5e8';
+                counterDiv.style.border = '2px solid #c8e8c8';
+            } else {
+                counterDiv.style.background = '#f0f0e8';
+                counterDiv.style.border = '2px solid #d5d5c8';
+            }
+        }
+
+        function startInvestigation() {
+            if (selectedInterfaces.length !== 3) return;
+
+            document.getElementById('investigationSection').style.display = 'block';
+            generateProgressTracker();
+            showCurrentInvestigation();
+        }
+
+        function generateProgressTracker() {
+            const progressList = document.getElementById('progressList');
+            progressList.innerHTML = '';
+
+            selectedInterfaces.forEach((interfaceType, index) => {
+                const interfaceData = interfaceQuestions[interfaceType];
+                const progressItem = document.createElement('div');
+                progressItem.className = `progress-item ${index === 0 ? 'current' : ''}`;
+                progressItem.id = `progress-${index}`;
+                progressItem.innerHTML = `
+                    <span class="emoji">${interfaceData.emoji}</span>
+                    <span><strong>${interfaceData.name}</strong> - ${interfaceType}</span>
+                `;
+                progressList.appendChild(progressItem);
+            });
+        }
+
+        function showCurrentInvestigation() {
+            if (currentInterfaceIndex >= selectedInterfaces.length) {
+                showAnalysisSection();
+                return;
+            }
+
+            const interfaceType = selectedInterfaces[currentInterfaceIndex];
+            const interfaceData = interfaceQuestions[interfaceType];
+            const currentDiv = document.getElementById('currentInvestigation');
+
+            let questionsHtml = '';
+            interfaceData.questions.forEach(question => {
+                questionsHtml += `
+                    <div class="question-item">
+                        <h5>${question}</h5>
+                        <p>Take notes about your observations...</p>
+                    </div>
+                `;
+            });
+
+            currentDiv.innerHTML = `
+                <h3>${interfaceData.emoji} Investigating: ${interfaceData.name}</h3>
+                <p>Current Interface: <strong>${interfaceType}</strong> (${currentInterfaceIndex + 1} of 3)</p>
+                <div class="help-box">
+                    <h4>🎯 Focus on these Unit 3 concepts:</h4>
+                    <p>Think about interface type, target platform, user types, UX/UI principles, and accessibility as you investigate.</p>
+                </div>
+                ${questionsHtml}
+            `;
+
+            // Update button states
+            updateNavigationButtons();
+        }
+
+        function nextInterface() {
+            // Mark current as completed
+            const currentProgress = document.getElementById(`progress-${currentInterfaceIndex}`);
+            currentProgress.className = 'progress-item completed';
+
+            currentInterfaceIndex++;
+
+            if (currentInterfaceIndex < selectedInterfaces.length) {
+                // Show next interface
+                const nextProgress = document.getElementById(`progress-${currentInterfaceIndex}`);
+                nextProgress.className = 'progress-item current';
+                
+                showCurrentInvestigation();
+            } else {
+                // All interfaces completed
+                showAnalysisSection();
+            }
+        }
+
+        function previousInterface() {
+            if (currentInterfaceIndex > 0) {
+                // Mark current as not current
+                const currentProgress = document.getElementById(`progress-${currentInterfaceIndex}`);
+                currentProgress.className = 'progress-item completed';
+
+                currentInterfaceIndex--;
+
+                // Show previous interface as current
+                const prevProgress = document.getElementById(`progress-${currentInterfaceIndex}`);
+                prevProgress.className = 'progress-item current';
+                
+                showCurrentInvestigation();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Previous button: disabled on first interface
+            prevBtn.disabled = currentInterfaceIndex === 0;
+
+            // Next button: change text on last interface
+            if (currentInterfaceIndex === selectedInterfaces.length - 1) {
+                nextBtn.textContent = 'Start Analysis →';
+            } else {
+                nextBtn.textContent = 'Next Interface →';
+            }
+        }
+
+        function showAnalysisSection() {
+            document.getElementById('investigationSection').style.display = 'none';
+            document.getElementById('analysisSection').style.display = 'block';
+            
+            // Scroll to analysis section
+            document.getElementById('analysisSection').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Initialize
+        updateSelectedDisplay();
+    </script>
+</body>
+</html>
