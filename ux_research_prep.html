@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Research Task - UX/UI Analysis Preparation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Verdana, Arial, Calibri, sans-serif;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            color: #2d2d2d;
+            background-color: #fefcf5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2d2d2d;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            margin: 30px 0 18px 0;
+            color: #2d2d2d;
+            border-bottom: 2px solid #a8a8a8;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        h3 {
+            font-size: 1.15em;
+            margin: 22px 0 12px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        h4 {
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #2d2d2d;
+            font-size: 1.05em;
+        }
+
+        .intro-box {
+            background: #f0f0e8;
+            color: #2d2d2d;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #d5d5c8;
+        }
+
+        .intro-box p {
+            color: #2d2d2d;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .task-container {
+            background: #f8f8f0;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .category-card {
+            background: #fefcf5;
+            padding: 18px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            background: #f0f0e8;
+        }
+
+        .category-card.selected {
+            border: 2px solid #7a7a6b;
+            background: #f0f0e8;
+        }
+
+        .category-card span {
+            color: #2d2d2d;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .app-profile {
+            background: #fefcf5;
+            margin: 20px 0;
+            padding: 22px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+            display: none;
+        }
+
+        .app-profile.active {
+            display: block;
+        }
+
+        .help-box {
+            background: #f2f5f2;
+            border: 2px solid #c8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .help-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .help-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .help-box ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .help-box li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .connection-box {
+            background: #f8f5f0;
+            border: 2px solid #e8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .connection-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .connection-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .app-counter {
+            background: #f0f0e8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #d5d5c8;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .btn {
+            background: #7a7a6b;
+            color: #fefcf5;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #6a6a5b;
+        }
+
+        .btn:disabled {
+            background: #a8a8a8;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        strong {
+            font-weight: bold;
+            color: #2d2d2d;
+        }
+
+        .example-box {
+            background: #f0f5f8;
+            border: 2px solid #c8d5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+        }
+
+        .example-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .example-box p {
+            color: #2d2d2d;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .question-item {
+            background: #fefcf5;
+            margin: 12px 0;
+            padding: 15px;
+            border-left: 4px solid #7a7a6b;
+            border-radius: 5px;
+        }
+
+        .question-item h5 {
+            color: #2d2d2d;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .question-item p {
+            color: #555;
+            font-size: 0.9em;
+            margin-bottom: 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="intro-box">
+            <h1>Application Research Task</h1>
+            <p>Preparation for UX/UI Analysis</p>
+            <p><strong>Time Required:</strong> 30 minutes total (10 minutes per application)</p>
+            <p><strong>Purpose:</strong> To build detailed application profiles for tomorrow's UX/UI analysis lesson</p>
+        </div>
+
+        <div class="connection-box">
+            <h4>What You'll Need This For</h4>
+            <p>Tomorrow we'll be analysing user experience (UX) and user interface (UI) design. Your research today will help you:</p>
+            <p>• Understand how different application types serve different user needs</p>
+            <p>• Identify design patterns and interface elements</p>
+            <p>• Evaluate what makes applications easy or difficult to use</p>
+            <p>• Connect theory to real applications you know well</p>
+        </div>
+
+        <div class="task-container">
+            <h2>Step 1: Choose Your Application Categories</h2>
+            <p>Select <strong>3 different categories</strong> from the options below. Choose applications you use frequently as you'll need to analyse them based on your personal experience.</p>
+            
+            <div class="category-grid">
+                <div class="category-card" onclick="selectCategory(this, 'Communication')">
+                    <span>Communication</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Educational')">
+                    <span>Educational</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Entertainment')">
+                    <span>Entertainment</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Games')">
+                    <span>Games</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Lifestyle')">
+                    <span>Lifestyle</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Productivity')">
+                    <span>Productivity</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Protection and Utility')">
+                    <span>Protection and Utility</span>
+                </div>
+                <div class="category-card" onclick="selectCategory(this, 'Web Browsers')">
+                    <span>Web Browsers</span>
+                </div>
+            </div>
+
+            <div class="app-counter">
+                <p><strong>Selected Categories:</strong> <span id="selectedCount">0</span>/3</p>
+                <p id="selectedList">No categories selected yet</p>
+            </div>
+
+            <div class="help-box">
+                <h4>Examples by Category</h4>
+                <ul>
+                    <li><strong>Communication:</strong> WhatsApp, Discord, Microsoft Teams, Slack</li>
+                    <li><strong>Educational:</strong> Duolingo, Khan Academy, Google Classroom, Quizlet</li>
+                    <li><strong>Entertainment:</strong> Netflix, Spotify, YouTube, BBC iPlayer</li>
+                    <li><strong>Games:</strong> Minecraft, FIFA, Among Us, Candy Crush</li>
+                    <li><strong>Lifestyle:</strong> Instagram, Strava, MyFitnessPal, Headspace</li>
+                    <li><strong>Productivity:</strong> Microsoft Word, Google Docs, Notion, Trello</li>
+                    <li><strong>Protection and Utility:</strong> Antivirus software, file managers, system cleaners</li>
+                    <li><strong>Web Browsers:</strong> Chrome, Safari, Firefox, Edge</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="task-container">
+            <h2>Step 2: Research Questions for Your Analysis</h2>
+            <p>For each of your 3 chosen categories, you'll need to answer these specific research questions. This will take approximately 10 minutes per application.</p>
+
+            <div id="app-profiles-container">
+                <!-- Application profiles will be generated here -->
+            </div>
+
+            <button class="btn" onclick="generateProfiles()" id="generateBtn" disabled>Generate Research Questions</button>
+        </div>
+
+        <div class="help-box">
+            <h4>Research Tips</h4>
+            <ul>
+                <li>Choose applications you genuinely use - your experience is valuable data</li>
+                <li>Be specific in your observations rather than giving general statements</li>
+                <li>Think about recent updates or changes you've noticed</li>
+                <li>Consider both what works well and what frustrates you</li>
+                <li>Take screenshots if helpful to refer to during tomorrow's lesson</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h4>Example: Communication App Analysis</h4>
+            <p><strong>Application:</strong> WhatsApp</p>
+            <p><strong>Key Observation:</strong> Simple interface with green colour scheme, large buttons for calls, and easy access to camera for quick photo sharing. The status feature competes with Instagram stories but feels integrated naturally.</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f8f8f0; border-radius: 10px; border: 2px solid #d5d5c8;">
+            <h3>Need Help?</h3>
+            <p>Ask your teacher if you're unsure about anything - this research is crucial for your next lesson!</p>
+            <p>Remember to make notes about your observations as you'll need them for the UX/UI analysis activities.</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedCategories = [];
+        let profilesGenerated = false;
+
+        const categoryQuestions = {
+            'Communication': [
+                {
+                    title: 'Primary Communication Features',
+                    detail: 'What are the main ways people communicate through this app? (messaging, voice, video, group features)'
+                },
+                {
+                    title: 'Notification System',
+                    detail: 'How does the app notify users of new messages or activity? Is it effective or overwhelming?'
+                },
+                {
+                    title: 'Contact Management',
+                    detail: 'How easy is it to find, add, or organise contacts? What privacy controls exist?'
+                },
+                {
+                    title: 'Media Sharing Experience',
+                    detail: 'How straightforward is it to share photos, videos, or files? What limitations exist?'
+                },
+                {
+                    title: 'Group vs Individual Communication',
+                    detail: 'How does the interface differ between one-to-one and group conversations?'
+                },
+                {
+                    title: 'Cross-Platform Consistency',
+                    detail: 'If you use it on multiple devices, how consistent is the experience?'
+                }
+            ],
+            'Educational': [
+                {
+                    title: 'Learning Structure and Progression',
+                    detail: 'How does the app organise learning content? Is there a clear path or progression system?'
+                },
+                {
+                    title: 'Assessment and Feedback',
+                    detail: 'How does the app test knowledge or provide feedback on learning progress?'
+                },
+                {
+                    title: 'Motivation and Engagement Features',
+                    detail: 'What features keep learners engaged? (streaks, badges, leaderboards, rewards)'
+                },
+                {
+                    title: 'Content Accessibility',
+                    detail: 'How easy is it to find specific topics or revisit previous lessons?'
+                },
+                {
+                    title: 'Personalisation of Learning',
+                    detail: 'Does the app adapt to different learning styles or skill levels? How?'
+                },
+                {
+                    title: 'Offline vs Online Functionality',
+                    detail: 'What can you do without an internet connection? How does this affect the learning experience?'
+                }
+            ],
+            'Entertainment': [
+                {
+                    title: 'Content Discovery and Recommendations',
+                    detail: 'How does the app help you find new content? How accurate are its suggestions?'
+                },
+                {
+                    title: 'Viewing/Listening Experience',
+                    detail: 'What controls are available during playback? How intuitive are the media controls?'
+                },
+                {
+                    title: 'Content Organisation and Search',
+                    detail: 'How easy is it to find specific content or organise your favourites/playlists?'
+                },
+                {
+                    title: 'Social and Sharing Features',
+                    detail: 'Can you share content or see what others are watching/listening to? How prominent are these features?'
+                },
+                {
+                    title: 'Subscription and Payment Integration',
+                    detail: 'How does the app handle premium features or subscription management?'
+                },
+                {
+                    title: 'Download and Offline Features',
+                    detail: 'What offline capabilities exist? How easy is it to manage downloaded content?'
+                }
+            ],
+            'Games': [
+                {
+                    title: 'User Interface During Gameplay',
+                    detail: 'How does the game display important information without cluttering the screen?'
+                },
+                {
+                    title: 'Learning Curve and Tutorials',
+                    detail: 'How does the game teach new players? Are instructions clear and well-paced?'
+                },
+                {
+                    title: 'Social and Multiplayer Features',
+                    detail: 'How does the game handle interaction with other players? What community features exist?'
+                },
+                {
+                    title: 'Progression and Achievement Systems',
+                    detail: 'How does the game show player progress? What motivates continued play?'
+                },
+                {
+                    title: 'In-Game Purchase Integration',
+                    detail: 'How are monetisation features presented? Do they feel intrusive or natural?'
+                },
+                {
+                    title: 'Performance and Accessibility',
+                    detail: 'How does the game perform on different devices? Are there accessibility options?'
+                }
+            ],
+            'Lifestyle': [
+                {
+                    title: 'Personal Data Input and Tracking',
+                    detail: 'How easy is it to input personal information or track activities? What data does it collect?'
+                },
+                {
+                    title: 'Goal Setting and Progress Monitoring',
+                    detail: 'How does the app help users set and track personal goals or habits?'
+                },
+                {
+                    title: 'Social Features and Community',
+                    detail: 'Are there social elements? How does the app balance privacy with social interaction?'
+                },
+                {
+                    title: 'Personalisation and Customisation',
+                    detail: 'How much can users customise their experience? What personalisation options exist?'
+                },
+                {
+                    title: 'Reminder and Notification System',
+                    detail: 'How does the app encourage regular use? Are notifications helpful or annoying?'
+                },
+                {
+                    title: 'Data Export and Privacy Controls',
+                    detail: 'How much control do users have over their personal data? Can data be exported or deleted?'
+                }
+            ],
+            'Productivity': [
+                {
+                    title: 'Document Creation and Editing Tools',
+                    detail: 'What tools are available for creating content? How intuitive is the editing experience?'
+                },
+                {
+                    title: 'File Management and Organisation',
+                    detail: 'How does the app handle file storage, organisation, and retrieval?'
+                },
+                {
+                    title: 'Collaboration Features',
+                    detail: 'How do multiple users work together? What collaboration tools are provided?'
+                },
+                {
+                    title: 'Template and Automation Features',
+                    detail: 'Are there templates or automated features to speed up common tasks?'
+                },
+                {
+                    title: 'Integration with Other Tools',
+                    detail: 'How well does the app work with other productivity tools or platforms?'
+                },
+                {
+                    title: 'Offline Functionality and Sync',
+                    detail: 'What works without internet? How does the app handle syncing across devices?'
+                }
+            ],
+            'Protection and Utility': [
+                {
+                    title: 'Security Features and Scanning',
+                    detail: 'What protection features are available? How does the app communicate security status?'
+                },
+                {
+                    title: 'System Performance Impact',
+                    detail: 'How does the app affect device performance? Is this impact clearly communicated?'
+                },
+                {
+                    title: 'Alert and Notification System',
+                    detail: 'How does the app warn users about threats? Are alerts clear and actionable?'
+                },
+                {
+                    title: 'Settings and Customisation',
+                    detail: 'How much control do users have over the app\'s behaviour? Are settings easy to understand?'
+                },
+                {
+                    title: 'Automatic vs Manual Operations',
+                    detail: 'What happens automatically vs requiring user intervention? Is this balance appropriate?'
+                },
+                {
+                    title: 'Help and Support Features',
+                    detail: 'How easy is it to get help or understand what the app is doing? What educational resources exist?'
+                }
+            ],
+            'Web Browsers': [
+                {
+                    title: 'Tab Management and Navigation',
+                    detail: 'How does the browser handle multiple tabs? What navigation aids are provided?'
+                },
+                {
+                    title: 'Address Bar and Search Integration',
+                    detail: 'How does the address bar work? How well integrated is web search?'
+                },
+                {
+                    title: 'Bookmark and History Management',
+                    detail: 'How easy is it to save and organise bookmarks? How accessible is browsing history?'
+                },
+                {
+                    title: 'Privacy and Security Features',
+                    detail: 'What privacy controls are available? How are security warnings presented?'
+                },
+                {
+                    title: 'Extension and Customisation Support',
+                    detail: 'Can users add extensions or customise the browser? How is this managed?'
+                },
+                {
+                    title: 'Performance and Resource Management',
+                    detail: 'How does the browser handle resource-heavy websites? What performance indicators exist?'
+                }
+            ]
+        };
+
+        function selectCategory(card, category) {
+            if (selectedCategories.includes(category)) {
+                // Deselect
+                selectedCategories = selectedCategories.filter(c => c !== category);
+                card.classList.remove('selected');
+            } else if (selectedCategories.length < 3) {
+                // Select
+                selectedCategories.push(category);
+                card.classList.add('selected');
+            } else {
+                alert('You can only select 3 categories. Please deselect one first.');
+                return;
+            }
+
+            updateSelectedDisplay();
+        }
+
+        function updateSelectedDisplay() {
+            const countSpan = document.getElementById('selectedCount');
+            const listSpan = document.getElementById('selectedList');
+            const generateBtn = document.getElementById('generateBtn');
+
+            countSpan.textContent = selectedCategories.length;
+            
+            if (selectedCategories.length === 0) {
+                listSpan.textContent = 'No categories selected yet';
+                generateBtn.disabled = true;
+            } else {
+                listSpan.textContent = selectedCategories.join(', ');
+                generateBtn.disabled = selectedCategories.length !== 3;
+            }
+
+            // Update counter styling based on completion
+            const counterDiv = document.querySelector('.app-counter');
+            if (selectedCategories.length === 3) {
+                counterDiv.style.background = '#e8f5e8';
+                counterDiv.style.border = '2px solid #c8e8c8';
+            } else {
+                counterDiv.style.background = '#f0f0e8';
+                counterDiv.style.border = '2px solid #d5d5c8';
+            }
+        }
+
+        function generateProfiles() {
+            if (selectedCategories.length !== 3) return;
+
+            const container = document.getElementById('app-profiles-container');
+            container.innerHTML = '';
+
+            selectedCategories.forEach((category, index) => {
+                const questions = categoryQuestions[category];
+                let questionsHtml = '';
+                
+                questions.forEach(question => {
+                    questionsHtml += `
+                        <div class="question-item">
+                            <h5>${question.title}</h5>
+                            <p>${question.detail}</p>
+                        </div>
+                    `;
+                });
+
+                const profileDiv = document.createElement('div');
+                profileDiv.className = 'app-profile active';
+                profileDiv.innerHTML = `
+                    <h3>Category ${index + 1}: ${category}</h3>
+                    <p><strong>Instructions:</strong> Choose a specific ${category.toLowerCase()} application you use regularly and consider these research questions. Make notes about your observations - you'll need them for tomorrow's lesson.</p>
+                    ${questionsHtml}
+                `;
+                container.appendChild(profileDiv);
+            });
+
+            profilesGenerated = true;
+            document.getElementById('generateBtn').style.display = 'none';
+        }
+
+        // Initialize
+        updateSelectedDisplay();
+    </script>
+</body>
+</html>
