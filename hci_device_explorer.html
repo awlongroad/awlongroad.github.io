@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCI Device Explorer - Human-Computer Interaction Activity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Verdana, Arial, Calibri, sans-serif;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            color: #2d2d2d;
+            background-color: #fefcf5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2d2d2d;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            margin: 30px 0 18px 0;
+            color: #2d2d2d;
+            border-bottom: 2px solid #a8a8a8;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        h3 {
+            font-size: 1.15em;
+            margin: 22px 0 12px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        h4 {
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            color: #2d2d2d;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #2d2d2d;
+            font-size: 1.05em;
+        }
+
+        .intro-box {
+            background: #f0f0e8;
+            color: #2d2d2d;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #d5d5c8;
+        }
+
+        .intro-box p {
+            color: #2d2d2d;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .mission-box {
+            background: #f8f5f0;
+            border: 2px solid #e8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .mission-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .mission-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .mission-box ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .mission-box li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .activity-container {
+            background: #f8f8f0;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+        }
+
+        /* Fixed task section styles */
+        .task-section {
+            background: #f8f8f0;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid #d5d5c8;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .task-header {
+            background: #e8e8d8;
+            padding: 20px 25px;
+            cursor: pointer;
+            border-bottom: 2px solid #d5d5c8;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .task-header:hover {
+            background: #ddddc8;
+        }
+
+        .task-header h2 {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            color: #666;
+        }
+
+        .task-content {
+            padding: 25px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .task-content.active {
+            display: block;
+        }
+
+        .task-section.expanded .toggle-icon {
+            transform: rotate(90deg);
+            color: #2d2d2d;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .help-box {
+            background: #f2f5f2;
+            border: 2px solid #c8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .help-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .help-box p {
+            color: #2d2d2d;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .help-box ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .help-box li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .example-box {
+            background: #f0f5f8;
+            border: 2px solid #c8d5e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+        }
+
+        .example-box h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .example-box p {
+            color: #2d2d2d;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .timer-box {
+            background: linear-gradient(135deg, #f8f5f0, #f0f0e8);
+            border: 2px solid #e8d5c8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .table-example {
+            background: #fefcf5;
+            border: 2px solid #d5d5c8;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .table-example table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .table-example th,
+        .table-example td {
+            border: 1px solid #d5d5c8;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table-example th {
+            background: #f0f0e8;
+            font-weight: bold;
+            color: #2d2d2d;
+        }
+
+        .table-example td {
+            background: #fefcf5;
+            color: #555;
+            font-style: italic;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .device-card {
+            background: #fefcf5;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #d5d5c8;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .device-card h4 {
+            color: #2d2d2d;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .device-card p {
+            color: #555;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .layout-card {
+            background: #f8f8f0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #d5d5c8;
+            transition: transform 0.2s ease;
+        }
+
+        .layout-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .layout-card h4 {
+            color: #2d2d2d;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .layout-card p {
+            color: #2d2d2d;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .checklist {
+            background: #e8f5e8;
+            border: 2px solid #c8e8c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .checklist h4 {
+            color: #2d2d2d;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .checklist ul {
+            margin-left: 0;
+            list-style: none;
+        }
+
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .extension-box {
+            background: #f8f5f0;
+            border: 2px solid #e8d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .extension-box ul {
+            margin-left: 22px;
+            color: #2d2d2d;
+        }
+
+        .extension-box li {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .submission-box {
+            background: #f0f0e8;
+            border: 2px solid #d5d5c8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .submission-box ul {
+            text-align: left;
+            display: inline-block;
+        }
+
+        strong {
+            font-weight: bold;
+            color: #2d2d2d;
+        }
+
+        pre {
+            font-family: monospace;
+            background: #f8f8f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-header {
+                padding: 15px 20px;
+            }
+
+            .task-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="intro-box">
+            <h1>🧠 HCI Device Explorer</h1>
+            <p><strong>Topics 5.1.1 & 5.1.2</strong> - Human-Computer Interaction & Device Types</p>
+            <p><strong>Cambridge Advanced National in Computing (AAQ) - Unit F160</strong></p>
+        </div>
+
+        <div class="mission-box">
+            <h4>🎯 Activity Overview</h4>
+            <p><strong>Your Mission:</strong> Create a visual map showing how different devices connect to different interaction methods. Discover what you already know and explore some new examples!</p>
+            <p><strong>Tools:</strong> Microsoft Whiteboard (or Word with images) | <strong>Format:</strong> Visual diagram with annotations</p>
+        </div>
+
+        <div class="timer-box">
+            <p><strong>📋 Structure:</strong> Part 1 (Knowledge Brainstorm) → Part 2 (Device Hunt) → Part 3 (Visual Map Creation)</p>
+        </div>
+
+        <!-- Part 1 -->
+        <div class="task-section" id="task1">
+            <div class="task-header">
+                <h2>🧠 Part 1: Your Device Knowledge</h2>
+                <span class="toggle-icon">▶</span>
+            </div>
+            <div class="task-content">
+                <h3>Knowledge Brainstorm</h3>
+                <p><strong>Before researching</strong> - consider what devices you already know for each interaction method:</p>
+                
+                <div class="table-example">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Interaction Method</th>
+                                <th>Devices I Can Think Of</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>🔊 Audio</strong></td>
+                                <td>Voice assistants, smart speakers, phones...</td>
+                            </tr>
+                            <tr>
+                                <td><strong>👆 Touch</strong></td>
+                                <td>Smartphones, tablets, touchscreens...</td>
+                            </tr>
+                            <tr>
+                                <td><strong>👋 Gestures</strong></td>
+                                <td>Gaming consoles, VR headsets...</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🖥️ GUI</strong></td>
+                                <td>Computers, laptops, phones...</td>
+                            </tr>
+                            <tr>
+                                <td><strong>⌨️ CLI</strong></td>
+                                <td>Terminal, command prompt, servers...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p><em>Record your initial thoughts - this will form the foundation of your analysis.</em></p>
+            </div>
+        </div>
+
+        <!-- Part 2 -->
+        <div class="task-section" id="task2">
+            <div class="task-header">
+                <h2>🔍 Part 2: Device Hunt</h2>
+                <span class="toggle-icon">▶</span>
+            </div>
+            <div class="task-content">
+                <h3>Research Mission</h3>
+                <p>Select <strong>5 devices</strong> to research from different eras and categories:</p>
+
+                <div class="help-box">
+                    <h4>Era Selection:</h4>
+                    <ul>
+                        <li>🕰️ <strong>Retro device</strong> (1980s-2000s)</li>
+                        <li>📱 <strong>Modern device</strong> (2010s-2020s)</li>
+                        <li>🚀 <strong>Cutting-edge device</strong> (2020s-present)</li>
+                    </ul>
+                </div>
+
+                <div class="help-box">
+                    <h4>Device Categories:</h4>
+                    <div class="device-grid">
+                        <div class="device-card">
+                            <h4>🎮 Gaming Console</h4>
+                        </div>
+                        <div class="device-card">
+                            <h4>📱 Mobile Device</h4>
+                        </div>
+                        <div class="device-card">
+                            <h4>💻 Computer</h4>
+                        </div>
+                        <div class="device-card">
+                            <h4>🏠 Smart Home Device</h4>
+                        </div>
+                        <div class="device-card">
+                            <h4>🥽 AR/VR/MR Device</h4>
+                        </div>
+                        <div class="device-card">
+                            <h4>❓ Something Unusual</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Research Requirements</h3>
+                <div class="help-box">
+                    <p>For each selected device, document:</p>
+                    <ul>
+                        <li><strong>Visual representation:</strong> Find clear images showing the device design</li>
+                        <li><strong>Interaction capabilities:</strong> Identify which methods it supports (Audio, Touch, Gestures, GUI, CLI)</li>
+                        <li><strong>Notable interaction feature:</strong> One significant aspect of how users interact with it</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Research Example:</h4>
+                    <p><strong>Nintendo Wii (2006)</strong></p>
+                    <p>• Visual: White console with wireless motion controllers</p>
+                    <p>• Interactions: Gestures (motion sensing) + GUI (on-screen menus)</p>
+                    <p>• Notable feature: Physical movements directly control in-game actions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part 3 -->
+        <div class="task-section" id="task3">
+            <div class="task-header">
+                <h2>🎨 Part 3: Create Your Visual Map</h2>
+                <span class="toggle-icon">▶</span>
+            </div>
+            <div class="task-content">
+                <h3>Visual Mapping Requirements</h3>
+
+                <div class="help-box">
+                    <h4>Your diagram should include:</h4>
+                    <p><strong>Device Hub:</strong> Central placement of your 5 researched devices</p>
+                    <ul>
+                        <li>Include <strong>visual representations</strong> of each device</li>
+                        <li><strong>Label</strong> each device with name and year of release</li>
+                    </ul>
+                    
+                    <p><strong>Interaction Web:</strong> Connection system showing interaction methods</p>
+                    <ul>
+                        <li>Create <strong>5 distinct sections</strong> for each interaction type</li>
+                        <li>Use <strong>connecting lines or arrows</strong> to link devices to their interaction methods</li>
+                        <li><strong>Annotate connections</strong> with notable interaction features</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>Layout Structure Example:</h4>
+                    <pre>    [AUDIO] 🔊
+       ↗ ↘
+[Device 1] ← → [Device 2]
+       ↘ ↗
+    [TOUCH] 👆</pre>
+                </div>
+
+                <div class="help-box">
+                    <h4>Enhancement Elements:</h4>
+                    <ul>
+                        <li><strong>Annotations:</strong> Text boxes with significant interaction features</li>
+                        <li><strong>Visual coding:</strong> Colour differentiation for different eras or categories</li>
+                        <li><strong>Visual elements:</strong> Icons, shapes, or symbols to highlight special features</li>
+                    </ul>
+                </div>
+
+                <div class="mission-box">
+                    <h4>🎯 Quality Indicators</h4>
+                    <p><strong>Effective visual maps demonstrate:</strong></p>
+                    <ul>
+                        <li>Devices that combine multiple interaction types in innovative ways</li>
+                        <li>Evolution of interaction methods across different time periods</li>
+                        <li>Unexpected or surprising interaction capabilities</li>
+                        <li>Clear understanding of how interaction design has developed</li>
+                    </ul>
+                    
+                    <p><strong>Professional annotations might include:</strong></p>
+                    <ul>
+                        <li>"Voice control integration predated mainstream adoption"</li>
+                        <li>"Touch interface eliminated need for physical input devices"</li>
+                        <li>"Motion sensing created new paradigms for user engagement"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research Tips -->
+        <div class="help-box">
+            <h4>💡 Research Tips</h4>
+            <p><strong>Quick Sources:</strong></p>
+            <ul>
+                <li><strong>Google Images</strong> - see what devices look like</li>
+                <li><strong>Wikipedia device pages</strong> - basic facts and capabilities</li>
+                <li><strong>YouTube reviews</strong> - how people actually use them</li>
+                <li><strong>Company websites</strong> - official feature lists</li>
+            </ul>
+        </div>
+
+        <!-- What Makes This Great -->
+        <div class="mission-box">
+            <h4>🎯 Analysis Focus</h4>
+            <p><strong>Prioritise devices that demonstrate:</strong></p>
+            <ul>
+                <li>Innovative combinations of multiple interaction methods</li>
+                <li>Significant evolution in interaction design over time</li>
+                <li>Paradigm shifts in how users engage with technology</li>
+                <li>Devices you're familiar with but haven't analysed from an HCI perspective</li>
+            </ul>
+            
+            <p><strong>Develop analytical observations such as:</strong></p>
+            <ul>
+                <li>"Multi-modal interaction increases accessibility and user choice"</li>
+                <li>"Elimination of physical interfaces created new design challenges"</li>
+                <li>"Advanced sensors enabled more natural user interactions"</li>
+            </ul>
+        </div>
+
+        <!-- Success Check -->
+        <div class="checklist">
+            <h4>✅ Simple Success Check</h4>
+            <p><strong>Your visual map should have:</strong></p>
+            <ul>
+                <li>5 different devices with images</li>
+                <li>Clear connections showing which interactions each device supports</li>
+                <li>At least 3 interesting annotations or cool facts</li>
+                <li>Mix of old and new technology</li>
+                <li>Creative visual layout (colors, arrows, annotations)</li>
+            </ul>
+        </div>
+
+        <!-- Creative Layout Ideas -->
+        <div class="activity-container">
+            <h2>🎨 Creative Layout Ideas</h2>
+            
+            <div class="layout-grid">
+                <div class="layout-card">
+                    <h4>📈 Timeline Style</h4>
+                    <p>Arrange devices chronologically with interaction webs</p>
+                </div>
+                <div class="layout-card">
+                    <h4>👨‍👩‍👧‍👦 Interaction Families</h4>
+                    <p>Group devices by their primary interaction method</p>
+                </div>
+                <div class="layout-card">
+                    <h4>🚶 Personal Journey</h4>
+                    <p>Show devices you've personally used and how your habits have changed</p>
+                </div>
+                <div class="layout-card">
+                    <h4>🔍 Comparison Clusters</h4>
+                    <p>Group similar devices and compare their evolution</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extension Ideas -->
+        <div class="extension-box">
+            <h4>🚀 Extension Ideas</h4>
+            <p><strong>If you finish early:</strong></p>
+            <ul>
+                <li>Add a "timeline arrow" showing how interaction methods have evolved</li>
+                <li>Include a device that failed and explain why</li>
+                <li>Predict what interaction methods might be common in 10 years</li>
+                <li>Find two devices that look similar but have completely different interactions</li>
+            </ul>
+        </div>
+
+        <!-- Quick Start Suggestions -->
+        <div class="help-box">
+            <h4>📋 Quick Start Suggestions</h4>
+            <p><strong>Not sure where to start? Try these interesting device combinations:</strong></p>
+            
+            <p><strong>The Gaming Evolution:</strong></p>
+            <ul>
+                <li>Atari 2600 (1977) - simple joystick controllers</li>
+                <li>Nintendo Wii (2006) - motion control revolution</li>
+                <li>PlayStation VR2 (2023) - full immersion VR</li>
+            </ul>
+
+            <p><strong>The Communication Story:</strong></p>
+            <ul>
+                <li>Nokia 3310 (2000) - physical buttons only</li>
+                <li>Original iPhone (2007) - touch revolution</li>
+                <li>Smart speakers (2010s) - voice-first design</li>
+            </ul>
+
+            <p><strong>The Work Revolution:</strong></p>
+            <ul>
+                <li>Command line computers (1980s) - text only</li>
+                <li>Windows 95 PC (1995) - GUI breakthrough</li>
+                <li>iPad Pro (2020s) - touch-first productivity</li>
+            </ul>
+        </div>
+
+        <!-- Learning Goal -->
+        <div class="mission-box">
+            <h4>🎯 Learning Goal</h4>
+            <p><strong>By the end, you'll see:</strong></p>
+            <ul>
+                <li>How the same device can support multiple interaction methods</li>
+                <li>How interaction methods have evolved and improved over time</li>
+                <li>Which devices you know well vs. ones that surprised you</li>
+                <li>How your personal technology use connects to the bigger HCI story</li>
+            </ul>
+            <p><strong>Most importantly:</strong> Have fun discovering how clever (or sometimes not so clever) technology design can be!</p>
+        </div>
+
+        <!-- Submission -->
+        <div class="submission-box">
+            <h3>📤 Submission</h3>
+            <p><strong>Save your visual map as:</strong></p>
+            <ul>
+                <li>• PDF export from Whiteboard, or</li>
+                <li>• Image/document file</li>
+                <li>• <strong>Filename:</strong> YourName_HCI_DeviceMap</li>
+            </ul>
+            <p><strong>Include a quick note:</strong> Which device or interaction discovery surprised you most?</p>
+        </div>
+    </div>
+
+    <script>
+        // Define toggleTask function in global scope
+        function toggleTask(taskId) {
+            const taskSection = document.getElementById(taskId);
+            if (!taskSection) return;
+            
+            const content = taskSection.querySelector('.task-content');
+            const icon = taskSection.querySelector('.toggle-icon');
+            
+            if (!content || !icon) return;
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                taskSection.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                content.classList.add('active');
+                taskSection.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize first task as expanded
+            toggleTask('task1');
+            
+            // Add click event listeners to all task headers
+            const taskHeaders = document.querySelectorAll('.task-header');
+            taskHeaders.forEach(header => {
+                const taskSection = header.closest('.task-section');
+                if (taskSection) {
+                    const taskId = taskSection.id;
+                    header.addEventListener('click', function() {
+                        toggleTask(taskId);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
