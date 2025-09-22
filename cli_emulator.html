@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational CLI Emulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .terminal-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: #333;
+            padding: 8px 15px;
+            border-bottom: 1px solid #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27ca3f; }
+
+        .terminal-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #000;
+            position: relative;
+        }
+
+        .output-line {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 5px;
+        }
+
+        .input-field {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: inherit;
+            flex: 1;
+            outline: none;
+            caret-color: #00ff00;
+        }
+
+        .cursor {
+            background: #00ff00;
+            width: 8px;
+            height: 16px;
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 50, 0, 0.95);
+            border: 1px solid #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 300px;
+            color: #00ff00;
+            font-size: 12px;
+            line-height: 1.4;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .info-panel.visible {
+            transform: translateX(0);
+        }
+
+        .info-panel h3 {
+            color: #ffff00;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .help-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            z-index: 999;
+        }
+
+        .help-btn:hover {
+            background: #00cc00;
+        }
+
+        .command-hint {
+            color: #ffff00;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #4ecdc4;
+        }
+
+        .quiz-mode {
+            background: rgba(0, 0, 50, 0.95);
+            border: 2px solid #4169e1;
+            color: #87ceeb;
+        }
+
+        .quiz-question {
+            color: #ffff00;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin-left: 20px;
+        }
+
+        .quiz-option {
+            margin-bottom: 5px;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .loading {
+            display: inline-block;
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { color: transparent; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent; }
+            40% { color: #00ff00; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent; }
+            60% { text-shadow: .25em 0 0 #00ff00, .5em 0 0 transparent; }
+            80%, 100% { text-shadow: .25em 0 0 #00ff00, .5em 0 0 #00ff00; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-title">Educational CLI Emulator - Learning Mode</div>
+            <div class="terminal-controls">
+                <div class="control-btn close"></div>
+                <div class="control-btn minimize"></div>
+                <div class="control-btn maximize"></div>
+            </div>
+        </div>
+        
+        <div class="terminal-body" id="terminal">
+            <div class="output-line">Welcome to the Educational CLI Emulator!</div>
+            <div class="output-line">========================================</div>
+            <div class="output-line"></div>
+            <div class="output-line">This emulator demonstrates Command Line Interface characteristics.</div>
+            <div class="output-line">Type 'help' to see available commands and learning features.</div>
+            <div class="output-line">Type 'quiz' to test your CLI knowledge!</div>
+            <div class="output-line"></div>
+            
+            <div class="input-line">
+                <span class="prompt">student@cli-emulator:~$</span>
+                <input type="text" class="input-field" id="commandInput" autocomplete="off" spellcheck="false">
+                <span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <button class="help-btn" id="helpBtn">?</button>
+    
+    <div class="info-panel" id="infoPanel">
+        <h3>CLI Characteristics</h3>
+        <p><strong>Text-only interaction:</strong> Commands must be typed exactly</p>
+        <p><strong>No visual feedback:</strong> No icons, buttons, or visual cues</p>
+        <p><strong>Requires memorization:</strong> Users must know command syntax</p>
+        <p><strong>Powerful but challenging:</strong> Efficient for experts, difficult for beginners</p>
+        <p><strong>Lightweight:</strong> Uses minimal system resources</p>
+        <p><strong>Scriptable:</strong> Commands can be automated</p>
+    </div>
+
+    <script>
+        class CLIEmulator {
+            constructor() {
+                this.terminal = document.getElementById('terminal');
+                this.input = document.getElementById('commandInput');
+                this.infoPanel = document.getElementById('infoPanel');
+                this.helpBtn = document.getElementById('helpBtn');
+                this.commandHistory = [];
+                this.historyIndex = -1;
+                this.currentQuiz = null;
+                
+                this.commands = {
+                    'help': this.showHelp.bind(this),
+                    'clear': this.clearTerminal.bind(this),
+                    'ls': this.listFiles.bind(this),
+                    'pwd': this.showDirectory.bind(this),
+                    'whoami': this.showUser.bind(this),
+                    'date': this.showDate.bind(this),
+                    'echo': this.echo.bind(this),
+                    'quiz': this.startQuiz.bind(this),
+                    'advantages': this.showAdvantages.bind(this),
+                    'disadvantages': this.showDisadvantages.bind(this),
+                    'devices': this.showDevices.bind(this),
+                    'compare': this.compareWithGUI.bind(this),
+                    'history': this.showHistory.bind(this),
+                    'demo': this.runDemo.bind(this)
+                };
+
+                this.quizQuestions = [
+                    {
+                        question: "What is the main input method for CLI?",
+                        options: ["A) Mouse clicks", "B) Touch gestures", "C) Typed text commands", "D) Voice commands"],
+                        correct: 2,
+                        explanation: "CLI requires users to type text commands - no mouse or visual interface!"
+                    },
+                    {
+                        question: "Which is an advantage of CLI?",
+                        options: ["A) User-friendly for beginners", "B) Visual feedback", "C) Efficient for expert users", "D) No learning required"],
+                        correct: 2,
+                        explanation: "CLI is highly efficient for expert users who know the commands!"
+                    },
+                    {
+                        question: "What makes CLI challenging for beginners?",
+                        options: ["A) Too many colors", "B) Steep learning curve", "C) Too much visual clutter", "D) Requires mouse skills"],
+                        correct: 1,
+                        explanation: "CLI has a steep learning curve because users must memorize commands and syntax!"
+                    }
+                ];
+
+                this.setupEventListeners();
+                this.input.focus();
+            }
+
+            setupEventListeners() {
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.processCommand();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.navigateHistory(-1);
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.navigateHistory(1);
+                    } else if (e.key === 'Tab') {
+                        e.preventDefault();
+                        this.autocomplete();
+                    }
+                });
+
+                this.helpBtn.addEventListener('click', () => {
+                    this.toggleInfoPanel();
+                });
+
+                // Keep focus on input
+                document.addEventListener('click', () => {
+                    this.input.focus();
+                });
+            }
+
+            processCommand() {
+                const command = this.input.value.trim();
+                if (command) {
+                    this.addToHistory(command);
+                    this.displayCommand(command);
+                    
+                    if (this.currentQuiz) {
+                        this.handleQuizAnswer(command);
+                    } else {
+                        this.executeCommand(command);
+                    }
+                }
+                this.input.value = '';
+                this.historyIndex = -1;
+            }
+
+            displayCommand(command) {
+                const line = document.createElement('div');
+                line.className = 'output-line';
+                line.innerHTML = `<span class="prompt">student@cli-emulator:~$</span> ${command}`;
+                this.terminal.insertBefore(line, this.terminal.lastElementChild);
+            }
+
+            executeCommand(commandLine) {
+                const parts = commandLine.split(' ');
+                const command = parts[0].toLowerCase();
+                const args = parts.slice(1);
+
+                if (this.commands[command]) {
+                    this.commands[command](args);
+                } else {
+                    this.addOutput(`Command '${command}' not found. Type 'help' for available commands.`, 'error');
+                    this.addOutput("💡 This demonstrates CLI's lack of visual feedback - you must know exact commands!", 'command-hint');
+                }
+                
+                this.scrollToBottom();
+            }
+
+            addOutput(text, className = '') {
+                const line = document.createElement('div');
+                line.className = `output-line ${className}`;
+                line.textContent = text;
+                this.terminal.insertBefore(line, this.terminal.lastElementChild);
+            }
+
+            showHelp() {
+                this.addOutput("Available Commands:", 'success');
+                this.addOutput("==================");
+                this.addOutput("help         - Show this help menu");
+                this.addOutput("clear        - Clear the terminal screen");
+                this.addOutput("ls           - List files (simulated)");
+                this.addOutput("pwd          - Show current directory");
+                this.addOutput("whoami       - Show current user");
+                this.addOutput("date         - Show current date/time");
+                this.addOutput("echo [text]  - Display text");
+                this.addOutput("history      - Show command history");
+                this.addOutput("advantages   - Show CLI advantages");
+                this.addOutput("disadvantages- Show CLI disadvantages");
+                this.addOutput("devices      - Show devices that use CLI");
+                this.addOutput("compare      - Compare CLI vs GUI");
+                this.addOutput("quiz         - Start interactive quiz");
+                this.addOutput("demo         - Run automation demo");
+                this.addOutput("");
+                this.addOutput("💡 Notice: All interaction is text-based - no buttons or menus!", 'command-hint');
+                this.addOutput("💡 Commands must be typed exactly - case sensitive!", 'command-hint');
+            }
+
+            clearTerminal() {
+                const outputLines = this.terminal.querySelectorAll('.output-line');
+                outputLines.forEach(line => line.remove());
+                this.addOutput("Terminal cleared. Type 'help' for commands.");
+                this.addOutput("💡 CLI Characteristic: Text-based commands for all actions", 'command-hint');
+            }
+
+            listFiles() {
+                this.addOutput("documents/    downloads/    pictures/");
+                this.addOutput("file1.txt     file2.log     script.sh");
+                this.addOutput("");
+                this.addOutput("💡 CLI shows file listings in text format - no icons or thumbnails!", 'command-hint');
+            }
+
+            showDirectory() {
+                this.addOutput("/home/student");
+                this.addOutput("💡 CLI requires memorizing directory paths - no visual folder navigation!", 'command-hint');
+            }
+
+            showUser() {
+                this.addOutput("student");
+                this.addOutput("💡 CLI provides minimal feedback - just essential information", 'command-hint');
+            }
+
+            showDate() {
+                this.addOutput(new Date().toString());
+                this.addOutput("💡 CLI commands often provide detailed technical output", 'command-hint');
+            }
+
+            echo(args) {
+                if (args.length === 0) {
+                    this.addOutput("");
+                } else {
+                    this.addOutput(args.join(' '));
+                }
+                this.addOutput("💡 'echo' demonstrates CLI's text-based nature - input and output are all text!", 'command-hint');
+            }
+
+            showAdvantages() {
+                this.addOutput("CLI ADVANTAGES:", 'success');
+                this.addOutput("===============");
+                this.addOutput("✓ Powerful and efficient for expert users");
+                this.addOutput("✓ Lightweight - uses minimal system resources");
+                this.addOutput("✓ Easy to script and automate tasks");
+                this.addOutput("✓ Perfect for remote server management");
+                this.addOutput("✓ Fast execution of complex commands");
+                this.addOutput("✓ Precise control over system functions");
+                this.addOutput("");
+                this.addOutput("💡 CLI excels when users know what they're doing!", 'command-hint');
+            }
+
+            showDisadvantages() {
+                this.addOutput("CLI DISADVANTAGES:", 'error');
+                this.addOutput("==================");
+                this.addOutput("✗ Steep learning curve - requires training");
+                this.addOutput("✗ Difficult for beginners and non-technical users");
+                this.addOutput("✗ Error-prone - typos can cause problems");
+                this.addOutput("✗ No visual feedback or discoverability");
+                this.addOutput("✗ Commands must be memorized beforehand");
+                this.addOutput("✗ Not intuitive for general audiences");
+                this.addOutput("");
+                this.addOutput("💡 This is why GUIs were invented - to make computing accessible!", 'command-hint');
+            }
+
+            showDevices() {
+                this.addOutput("DEVICES THAT USE CLI:", 'success');
+                this.addOutput("====================");
+                this.addOutput("• Desktop computers (Terminal/Command Prompt)");
+                this.addOutput("• Laptops (PowerShell, Bash, etc.)");
+                this.addOutput("• Remote servers and web servers");
+                this.addOutput("• Virtual machines and cloud instances");
+                this.addOutput("• Embedded systems with text interfaces");
+                this.addOutput("• Network equipment (routers, switches)");
+                this.addOutput("• Development environments");
+                this.addOutput("");
+                this.addOutput("💡 CLI is essential for system administration and technical work!", 'command-hint');
+            }
+
+            compareWithGUI() {
+                this.addOutput("CLI vs GUI COMPARISON:", 'success');
+                this.addOutput("======================");
+                this.addOutput("");
+                this.addOutput("CLI (Command Line Interface):");
+                this.addOutput("• Text-based input only");
+                this.addOutput("• No visual feedback");
+                this.addOutput("• Requires command memorization");
+                this.addOutput("• Efficient for experts");
+                this.addOutput("• Lightweight resource usage");
+                this.addOutput("");
+                this.addOutput("GUI (Graphical User Interface):");
+                this.addOutput("• Visual icons, buttons, windows");
+                this.addOutput("• Mouse/touch interaction");
+                this.addOutput("• Intuitive and discoverable");
+                this.addOutput("• User-friendly for beginners");
+                this.addOutput("• Higher resource requirements");
+                this.addOutput("");
+                this.addOutput("💡 Each interface serves different user needs and contexts!", 'command-hint');
+            }
+
+            showHistory() {
+                this.addOutput("COMMAND HISTORY:", 'success');
+                this.addOutput("================");
+                if (this.commandHistory.length === 0) {
+                    this.addOutput("No commands in history yet.");
+                } else {
+                    this.commandHistory.forEach((cmd, index) => {
+                        this.addOutput(`${index + 1}: ${cmd}`);
+                    });
+                }
+                this.addOutput("");
+                this.addOutput("💡 CLI keeps command history - use ↑↓ arrows to navigate!", 'command-hint');
+            }
+
+            runDemo() {
+                this.addOutput("Starting automation demo", 'success');
+                this.addOutput("========================");
+                
+                const commands = [
+                    "Checking system status...",
+                    "Scanning directories...",
+                    "Processing files...",
+                    "Generating report...",
+                    "Backup completed successfully!"
+                ];
+
+                let i = 0;
+                const interval = setInterval(() => {
+                    if (i < commands.length) {
+                        this.addOutput(commands[i]);
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                        this.addOutput("");
+                        this.addOutput("💡 CLI excels at automation - scripts can run complex tasks!", 'command-hint');
+                        this.addOutput("💡 This would take many clicks in a GUI, but runs automatically in CLI!", 'command-hint');
+                        this.scrollToBottom();
+                    }
+                }, 1000);
+            }
+
+            startQuiz() {
+                this.addOutput("Starting CLI Knowledge Quiz!", 'success');
+                this.addOutput("============================");
+                this.addOutput("");
+                this.currentQuiz = {
+                    questionIndex: 0,
+                    score: 0
+                };
+                this.showQuizQuestion();
+            }
+
+            showQuizQuestion() {
+                const q = this.quizQuestions[this.currentQuiz.questionIndex];
+                this.addOutput(`Question ${this.currentQuiz.questionIndex + 1}/${this.quizQuestions.length}:`, 'quiz-question');
+                this.addOutput(q.question, 'quiz-question');
+                this.addOutput("");
+                q.options.forEach(option => {
+                    this.addOutput(option);
+                });
+                this.addOutput("");
+                this.addOutput("Type A, B, C, or D to answer:", 'command-hint');
+            }
+
+            handleQuizAnswer(answer) {
+                const q = this.quizQuestions[this.currentQuiz.questionIndex];
+                const userAnswer = answer.toUpperCase();
+                
+                if (['A', 'B', 'C', 'D'].includes(userAnswer)) {
+                    const answerIndex = userAnswer.charCodeAt(0) - 65; // Convert A-D to 0-3
+                    
+                    if (answerIndex === q.correct) {
+                        this.addOutput("✓ Correct!", 'success');
+                        this.currentQuiz.score++;
+                    } else {
+                        this.addOutput("✗ Incorrect.", 'error');
+                    }
+                    
+                    this.addOutput(`Explanation: ${q.explanation}`, 'command-hint');
+                    this.addOutput("");
+                    
+                    this.currentQuiz.questionIndex++;
+                    
+                    if (this.currentQuiz.questionIndex < this.quizQuestions.length) {
+                        setTimeout(() => this.showQuizQuestion(), 1500);
+                    } else {
+                        this.endQuiz();
+                    }
+                } else {
+                    this.addOutput("Please enter A, B, C, or D", 'error');
+                    this.addOutput("💡 Notice: CLI requires exact input - no clicking or visual selection!", 'command-hint');
+                }
+            }
+
+            endQuiz() {
+                const score = this.currentQuiz.score;
+                const total = this.quizQuestions.length;
+                
+                this.addOutput("QUIZ COMPLETE!", 'success');
+                this.addOutput("==============");
+                this.addOutput(`Your score: ${score}/${total} (${Math.round(score/total*100)}%)`);
+                
+                if (score === total) {
+                    this.addOutput("Perfect! You understand CLI characteristics well!", 'success');
+                } else if (score >= total * 0.7) {
+                    this.addOutput("Good job! You have a solid understanding of CLI.", 'success');
+                } else {
+                    this.addOutput("Keep learning! Review the commands to understand CLI better.", 'command-hint');
+                }
+                
+                this.addOutput("");
+                this.addOutput("💡 This quiz demonstrates CLI's text-based interaction!", 'command-hint');
+                this.currentQuiz = null;
+            }
+
+            addToHistory(command) {
+                this.commandHistory.push(command);
+                if (this.commandHistory.length > 50) {
+                    this.commandHistory.shift();
+                }
+            }
+
+            navigateHistory(direction) {
+                if (this.commandHistory.length === 0) return;
+                
+                if (direction === -1) { // Up arrow
+                    if (this.historyIndex === -1) {
+                        this.historyIndex = this.commandHistory.length - 1;
+                    } else if (this.historyIndex > 0) {
+                        this.historyIndex--;
+                    }
+                } else { // Down arrow
+                    if (this.historyIndex < this.commandHistory.length - 1) {
+                        this.historyIndex++;
+                    } else {
+                        this.historyIndex = -1;
+                        this.input.value = '';
+                        return;
+                    }
+                }
+                
+                this.input.value = this.commandHistory[this.historyIndex];
+            }
+
+            autocomplete() {
+                const input = this.input.value.toLowerCase();
+                const matches = Object.keys(this.commands).filter(cmd => 
+                    cmd.startsWith(input)
+                );
+                
+                if (matches.length === 1) {
+                    this.input.value = matches[0];
+                } else if (matches.length > 1) {
+                    this.addOutput("Possible completions:");
+                    matches.forEach(match => this.addOutput(`  ${match}`));
+                    this.addOutput("💡 Tab completion helps with CLI efficiency!", 'command-hint');
+                    this.scrollToBottom();
+                }
+            }
+
+            toggleInfoPanel() {
+                this.infoPanel.classList.toggle('visible');
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.terminal.scrollTop = this.terminal.scrollHeight;
+                }, 100);
+            }
+        }
+
+        // Initialize the CLI emulator when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new CLIEmulator();
+        });
+    </script>
+</body>
+</html>
