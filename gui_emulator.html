@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational GUI Emulator - Classic Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+            background: linear-gradient(45deg, #008080, #20b2aa);
+            height: 100vh;
+            overflow: hidden;
+            cursor: default;
+            user-select: none;
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 1px, transparent 1px);
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, #c0c0c0, #808080);
+            border-top: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #404040;
+        }
+
+        .start-button {
+            background: linear-gradient(to bottom, #c0c0c0, #a0a0a0);
+            border: 2px outset #c0c0c0;
+            padding: 4px 12px;
+            margin-right: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .start-button:active {
+            border: 2px inset #c0c0c0;
+        }
+
+        .start-icon {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #0000ff);
+            border-radius: 2px;
+        }
+
+        .clock {
+            margin-left: auto;
+            background: linear-gradient(to bottom, #c0c0c0, #a0a0a0);
+            border: 1px inset #c0c0c0;
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .window {
+            position: absolute;
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            min-width: 300px;
+            min-height: 200px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .window-header {
+            background: linear-gradient(to right, #000080, #0000ff);
+            color: white;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .window-button {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px outset #c0c0c0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .window-button:active {
+            border: 1px inset #c0c0c0;
+        }
+
+        .window-content {
+            padding: 8px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+
+        .desktop-icon {
+            position: absolute;
+            width: 64px;
+            text-align: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 2px;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0,0,128,0.3);
+            color: white;
+        }
+
+        .desktop-icon.selected {
+            background: rgba(0,0,128,0.5);
+            color: white;
+        }
+
+        .icon-image {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 4px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .icon-label {
+            font-size: 10px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+
+        .menu {
+            position: absolute;
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            min-width: 150px;
+            z-index: 1000;
+        }
+
+        .menu-item {
+            padding: 4px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #808080;
+        }
+
+        .menu-item:hover {
+            background: #000080;
+            color: white;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .button {
+            background: linear-gradient(to bottom, #c0c0c0, #a0a0a0);
+            border: 2px outset #c0c0c0;
+            padding: 4px 12px;
+            cursor: pointer;
+            margin: 4px;
+            display: inline-block;
+        }
+
+        .button:active {
+            border: 2px inset #c0c0c0;
+        }
+
+        .button:hover {
+            background: linear-gradient(to bottom, #d0d0d0, #b0b0b0);
+        }
+
+        .checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px;
+            cursor: pointer;
+        }
+
+        .checkbox-box {
+            width: 12px;
+            height: 12px;
+            border: 1px inset #c0c0c0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-box.checked::after {
+            content: '✓';
+            font-size: 10px;
+            color: black;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 100px;
+            border: 2px inset #c0c0c0;
+            background: white;
+            padding: 4px;
+            font-family: inherit;
+            font-size: inherit;
+            resize: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            border: 1px inset #c0c0c0;
+            background: #c0c0c0;
+            position: relative;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #000080, #0000ff);
+            transition: width 0.3s ease;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #ffffcc;
+            border: 1px solid #000;
+            padding: 4px 8px;
+            font-size: 10px;
+            z-index: 2000;
+            pointer-events: none;
+            max-width: 200px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .highlight {
+            background: #ffff00 !important;
+            animation: flash 2s;
+        }
+
+        @keyframes flash {
+            0%, 100% { background: #ffff00; }
+            50% { background: #ffffff; }
+        }
+
+        .quiz-panel {
+            background: #e0e0e0;
+            border: 2px inset #c0c0c0;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .quiz-question {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #000080;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 4px 0;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .quiz-option:hover {
+            background: #d0d0d0;
+        }
+
+        .feedback {
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px solid #808080;
+            background: #f0f0f0;
+            font-style: italic;
+        }
+
+        .dragging {
+            opacity: 0.8;
+            z-index: 999;
+        }
+
+        .file-list {
+            background: white;
+            border: 2px inset #c0c0c0;
+            height: 150px;
+            overflow: auto;
+            margin: 8px 0;
+        }
+
+        .file-item {
+            padding: 2px 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-item:hover {
+            background: #e0e0e0;
+        }
+
+        .file-item.selected {
+            background: #000080;
+            color: white;
+        }
+
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            background: #ffff00;
+            border: 1px solid #000;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #808080;
+            padding: 4px 8px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background: #d0d0d0;
+            font-weight: bold;
+        }
+
+        .cli-col {
+            background: #ffe0e0;
+        }
+
+        .gui-col {
+            background: #e0ffe0;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" style="top: 20px; left: 20px;" data-app="about">
+            <div class="icon-image">ℹ️</div>
+            <div class="icon-label">About GUI</div>
+        </div>
+        
+        <div class="desktop-icon" style="top: 20px; left: 100px;" data-app="features">
+            <div class="icon-image">⚙️</div>
+            <div class="icon-label">GUI Features</div>
+        </div>
+        
+        <div class="desktop-icon" style="top: 120px; left: 20px;" data-app="compare">
+            <div class="icon-image">⚖️</div>
+            <div class="icon-label">CLI vs GUI</div>
+        </div>
+        
+        <div class="desktop-icon" style="top: 120px; left: 100px;" data-app="quiz">
+            <div class="icon-image">🧠</div>
+            <div class="icon-label">GUI Quiz</div>
+        </div>
+        
+        <div class="desktop-icon" style="top: 220px; left: 20px;" data-app="devices">
+            <div class="icon-image">📱</div>
+            <div class="icon-label">GUI Devices</div>
+        </div>
+        
+        <div class="desktop-icon" style="top: 220px; left: 100px;" data-app="demo">
+            <div class="icon-image">🎮</div>
+            <div class="icon-label">Interactive Demo</div>
+        </div>
+
+        <!-- Windows will be created dynamically -->
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="start-button" id="startButton">
+            <div class="start-icon"></div>
+            Start
+        </div>
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <!-- Start Menu -->
+    <div class="menu" id="startMenu" style="display: none; bottom: 40px; left: 4px;">
+        <div class="menu-item" data-action="help">Help & Tips</div>
+        <div class="menu-item" data-action="advantages">GUI Advantages</div>
+        <div class="menu-item" data-action="disadvantages">GUI Disadvantages</div>
+        <div class="menu-item" data-action="tutorial">Interactive Tutorial</div>
+    </div>
+
+    <script>
+        class GUIEmulator {
+            constructor() {
+                this.windows = [];
+                this.windowZIndex = 100;
+                this.selectedIcon = null;
+                this.draggedWindow = null;
+                this.dragOffset = { x: 0, y: 0 };
+                this.tooltipTimeout = null;
+                this.currentQuiz = null;
+                
+                this.apps = {
+                    about: this.createAboutWindow.bind(this),
+                    features: this.createFeaturesWindow.bind(this),
+                    compare: this.createCompareWindow.bind(this),
+                    quiz: this.createQuizWindow.bind(this),
+                    devices: this.createDevicesWindow.bind(this),
+                    demo: this.createDemoWindow.bind(this)
+                };
+
+                this.quizQuestions = [
+                    {
+                        question: "What is the main advantage of GUI over CLI?",
+                        options: [
+                            "A) Uses less system resources",
+                            "B) Faster for expert users",
+                            "C) User-friendly and intuitive",
+                            "D) Better for automation"
+                        ],
+                        correct: 2,
+                        explanation: "GUIs are designed to be user-friendly and intuitive, making them accessible to users of all skill levels!"
+                    },
+                    {
+                        question: "Which input method is primary for GUI interaction?",
+                        options: [
+                            "A) Typed commands",
+                            "B) Mouse/touch pointing",
+                            "C) Voice commands",
+                            "D) Keyboard shortcuts only"
+                        ],
+                        correct: 1,
+                        explanation: "GUIs primarily use mouse/touch pointing to interact with visual elements like buttons and icons!"
+                    },
+                    {
+                        question: "What does WIMP stand for in GUI design?",
+                        options: [
+                            "A) Windows, Icons, Menus, Pointers",
+                            "B) Web, Interface, Mouse, Programs",
+                            "C) Widgets, Input, Memory, Processing",
+                            "D) Windows, Internet, Media, Plugins"
+                        ],
+                        correct: 0,
+                        explanation: "WIMP stands for Windows, Icons, Menus, and Pointers - the core elements of graphical user interfaces!"
+                    }
+                ];
+
+                this.setupEventListeners();
+                this.updateClock();
+                this.showWelcomeTooltip();
+            }
+
+            setupEventListeners() {
+                // Desktop icon interactions
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.addEventListener('click', (e) => this.handleIconClick(e));
+                    icon.addEventListener('dblclick', (e) => this.handleIconDoubleClick(e));
+                    icon.addEventListener('mouseenter', (e) => this.showTooltip(e));
+                    icon.addEventListener('mouseleave', () => this.hideTooltip());
+                });
+
+                // Start button
+                document.getElementById('startButton').addEventListener('click', () => {
+                    this.toggleStartMenu();
+                });
+
+                // Start menu items
+                document.querySelectorAll('#startMenu .menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => this.handleStartMenuClick(e));
+                });
+
+                // Desktop click to deselect
+                document.getElementById('desktop').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('desktop')) {
+                        this.deselectAllIcons();
+                        this.hideStartMenu();
+                    }
+                });
+
+                // Window dragging
+                document.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+                document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                document.addEventListener('mouseup', () => this.handleMouseUp());
+
+                // Clock update
+                setInterval(() => this.updateClock(), 1000);
+            }
+
+            handleIconClick(e) {
+                e.stopPropagation();
+                this.deselectAllIcons();
+                e.currentTarget.classList.add('selected');
+                this.selectedIcon = e.currentTarget;
+                this.hideStartMenu();
+            }
+
+            handleIconDoubleClick(e) {
+                e.stopPropagation();
+                const app = e.currentTarget.dataset.app;
+                if (this.apps[app]) {
+                    this.apps[app]();
+                }
+            }
+
+            deselectAllIcons() {
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
+                this.selectedIcon = null;
+            }
+
+            createWindow(title, content, width = 400, height = 300) {
+                const windowId = `window-${Date.now()}`;
+                const window = document.createElement('div');
+                window.className = 'window';
+                window.id = windowId;
+                window.style.width = width + 'px';
+                window.style.height = height + 'px';
+                window.style.left = (50 + this.windows.length * 30) + 'px';
+                window.style.top = (50 + this.windows.length * 30) + 'px';
+                window.style.zIndex = ++this.windowZIndex;
+
+                window.innerHTML = `
+                    <div class="window-header" data-window="${windowId}">
+                        <span>${title}</span>
+                        <div class="window-controls">
+                            <div class="window-button" data-action="minimize">_</div>
+                            <div class="window-button" data-action="close">×</div>
+                        </div>
+                    </div>
+                    <div class="window-content">${content}</div>
+                `;
+
+                document.getElementById('desktop').appendChild(window);
+                this.windows.push(windowId);
+
+                // Window control events
+                window.querySelector('[data-action="close"]').addEventListener('click', () => {
+                    this.closeWindow(windowId);
+                });
+
+                window.querySelector('[data-action="minimize"]').addEventListener('click', () => {
+                    this.minimizeWindow(windowId);
+                });
+
+                // Bring to front on click
+                window.addEventListener('mousedown', () => {
+                    window.style.zIndex = ++this.windowZIndex;
+                });
+
+                return window;
+            }
+
+            closeWindow(windowId) {
+                const window = document.getElementById(windowId);
+                if (window) {
+                    window.remove();
+                    this.windows = this.windows.filter(id => id !== windowId);
+                }
+            }
+
+            minimizeWindow(windowId) {
+                const window = document.getElementById(windowId);
+                if (window) {
+                    window.style.display = 'none';
+                    // In a real GUI, this would add to taskbar
+                    setTimeout(() => {
+                        window.style.display = 'block';
+                        this.showTooltip(null, "Window restored! In a real GUI, you'd click the taskbar button.");
+                    }, 2000);
+                }
+            }
+
+            createAboutWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">About Graphical User Interfaces</h3>
+                    <p style="margin-bottom: 8px;"><strong>Visual Interface:</strong> GUIs use windows, icons, buttons, and menus that you can see and interact with using a mouse or touch.</p>
+                    <p style="margin-bottom: 8px;"><strong>Point and Click:</strong> Instead of typing commands, you point to what you want and click on it.</p>
+                    <p style="margin-bottom: 8px;"><strong>Visual Feedback:</strong> You can see what's happening - buttons highlight when you hover, cursors change shape, progress bars show status.</p>
+                    <p style="margin-bottom: 8px;"><strong>Discoverability:</strong> You can explore and discover features by looking at menus and buttons.</p>
+                    <div class="button" onclick="guiEmulator.showTooltip(null, 'This button demonstrates visual feedback - you can see it responds to your click!')">Click Me for Example</div>
+                    <p style="margin-top: 12px; font-style: italic; color: #666;">Notice how everything is visual and interactive - very different from CLI's text-only approach!</p>
+                `;
+                this.createWindow('About GUI', content, 450, 350);
+            }
+
+            createFeaturesWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">GUI Features Demonstration</h3>
+                    
+                    <h4>Windows & Icons (WIMP Interface):</h4>
+                    <p style="margin-bottom: 8px;">✓ This window can be moved, resized, minimized, and closed</p>
+                    <p style="margin-bottom: 8px;">✓ Desktop icons provide visual representation of programs</p>
+                    
+                    <h4>Visual Controls:</h4>
+                    <div class="checkbox" onclick="this.querySelector('.checkbox-box').classList.toggle('checked')">
+                        <div class="checkbox-box"></div>
+                        <span>Interactive Checkbox</span>
+                    </div>
+                    <div class="button" onclick="this.style.background='#ff6b6b'; setTimeout(() => this.style.background='', 1000)">Color-Changing Button</div>
+                    
+                    <h4>Progress Indication:</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" id="progressDemo"></div>
+                    </div>
+                    <div class="button" onclick="guiEmulator.animateProgress()">Start Progress Demo</div>
+                    
+                    <p style="margin-top: 12px; font-style: italic; color: #666;">All these features provide immediate visual feedback - impossible in CLI!</p>
+                `;
+                this.createWindow('GUI Features', content, 500, 400);
+            }
+
+            createCompareWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">CLI vs GUI Comparison</h3>
+                    
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Aspect</th>
+                            <th class="cli-col">CLI (Command Line)</th>
+                            <th class="gui-col">GUI (Graphical)</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Input Method</strong></td>
+                            <td class="cli-col">Typed text commands</td>
+                            <td class="gui-col">Mouse clicks, touch, pointing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visual Feedback</strong></td>
+                            <td class="cli-col">None - text only</td>
+                            <td class="gui-col">Immediate visual responses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td class="cli-col">Steep - must memorize commands</td>
+                            <td class="gui-col">Gentle - intuitive and discoverable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efficiency</strong></td>
+                            <td class="cli-col">Fast for experts</td>
+                            <td class="gui-col">Consistent for all users</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resource Usage</strong></td>
+                            <td class="cli-col">Lightweight</td>
+                            <td class="gui-col">More demanding</td>
+                        </tr>
+                        <tr>
+                            <td><strong>User Base</strong></td>
+                            <td class="cli-col">Technical users</td>
+                            <td class="gui-col">General public</td>
+                        </tr>
+                    </table>
+                    
+                    <p style="margin-top: 12px; font-style: italic; color: #666;">Both interfaces serve different purposes and user needs!</p>
+                `;
+                this.createWindow('CLI vs GUI Comparison', content, 600, 450);
+            }
+
+            createQuizWindow() {
+                const content = `
+                    <div id="quizContainer">
+                        <h3 style="color: #000080; margin-bottom: 12px;">GUI Knowledge Quiz</h3>
+                        <p style="margin-bottom: 16px;">Test your understanding of GUI characteristics!</p>
+                        <div class="button" onclick="guiEmulator.startQuiz()">Start Quiz</div>
+                    </div>
+                `;
+                this.createWindow('GUI Quiz', content, 500, 400);
+            }
+
+            createDevicesWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">Devices That Use GUIs</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <h4>Consumer Devices:</h4>
+                            <div class="file-list">
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #ff6b6b;"></div>
+                                    <span>Desktop Computers</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #4ecdc4;"></div>
+                                    <span>Laptops & Notebooks</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #45b7d1;"></div>
+                                    <span>Smartphones</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #f39c12;"></div>
+                                    <span>Tablets</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #e74c3c;"></div>
+                                    <span>Smart TVs</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4>Commercial Devices:</h4>
+                            <div class="file-list">
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #9b59b6;"></div>
+                                    <span>Kiosks (Self-service)</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #2ecc71;"></div>
+                                    <span>Point-of-Sale Systems</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #f1c40f;"></div>
+                                    <span>ATM Machines</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #e67e22;"></div>
+                                    <span>Digital Signage</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #34495e;"></div>
+                                    <span>Embedded Displays</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p style="margin-top: 12px; font-style: italic; color: #666;">GUIs are everywhere because they make technology accessible to everyone!</p>
+                `;
+                this.createWindow('GUI Devices', content, 550, 450);
+            }
+
+            createDemoWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">Interactive GUI Demo</h3>
+                    <p style="margin-bottom: 12px;">Experience GUI advantages through interaction:</p>
+                    
+                    <h4>Visual Feedback Examples:</h4>
+                    <div class="button" onmouseover="this.style.background='#90EE90'" onmouseout="this.style.background=''" onclick="guiEmulator.showTooltip(null, 'Button clicked! See how GUI provides instant visual feedback.')">Hover & Click Me</div>
+                    
+                    <h4>Discoverability:</h4>
+                    <p>Right-click anywhere in this window to see a context menu:</p>
+                    <div style="background: #f0f0f0; border: 1px solid #ccc; padding: 12px; margin: 8px 0; min-height: 40px;" 
+                         oncontextmenu="guiEmulator.showContextMenu(event); return false;">
+                        Right-click in this area
+                    </div>
+                    
+                    <h4>Multi-tasking:</h4>
+                    <p>Notice how you can have multiple windows open simultaneously - try opening other applications while this window stays open!</p>
+                    
+                    <h4>Visual Confirmation:</h4>
+                    <textarea class="text-area" placeholder="Type here and see immediate visual feedback as you type..."></textarea>
+                    
+                    <p style="margin-top: 12px; font-style: italic; color: #666;">All these interactions would be impossible in a text-only CLI environment!</p>
+                `;
+                this.createWindow('Interactive Demo', content, 500, 500);
+            }
+
+            startQuiz() {
+                this.currentQuiz = { questionIndex: 0, score: 0 };
+                this.showQuizQuestion();
+            }
+
+            showQuizQuestion() {
+                const container = document.getElementById('quizContainer');
+                const q = this.quizQuestions[this.currentQuiz.questionIndex];
+                
+                container.innerHTML = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">GUI Knowledge Quiz</h3>
+                    <div class="quiz-panel">
+                        <div class="quiz-question">Question ${this.currentQuiz.questionIndex + 1}/${this.quizQuestions.length}:</div>
+                        <div class="quiz-question">${q.question}</div>
+                        <div style="margin-top: 12px;">
+                            ${q.options.map((option, index) => `
+                                <label class="quiz-option">
+                                    <input type="radio" name="quizAnswer" value="${index}" style="margin-right: 8px;">
+                                    ${option}
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="button" onclick="guiEmulator.submitQuizAnswer()" style="margin-top: 12px;">Submit Answer</div>
+                    </div>
+                    <div style="margin-top: 12px; font-style: italic; color: #666;">
+                        Notice: You can click to select options - much easier than typing commands!
+                    </div>
+                `;
+            }
+
+            submitQuizAnswer() {
+                const selected = document.querySelector('input[name="quizAnswer"]:checked');
+                if (!selected) {
+                    this.showTooltip(null, 'Please select an answer by clicking on one of the options!');
+                    return;
+                }
+                
+                const answerIndex = parseInt(selected.value);
+                const q = this.quizQuestions[this.currentQuiz.questionIndex];
+                const container = document.getElementById('quizContainer');
+                
+                let feedback = '';
+                if (answerIndex === q.correct) {
+                    this.currentQuiz.score++;
+                    feedback = `<div class="feedback" style="background: #d4edda; border-color: #c3e6cb; color: #155724;">
+                        ✓ Correct! ${q.explanation}
+                    </div>`;
+                } else {
+                    feedback = `<div class="feedback" style="background: #f8d7da; border-color: #f5c6cb; color: #721c24;">
+                        ✗ Incorrect. ${q.explanation}
+                    </div>`;
+                }
+                
+                container.innerHTML += feedback;
+                
+                this.currentQuiz.questionIndex++;
+                
+                if (this.currentQuiz.questionIndex < this.quizQuestions.length) {
+                    setTimeout(() => this.showQuizQuestion(), 2500);
+                } else {
+                    setTimeout(() => this.endQuiz(), 2500);
+                }
+            }
+
+            endQuiz() {
+                const container = document.getElementById('quizContainer');
+                const score = this.currentQuiz.score;
+                const total = this.quizQuestions.length;
+                const percentage = Math.round(score/total*100);
+                
+                let scoreColor = '#721c24';
+                let message = 'Keep studying GUI concepts!';
+                
+                if (percentage >= 80) {
+                    scoreColor = '#155724';
+                    message = 'Excellent! You understand GUI principles well!';
+                } else if (percentage >= 60) {
+                    scoreColor = '#856404';
+                    message = 'Good job! You have a solid grasp of GUI concepts.';
+                }
+                
+                container.innerHTML = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">Quiz Complete!</h3>
+                    <div class="quiz-panel">
+                        <div style="text-align: center; font-size: 24px; color: ${scoreColor}; margin: 16px 0;">
+                            ${score}/${total} (${percentage}%)
+                        </div>
+                        <div style="text-align: center; font-weight: bold; color: ${scoreColor};">
+                            ${message}
+                        </div>
+                        <div class="progress-bar" style="margin: 16px 0;">
+                            <div class="progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="button" onclick="guiEmulator.startQuiz()" style="margin-top: 12px;">Take Quiz Again</div>
+                    </div>
+                    <div style="margin-top: 12px; font-style: italic; color: #666;">
+                        This visual feedback and progress display shows GUI's strength in user communication!
+                    </div>
+                `;
+                
+                this.currentQuiz = null;
+            }
+
+            animateProgress() {
+                const progressFill = document.getElementById('progressDemo');
+                if (!progressFill) return;
+                
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 2;
+                    progressFill.style.width = width + '%';
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        this.showTooltip(null, 'Progress complete! Visual feedback helps users understand system status.');
+                    }
+                }, 50);
+            }
+
+            showContextMenu(event) {
+                event.preventDefault();
+                this.hideTooltip(); // Hide any existing tooltip
+                
+                // Remove existing context menu
+                const existingMenu = document.getElementById('contextMenu');
+                if (existingMenu) existingMenu.remove();
+                
+                const menu = document.createElement('div');
+                menu.id = 'contextMenu';
+                menu.className = 'menu';
+                menu.style.left = event.pageX + 'px';
+                menu.style.top = event.pageY + 'px';
+                menu.innerHTML = `
+                    <div class="menu-item" onclick="guiEmulator.showTooltip(null, 'Copy selected!')">Copy</div>
+                    <div class="menu-item" onclick="guiEmulator.showTooltip(null, 'Paste action!')">Paste</div>
+                    <div class="menu-item" onclick="guiEmulator.showTooltip(null, 'Properties opened!')">Properties</div>
+                `;
+                
+                document.body.appendChild(menu);
+                
+                // Remove menu when clicking elsewhere
+                setTimeout(() => {
+                    document.addEventListener('click', function removeMenu() {
+                        if (menu) menu.remove();
+                        document.removeEventListener('click', removeMenu);
+                    });
+                }, 100);
+                
+                this.showTooltip(null, 'Context menu appeared! Right-click menus provide discoverable options.');
+            }
+
+            toggleStartMenu() {
+                const menu = document.getElementById('startMenu');
+                const isVisible = menu.style.display !== 'none';
+                menu.style.display = isVisible ? 'none' : 'block';
+                
+                if (!isVisible) {
+                    this.showTooltip(null, 'Start menu provides easy access to system functions - much more discoverable than CLI commands!');
+                }
+            }
+
+            hideStartMenu() {
+                document.getElementById('startMenu').style.display = 'none';
+            }
+
+            handleStartMenuClick(e) {
+                const action = e.target.dataset.action;
+                this.hideStartMenu();
+                
+                switch(action) {
+                    case 'help':
+                        this.createHelpWindow();
+                        break;
+                    case 'advantages':
+                        this.createAdvantagesWindow();
+                        break;
+                    case 'disadvantages':
+                        this.createDisadvantagesWindow();
+                        break;
+                    case 'tutorial':
+                        this.createTutorialWindow();
+                        break;
+                }
+            }
+
+            createHelpWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">GUI Help & Tips</h3>
+                    <p style="margin-bottom: 8px;"><strong>Double-click</strong> desktop icons to open applications</p>
+                    <p style="margin-bottom: 8px;"><strong>Single-click</strong> to select items</p>
+                    <p style="margin-bottom: 8px;"><strong>Right-click</strong> for context menus with relevant options</p>
+                    <p style="margin-bottom: 8px;"><strong>Drag</strong> window title bars to move windows around</p>
+                    <p style="margin-bottom: 8px;"><strong>Hover</strong> over elements to see tooltips and visual feedback</p>
+                    <p style="margin-bottom: 8px;"><strong>Use buttons</strong> instead of memorizing commands</p>
+                    
+                    <div style="background: #f0f0f0; padding: 8px; border-left: 4px solid #000080; margin: 12px 0;">
+                        <strong>Key Insight:</strong> Notice how you can discover these functions through exploration - 
+                        no need to memorize complex command syntax like in CLI!
+                    </div>
+                `;
+                this.createWindow('Help & Tips', content, 450, 300);
+            }
+
+            createAdvantagesWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">GUI Advantages</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <h4 style="color: #2ecc71;">User Experience:</h4>
+                            <p>✓ User-friendly and accessible</p>
+                            <p>✓ Intuitive for all skill levels</p>
+                            <p>✓ Visual feedback guides behavior</p>
+                            <p>✓ Discoverable features</p>
+                            <p>✓ Reduced learning curve</p>
+                        </div>
+                        
+                        <div>
+                            <h4 style="color: #3498db;">Functionality:</h4>
+                            <p>✓ Complex workflows with multiple windows</p>
+                            <p>✓ Excellent for multitasking</p>
+                            <p>✓ Visual representation of data</p>
+                            <p>✓ Point-and-click efficiency</p>
+                            <p>✓ Standard interface patterns</p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #e74c3c; margin-top: 16px;">Default Choice:</h4>
+                    <p>GUIs are the default choice for most consumer-facing applications because they make technology accessible to everyone, regardless of technical expertise.</p>
+                    
+                    <div class="button" onclick="this.classList.add('highlight')" style="margin-top: 12px;">
+                        Click to Highlight (Visual Feedback Example)
+                    </div>
+                `;
+                this.createWindow('GUI Advantages', content, 500, 400);
+            }
+
+            createDisadvantagesWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">GUI Disadvantages</h3>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+                        <strong>Important:</strong> While GUIs have disadvantages, they're still preferred for most users!
+                    </div>
+                    
+                    <h4 style="color: #e74c3c;">Resource Requirements:</h4>
+                    <p style="margin-bottom: 8px;">• More demanding on system resources than CLI</p>
+                    <p style="margin-bottom: 8px;">• Requires graphics processing and memory for visuals</p>
+                    <p style="margin-bottom: 8px;">• Larger software footprint</p>
+                    
+                    <h4 style="color: #e74c3c;">Design Challenges:</h4>
+                    <p style="margin-bottom: 8px;">• Can be cluttered or overwhelming if poorly designed</p>
+                    <p style="margin-bottom: 8px;">• May hide advanced features in nested menus</p>
+                    <p style="margin-bottom: 8px;">• Requires careful attention to accessibility</p>
+                    
+                    <h4 style="color: #e74c3c;">Performance:</h4>
+                    <p style="margin-bottom: 8px;">• May be slower than CLI for repetitive tasks</p>
+                    <p style="margin-bottom: 8px;">• Multiple clicks vs single command</p>
+                    <p style="margin-bottom: 8px;">• Less efficient for automation</p>
+                    
+                    <div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 12px; margin-top: 16px; border-radius: 4px;">
+                        <strong>Client Considerations:</strong> Despite these disadvantages, GUIs remain essential 
+                        for user-friendly applications, especially when branding and accessibility are important.
+                    </div>
+                `;
+                this.createWindow('GUI Disadvantages', content, 500, 450);
+            }
+
+            createTutorialWindow() {
+                const content = `
+                    <h3 style="color: #000080; margin-bottom: 12px;">Interactive GUI Tutorial</h3>
+                    
+                    <div id="tutorialStep">
+                        <h4>Step 1: Visual Elements</h4>
+                        <p>Look around this window. Notice the visual elements:</p>
+                        <ul style="margin: 8px 0 8px 20px;">
+                            <li>Title bar with window controls</li>
+                            <li>Buttons you can click</li>
+                            <li>Text you can read</li>
+                            <li>Visual borders and layouts</li>
+                        </ul>
+                        <div class="button" onclick="guiEmulator.nextTutorialStep(2)">Next: Mouse Interaction</div>
+                    </div>
+                `;
+                this.createWindow('GUI Tutorial', content, 450, 350);
+            }
+
+            nextTutorialStep(step) {
+                const container = document.getElementById('tutorialStep');
+                if (!container) return;
+                
+                const steps = {
+                    2: {
+                        title: "Step 2: Mouse Interaction",
+                        content: `
+                            <p>Try these mouse interactions:</p>
+                            <div class="button" onmouseover="this.style.background='lightblue'" onmouseout="this.style.background=''" onclick="guiEmulator.showTooltip(null, 'Great! You clicked successfully.')">Hover and Click Me</div>
+                            <p style="margin: 8px 0;">Notice how the button responds to your mouse - this is visual feedback!</p>
+                            <div class="button" onclick="guiEmulator.nextTutorialStep(3)">Next: Discoverability</div>
+                        `
+                    },
+                    3: {
+                        title: "Step 3: Discoverability",
+                        content: `
+                            <p>In CLI, you must know commands. In GUI, you can discover features:</p>
+                            <ul style="margin: 8px 0 8px 20px;">
+                                <li>Look at menus to see options</li>
+                                <li>Hover over buttons for tooltips</li>
+                                <li>Right-click for context menus</li>
+                                <li>Visual cues guide your actions</li>
+                            </ul>
+                            <div class="button" onclick="guiEmulator.nextTutorialStep(4)">Next: Multitasking</div>
+                        `
+                    },
+                    4: {
+                        title: "Step 4: Multitasking",
+                        content: `
+                            <p>GUIs excel at multitasking:</p>
+                            <ul style="margin: 8px 0 8px 20px;">
+                                <li>Multiple windows can be open</li>
+                                <li>Switch between applications easily</li>
+                                <li>Visual taskbar shows running programs</li>
+                                <li>Drag and drop between windows</li>
+                            </ul>
+                            <div class="button" onclick="guiEmulator.nextTutorialStep(5)">Finish Tutorial</div>
+                        `
+                    },
+                    5: {
+                        title: "Tutorial Complete!",
+                        content: `
+                            <div style="text-align: center; padding: 20px;">
+                                <h4 style="color: #2ecc71;">Congratulations!</h4>
+                                <p>You've experienced key GUI advantages:</p>
+                                <ul style="text-align: left; margin: 16px 0;">
+                                    <li>Visual interface elements</li>
+                                    <li>Intuitive mouse interaction</li>
+                                    <li>Discoverable features</li>
+                                    <li>Multitasking capabilities</li>
+                                </ul>
+                                <p style="font-style: italic; color: #666;">
+                                    Compare this experience to typing commands in CLI!
+                                </p>
+                            </div>
+                        `
+                    }
+                };
+                
+                const stepData = steps[step];
+                if (stepData) {
+                    container.innerHTML = `
+                        <h4>${stepData.title}</h4>
+                        ${stepData.content}
+                    `;
+                }
+            }
+
+            handleMouseDown(e) {
+                const header = e.target.closest('.window-header');
+                if (header && !e.target.closest('.window-controls')) {
+                    const windowElement = header.closest('.window');
+                    this.draggedWindow = windowElement;
+                    const rect = windowElement.getBoundingClientRect();
+                    this.dragOffset = {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+                    windowElement.classList.add('dragging');
+                    e.preventDefault();
+                }
+            }
+
+            handleMouseMove(e) {
+                if (this.draggedWindow) {
+                    const x = e.clientX - this.dragOffset.x;
+                    const y = e.clientY - this.dragOffset.y;
+                    
+                    // Keep window within viewport
+                    const maxX = window.innerWidth - this.draggedWindow.offsetWidth;
+                    const maxY = window.innerHeight - this.draggedWindow.offsetHeight - 40; // Account for taskbar
+                    
+                    this.draggedWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+                    this.draggedWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+                }
+            }
+
+            handleMouseUp() {
+                if (this.draggedWindow) {
+                    this.draggedWindow.classList.remove('dragging');
+                    this.draggedWindow = null;
+                }
+            }
+
+            showTooltip(event, text) {
+                this.hideTooltip();
+                
+                if (!text && event) {
+                    const icon = event.target.closest('.desktop-icon');
+                    if (icon) {
+                        const app = icon.dataset.app;
+                        const tooltips = {
+                            about: "Learn about GUI characteristics and visual interfaces",
+                            features: "Explore interactive GUI elements and controls",
+                            compare: "See detailed comparison between CLI and GUI",
+                            quiz: "Test your knowledge with an interactive quiz",
+                            devices: "Discover devices that use graphical interfaces",
+                            demo: "Experience GUI advantages through hands-on interaction"
+                        };
+                        text = tooltips[app] || "Double-click to open this application";
+                    }
+                }
+                
+                if (text) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = text;
+                    tooltip.id = 'currentTooltip';
+                    
+                    if (event) {
+                        tooltip.style.left = event.pageX + 10 + 'px';
+                        tooltip.style.top = event.pageY - 30 + 'px';
+                    } else {
+                        // Center tooltip if no event
+                        tooltip.style.left = '50%';
+                        tooltip.style.top = '50%';
+                        tooltip.style.transform = 'translate(-50%, -50%)';
+                    }
+                    
+                    document.body.appendChild(tooltip);
+                    
+                    // Auto-hide after delay
+                    this.tooltipTimeout = setTimeout(() => this.hideTooltip(), 3000);
+                }
+            }
+
+            hideTooltip() {
+                const tooltip = document.getElementById('currentTooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+                if (this.tooltipTimeout) {
+                    clearTimeout(this.tooltipTimeout);
+                    this.tooltipTimeout = null;
+                }
+            }
+
+            updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('clock').textContent = timeString;
+            }
+
+            showWelcomeTooltip() {
+                setTimeout(() => {
+                    this.showTooltip(null, "Welcome to the GUI Emulator! Double-click desktop icons to explore GUI features. Notice how everything is visual and interactive - very different from CLI!");
+                }, 1000);
+            }
+        }
+
+        // Initialize the GUI emulator when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.guiEmulator = new GUIEmulator();
+        });
+    </script>
+</body>
+</html>
