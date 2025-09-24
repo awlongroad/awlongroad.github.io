@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Southwest Airlines Mobile App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #304CB2, #FFD100);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 700px;
+            background: #fff;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: #304CB2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Header */
+        .app-header {
+            background: #304CB2;
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .southwest-logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #FF6B35;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .points-info {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            height: calc(100vh - 164px);
+        }
+
+        .content-section {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #304CB2;
+        }
+
+        /* Flight Booking Section */
+        .booking-form {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .search-btn {
+            width: 100%;
+            background: #304CB2;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #253a94;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action {
+            background: white;
+            border: 2px solid #e3e6e6;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            border-color: #304CB2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .quick-action-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #304CB2;
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-menu {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 85%;
+            max-width: 320px;
+            background: white;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-overlay.active .side-menu {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            background: #304CB2;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .menu-user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .menu-user-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .rapid-rewards {
+            font-size: 12px;
+            color: #FFD100;
+            font-weight: 600;
+        }
+
+        .points-display {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .view-account {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .menu-section {
+            border-bottom: 1px solid #e3e6e6;
+        }
+
+        .menu-category {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: #304CB2;
+            border-bottom: 1px solid #e3e6e6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .menu-category.expanded .category-icon {
+            transform: rotate(180deg);
+        }
+
+        .category-icon {
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .menu-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .menu-category.expanded + .menu-items {
+            max-height: 500px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-item:hover {
+            background: #f8f9fa;
+        }
+
+        .menu-item-icon {
+            width: 24px;
+            margin-right: 16px;
+            text-align: center;
+            font-size: 18px;
+            color: #304CB2;
+        }
+
+        .menu-item-text {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .menu-item-arrow {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* List styles */
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e3e6e6;
+            font-size: 15px;
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-text {
+            color: #304CB2;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-subtext {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>11:29</span>
+            </div>
+            <div class="status-right">
+                <span>••</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-header">
+            <div class="header-content">
+                <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+                
+                <div class="southwest-logo">
+                    <div class="logo-icon">♥</div>
+                    Southwest
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-name">John</div>
+                    <div class="rapid-rewards">Rapid Rewards</div>
+                    <div class="points-info">9,523 PTS</div>
+                    <button class="view-account">View Account ›</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Section -->
+            <div class="content-section active" id="home">
+                <div class="section-title">Book Your Flight</div>
+                
+                <div class="booking-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">From</label>
+                            <input type="text" class="form-input" placeholder="Departure city" value="Dallas (DAL)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <input type="text" class="form-input" placeholder="Arrival city">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Depart</label>
+                            <input type="date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Return</label>
+                            <input type="date" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Passengers</label>
+                        <select class="form-input">
+                            <option>1 Passenger</option>
+                            <option>2 Passengers</option>
+                            <option>3 Passengers</option>
+                        </select>
+                    </div>
+                    
+                    <button class="search-btn">Search Flights</button>
+                </div>
+
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="switchSection('check-in')">
+                        <div class="quick-action-icon">✈️</div>
+                        <div class="quick-action-label">Check In</div>
+                    </div>
+                    <div class="quick-action" onclick="switchSection('flight-status')">
+                        <div class="quick-action-icon">📍</div>
+                        <div class="quick-action-label">Flight Status</div>
+                    </div>
+                    <div class="quick-action" onclick="switchSection('low-fare-calendar')">
+                        <div class="quick-action-icon">📅</div>
+                        <div class="quick-action-label">Low Fare Calendar</div>
+                    </div>
+                    <div class="quick-action" onclick="switchSection('rapid-rewards')">
+                        <div class="quick-action-icon">⭐</div>
+                        <div class="quick-action-label">Rapid Rewards</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check In Section -->
+            <div class="content-section" id="check-in">
+                <div class="section-title">Check In</div>
+                <div class="empty-state">
+                    <div class="empty-icon">✈️</div>
+                    <div class="empty-text">No upcoming flights</div>
+                    <div class="empty-subtext">Your eligible flights will appear here 24 hours before departure</div>
+                </div>
+            </div>
+
+            <!-- Flight Status Section -->
+            <div class="content-section" id="flight-status">
+                <div class="section-title">Flight Status</div>
+                <div class="booking-form">
+                    <div class="form-group">
+                        <label class="form-label">Flight Number</label>
+                        <input type="text" class="form-input" placeholder="e.g., WN 1234">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+                    <button class="search-btn">Check Status</button>
+                </div>
+            </div>
+
+            <!-- Low Fare Calendar -->
+            <div class="content-section" id="low-fare-calendar">
+                <div class="section-title">Low Fare Calendar</div>
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <div class="empty-text">Find the best deals</div>
+                    <div class="empty-subtext">Search for flights to see our low fare calendar</div>
+                </div>
+            </div>
+
+            <!-- Rapid Rewards -->
+            <div class="content-section" id="rapid-rewards">
+                <div class="section-title">Rapid Rewards</div>
+                <div class="booking-form">
+                    <div class="form-group">
+                        <div class="form-label">Account Balance</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #304CB2;">9,523 Points</div>
+                    </div>
+                </div>
+                <ul class="info-list">
+                    <li>Points earned this year: <span class="highlight-text">2,847</span></li>
+                    <li>Tier status: <span class="highlight-text">A-List</span></li>
+                    <li>Next tier: <span class="highlight-text">A-List Preferred</span></li>
+                    <li>Qualifying points needed: <span class="highlight-text">15,477</span></li>
+                </ul>
+            </div>
+
+            <!-- Manage Reservations -->
+            <div class="content-section" id="manage-reservations">
+                <div class="section-title">Manage Reservations</div>
+                <div class="booking-form">
+                    <div class="form-group">
+                        <label class="form-label">Confirmation Number</label>
+                        <input type="text" class="form-input" placeholder="6 character confirmation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" placeholder="Last name">
+                    </div>
+                    <button class="search-btn">Find Reservation</button>
+                </div>
+            </div>
+
+            <!-- Other sections can be added similarly -->
+            <div class="content-section" id="track-bags">
+                <div class="section-title">Track Checked Bags</div>
+                <div class="empty-state">
+                    <div class="empty-icon">🎒</div>
+                    <div class="empty-text">Track your bags</div>
+                    <div class="empty-subtext">Enter your flight details to track checked bags</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Overlay -->
+        <div class="menu-overlay" id="menuOverlay" onclick="closeMenu(event)">
+            <div class="side-menu">
+                <div class="menu-header">
+                    <div class="menu-user-info">
+                        <div>
+                            <div class="menu-user-name">John</div>
+                            <div class="rapid-rewards">Rapid Rewards</div>
+                            <div class="points-display">9,523 PTS</div>
+                        </div>
+                        <button class="close-menu" onclick="closeMenu()">×</button>
+                    </div>
+                    <button class="view-account">View Account ›</button>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-category" onclick="toggleCategory(this)">
+                        ✈️ Flight
+                        <span class="category-icon">▼</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item" onclick="switchSection('home')">
+                            <div class="menu-item-icon">🔍</div>
+                            <div class="menu-item-text">Book a Flight</div>
+                        </div>
+                        <div class="menu-item" onclick="switchSection('low-fare-calendar')">
+                            <div class="menu-item-icon">📅</div>
+                            <div class="menu-item-text">Low Fare Calendar</div>
+                            <div class="menu-item-arrow">🔗</div>
+                        </div>
+                        <div class="menu-item" onclick="switchSection('check-in')">
+                            <div class="menu-item-icon">✅</div>
+                            <div class="menu-item-text">Check in</div>
+                        </div>
+                        <div class="menu-item" onclick="switchSection('track-bags')">
+                            <div class="menu-item-icon">🎒</div>
+                            <div class="menu-item-text">Track Checked Bags</div>
+                            <div class="menu-item-arrow">🔗</div>
+                        </div>
+                        <div class="menu-item" onclick="switchSection('flight-status')">
+                            <div class="menu-item-icon">📊</div>
+                            <div class="menu-item-text">Flight Status</div>
+                        </div>
+                        <div class="menu-item" onclick="switchSection('manage-reservations')">
+                            <div class="menu-item-icon">📋</div>
+                            <div class="menu-item-text">Manage Reservations</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">⬆️</div>
+                            <div class="menu-item-text">Upgrade to Business Select</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🐦</div>
+                            <div class="menu-item-text">Add EarlyBird Check-In</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🎫</div>
+                            <div class="menu-item-text">Upgraded Boarding</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">💰</div>
+                            <div class="menu-item-text">Check Travel Funds</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🗺️</div>
+                            <div class="menu-item-text">Route Map</div>
+                            <div class="menu-item-arrow">🔗</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🌱</div>
+                            <div class="menu-item-text">Buy Carbon Offsets</div>
+                            <div class="menu-item-arrow">🔗</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🎟️</div>
+                            <div class="menu-item-text">Fare Types and Benefits</div>
+                            <div class="menu-item-arrow">🔗</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-category" onclick="toggleCategory(this)">
+                        🚗 Car
+                        <span class="category-icon">▼</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🚗</div>
+                            <div class="menu-item-text">Rental Cars</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-category" onclick="toggleCategory(this)">
+                        🏨 Hotel
+                        <span class="category-icon">▼</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <div class="menu-item-icon">🏨</div>
+                            <div class="menu-item-text">Book Hotels</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Close menu if open
+            closeMenu();
+        }
+
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMenu(event) {
+            const overlay = document.getElementById('menuOverlay');
+            const sideMenu = overlay.querySelector('.side-menu');
+            
+            // Close if clicking overlay or close button
+            if (event === undefined || event.target === overlay || event.target.classList.contains('close-menu')) {
+                overlay.classList.remove('active');
+            }
+        }
+
+        function toggleCategory(element) {
+            element.classList.toggle('expanded');
+        }
+
+        // Prevent menu from closing when clicking inside side menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const sideMenu = document.querySelector('.side-menu');
+            if (sideMenu) {
+                sideMenu.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
+            }
+        });
+
+        // Auto-expand Flight category on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const flightCategory = document.querySelector('.menu-category');
+            if (flightCategory) {
+                flightCategory.classList.add('expanded');
+            }
+        });
+    </script>
+</body>
+</html>
