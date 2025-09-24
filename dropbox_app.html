@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropbox Desktop Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #0d1117;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-240px);
+        }
+
+        /* Header */
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropbox-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #0061ff, #0080ff);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .upgrade-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upgrade-btn:hover {
+            background: #2ea043;
+            transform: translateY(-1px);
+        }
+
+        /* Navigation */
+        .nav-section {
+            padding: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #e6edf3;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #21262d;
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: #0969da;
+            color: white;
+        }
+
+        .nav-item.active:hover {
+            background: #0860ca;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .nav-count {
+            background: #6e7681;
+            color: #e6edf3;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Quick Access Section */
+        .quick-access {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #7d8590;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .add-btn {
+            background: none;
+            border: none;
+            color: #7d8590;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #30363d;
+            color: #e6edf3;
+        }
+
+        .quick-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin: 2px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            color: #7d8590;
+        }
+
+        .quick-item:hover {
+            background: #21262d;
+            color: #e6edf3;
+            transform: translateX(2px);
+        }
+
+        .quick-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+        }
+
+        .top-bar {
+            height: 60px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: #e6edf3;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            background: #21262d;
+            transform: scale(1.1);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 12px 8px 36px;
+            color: #e6edf3;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #0969da;
+            box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7d8590;
+            font-size: 14px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #7d8590;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #21262d;
+            color: #e6edf3;
+            transform: translateY(-1px);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e6edf3;
+        }
+
+        /* File Grid */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .file-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-card:hover {
+            background: #1c2128;
+            border-color: #484f58;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: #21262d;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #e6edf3;
+        }
+
+        .file-meta {
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        /* List View */
+        .file-list {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #30363d;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-row:hover {
+            background: #21262d;
+        }
+
+        .file-row:last-child {
+            border-bottom: none;
+        }
+
+        .row-icon {
+            width: 32px;
+            height: 32px;
+            background: #21262d;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .row-info {
+            flex: 1;
+        }
+
+        .row-name {
+            font-weight: 500;
+            color: #e6edf3;
+            margin-bottom: 2px;
+        }
+
+        .row-meta {
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .file-row:hover .row-actions {
+            opacity: 1;
+        }
+
+        .row-action {
+            background: none;
+            border: none;
+            color: #7d8590;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .row-action:hover {
+            background: #30363d;
+            color: #e6edf3;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7d8590;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #e6edf3;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Drag and Drop Area */
+        .drop-zone {
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .drop-zone:hover {
+            border-color: #0969da;
+            background: rgba(9, 105, 218, 0.05);
+        }
+
+        .drop-text {
+            font-size: 16px;
+            color: #7d8590;
+            margin-bottom: 8px;
+        }
+
+        .drop-subtext {
+            font-size: 14px;
+            color: #7d8590;
+            opacity: 0.7;
+        }
+
+        /* Recent Activity */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-avatar {
+            width: 32px;
+            height: 32px;
+            background: #0969da;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 14px;
+            color: #e6edf3;
+            margin-bottom: 2px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-240px);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="dropbox-logo">
+                    <div class="logo-icon">▣</div>
+                    Dropbox
+                </div>
+                <button class="upgrade-btn">Click to upgrade</button>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-item active" onclick="switchSection('home')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-text">Home</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('all-files')">
+                    <div class="nav-icon">📁</div>
+                    <div class="nav-text">All files</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('photos')">
+                    <div class="nav-icon">📸</div>
+                    <div class="nav-text">Photos</div>
+                    <div class="nav-count">1.2k</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('shared')">
+                    <div class="nav-icon">👥</div>
+                    <div class="nav-text">Shared</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('signatures')">
+                    <div class="nav-icon">✍️</div>
+                    <div class="nav-text">Signatures</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('file-requests')">
+                    <div class="nav-icon">📥</div>
+                    <div class="nav-text">File requests</div>
+                </div>
+
+                <div class="nav-item" onclick="switchSection('deleted')">
+                    <div class="nav-icon">🗑️</div>
+                    <div class="nav-text">Deleted files</div>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="quick-access">
+                    <div class="section-title">
+                        Quick access
+                        <button class="add-btn">+</button>
+                    </div>
+
+                    <div class="quick-item">
+                        <div class="quick-icon">⭐</div>
+                        <div>Starred</div>
+                    </div>
+
+                    <div class="quick-item">
+                        <div class="quick-icon">📝</div>
+                        <div>Untitled</div>
+                    </div>
+
+                    <div style="font-size: 12px; color: #7d8590; padding: 8px 12px; font-style: italic;">
+                        Drag important items here.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search">
+                    <div class="search-icon">🔍</div>
+                </div>
+
+                <div class="top-bar-actions">
+                    <button class="action-btn" title="Grid view">⊞</button>
+                    <button class="action-btn" title="List view">☰</button>
+                    <button class="action-btn" title="Notifications">🔔</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Home Section -->
+                <div class="content-section active" id="home">
+                    <div class="page-title">Home</div>
+                    
+                    <div class="drop-zone">
+                        <div class="drop-text">Drag important items here.</div>
+                        <div class="drop-subtext">Quick access items appear in your sidebar for easy access</div>
+                    </div>
+
+                    <h3 style="margin: 24px 0 16px 0; color: #e6edf3;">Recent activity</h3>
+                    
+                    <div class="activity-item">
+                        <div class="activity-avatar">J</div>
+                        <div class="activity-content">
+                            <div class="activity-text">You added "Project Proposal.pdf" to Dropbox</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">M</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Mike shared "Design Assets" folder with you</div>
+                            <div class="activity-time">Yesterday</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">S</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Sarah commented on "Marketing Plan.docx"</div>
+                            <div class="activity-time">3 days ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Files Section -->
+                <div class="content-section" id="all-files">
+                    <div class="page-title">All files</div>
+                    
+                    <div class="file-list">
+                        <div class="file-row">
+                            <div class="row-icon">📁</div>
+                            <div class="row-info">
+                                <div class="row-name">Documents</div>
+                                <div class="row-meta">Modified 2 days ago • Folder</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+
+                        <div class="file-row">
+                            <div class="row-icon">📄</div>
+                            <div class="row-info">
+                                <div class="row-name">Project Proposal.pdf</div>
+                                <div class="row-meta">Modified 2 hours ago • 2.4 MB</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+
+                        <div class="file-row">
+                            <div class="row-icon">📊</div>
+                            <div class="row-info">
+                                <div class="row-name">Budget 2024.xlsx</div>
+                                <div class="row-meta">Modified yesterday • 1.2 MB</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+
+                        <div class="file-row">
+                            <div class="row-icon">🖼️</div>
+                            <div class="row-info">
+                                <div class="row-name">Team Photo.jpg</div>
+                                <div class="row-meta">Modified last week • 3.1 MB</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photos Section -->
+                <div class="content-section" id="photos">
+                    <div class="page-title">Photos</div>
+                    
+                    <div class="file-grid">
+                        <div class="file-card">
+                            <div class="file-icon" style="background: linear-gradient(135deg, #ff6b6b, #feca57);">📸</div>
+                            <div class="file-name">Vacation 2024</div>
+                            <div class="file-meta">124 photos • 2.1 GB</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon" style="background: linear-gradient(135deg, #48cae4, #0077be);">🏠</div>
+                            <div class="file-name">Home Renovation</div>
+                            <div class="file-meta">67 photos • 890 MB</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon" style="background: linear-gradient(135deg, #a8e6cf, #3eaf7c);">🌿</div>
+                            <div class="file-name">Nature Photography</div>
+                            <div class="file-meta">203 photos • 3.4 GB</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon" style="background: linear-gradient(135deg, #ffd93d, #ff8500);">👨‍👩‍👧‍👦</div>
+                            <div class="file-name">Family Events</div>
+                            <div class="file-meta">89 photos • 1.2 GB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shared Section -->
+                <div class="content-section" id="shared">
+                    <div class="page-title">Shared</div>
+                    
+                    <div class="file-list">
+                        <div class="file-row">
+                            <div class="row-icon">👥</div>
+                            <div class="row-info">
+                                <div class="row-name">Marketing Campaign</div>
+                                <div class="row-meta">Shared by Sarah Johnson • Modified yesterday</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+
+                        <div class="file-row">
+                            <div class="row-icon">👥</div>
+                            <div class="row-info">
+                                <div class="row-name">Design Assets</div>
+                                <div class="row-meta">Shared by Mike Chen • Modified 3 days ago</div>
+                            </div>
+                            <div class="row-actions">
+                                <button class="row-action">⋯</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other sections with empty states -->
+                <div class="content-section" id="signatures">
+                    <div class="page-title">Signatures</div>
+                    <div class="empty-state">
+                        <div class="empty-icon">✍️</div>
+                        <div class="empty-title">No signatures yet</div>
+                        <div class="empty-text">Send documents for signature or sign documents yourself</div>
+                    </div>
+                </div>
+
+                <div class="content-section" id="file-requests">
+                    <div class="page-title">File requests</div>
+                    <div class="empty-state">
+                        <div class="empty-icon">📥</div>
+                        <div class="empty-title">No file requests</div>
+                        <div class="empty-text">Request files from others without sharing folders</div>
+                    </div>
+                </div>
+
+                <div class="content-section" id="deleted">
+                    <div class="page-title">Deleted files</div>
+                    <div class="empty-state">
+                        <div class="empty-icon">🗑️</div>
+                        <div class="empty-title">No deleted files</div>
+                        <div class="empty-text">Files you delete appear here and are permanently removed after 30 days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Update active nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            const activeNav = document.querySelector(`[onclick="switchSection('${sectionId}')"]`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('open');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const hamburgerBtn = document.querySelector('.hamburger-btn');
+                
+                if (!sidebar.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
