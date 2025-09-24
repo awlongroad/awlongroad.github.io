@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Amazon UK App Navigation Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #00cec9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 700px;
+            background: #fff;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: #ff6b35;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Search Header */
+        .search-header {
+            background: #ff6b35;
+            padding: 12px 16px 16px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px 12px 40px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 18px;
+        }
+
+        .search-actions {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-action {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            padding: 16px;
+            height: calc(700px - 164px);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Your Shortcuts */
+        .shortcuts-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0F1111;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .shortcut-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e3e6e6;
+        }
+
+        .shortcut-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .shortcut-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .shortcut-label {
+            font-size: 12px;
+            color: #0F1111;
+            font-weight: 500;
+        }
+
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .category-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e3e6e6;
+        }
+
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .category-image {
+            height: 80px;
+            background: linear-gradient(45deg, #ddd, #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .category-label {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #0F1111;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e3e6e6;
+            display: flex;
+            height: 60px;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            color: #007185;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 8px;
+            right: calc(50% - 20px);
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+            position: absolute;
+            top: 44px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-menu {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 85%;
+            max-width: 280px;
+            background: white;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-overlay.active .side-menu {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .menu-user {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .menu-section {
+            padding: 16px 0;
+            border-bottom: 1px solid #e3e6e6;
+        }
+
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding: 0 20px;
+            color: #232f3e;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f8f9fa;
+        }
+
+        .menu-item-icon {
+            width: 24px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        .demo-note {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        /* Content variations for different sections */
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            gap: 12px;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: #B12704;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            background: #ff9900;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin-top: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .cta-button:hover {
+            background: #e68a00;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>11:28</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- Search Header -->
+        <div class="search-header">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-bar" placeholder="Search or ask a question" readonly>
+                <div class="search-actions">
+                    <button class="search-action">⚙️</button>
+                    <button class="search-action">👤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Note -->
+        <div style="padding: 0 16px;">
+            <div class="demo-note">
+                <strong>Modern Navigation Demo:</strong> Try the shortcuts, category browsing, bottom nav, and the hamburger menu in the bottom-right corner!
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Section -->
+            <div class="content-section active" id="home">
+                <div class="shortcuts-section">
+                    <div class="section-title">Your Shortcuts</div>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-item" onclick="switchSection('lists')">
+                            <div class="shortcut-icon" style="background: #e3f2fd;">📋</div>
+                            <div class="shortcut-label">Lists</div>
+                        </div>
+                        <div class="shortcut-item" onclick="switchSection('orders')">
+                            <div class="shortcut-icon" style="background: #fff3e0;">📦</div>
+                            <div class="shortcut-label">Orders</div>
+                        </div>
+                        <div class="shortcut-item" onclick="switchSection('deals')">
+                            <div class="shortcut-icon" style="background: #ffebee;">🏷️</div>
+                            <div class="shortcut-label">Today's Deals</div>
+                        </div>
+                        <div class="shortcut-item" onclick="switchSection('account')">
+                            <div class="shortcut-icon" style="background: #e8f5e8;">👤</div>
+                            <div class="shortcut-label">Account</div>
+                        </div>
+                        <div class="shortcut-item" onclick="switchSection('buy-again')">
+                            <div class="shortcut-icon" style="background: #e0f2f1;">🔄</div>
+                            <div class="shortcut-label">Buy Again</div>
+                        </div>
+                        <div class="shortcut-item" onclick="switchSection('prime-video')">
+                            <div class="shortcut-icon" style="background: #1976d2; color: white;">📺</div>
+                            <div class="shortcut-label">Prime Video</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <div class="section-title">Shop by Category</div>
+                    <div class="category-grid">
+                        <div class="category-item" onclick="switchSection('prime')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #ff9900, #ffb84d);">📦</div>
+                            <div class="category-label">Prime</div>
+                        </div>
+                        <div class="category-item" onclick="switchSection('gifting')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #e74c3c, #f39c12);">🎁</div>
+                            <div class="category-label">Gifts & Occasions</div>
+                        </div>
+                        <div class="category-item" onclick="switchSection('deals')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #8e44ad, #3498db);">💰</div>
+                            <div class="category-label">Deals & Offers</div>
+                        </div>
+                        <div class="category-item" onclick="switchSection('grocery')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #27ae60, #2ecc71);">🛒</div>
+                            <div class="category-label">Grocery & Food</div>
+                        </div>
+                        <div class="category-item" onclick="switchSection('fashion')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #e67e22, #f39c12);">👔</div>
+                            <div class="category-label">Fashion</div>
+                        </div>
+                        <div class="category-item" onclick="switchSection('home-garden')">
+                            <div class="category-image" style="background: linear-gradient(45deg, #9b59b6, #e74c3c);">🏠</div>
+                            <div class="category-label">Home & Garden</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="content-section" id="orders">
+                <div class="section-title">Your Orders</div>
+                <div class="product-list">
+                    <div class="product-item">
+                        <div class="product-image">📱</div>
+                        <div class="product-info">
+                            <div class="product-name">iPhone 15 Pro</div>
+                            <div style="color: #666; font-size: 12px; margin-bottom: 4px;">Delivered 15 Sep</div>
+                            <div style="color: #007185; font-size: 12px;">Buy it again</div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-image">📚</div>
+                        <div class="product-info">
+                            <div class="product-name">Atomic Habits</div>
+                            <div style="color: #666; font-size: 12px; margin-bottom: 4px;">Delivered 10 Sep</div>
+                            <div style="color: #007185; font-size: 12px;">Write a review</div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-image">☕</div>
+                        <div class="product-info">
+                            <div class="product-name">Twinings Earl Grey Tea</div>
+                            <div style="color: #666; font-size: 12px; margin-bottom: 4px;">Delivered 8 Sep</div>
+                            <div style="color: #007185; font-size: 12px;">Track return</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Section -->
+            <div class="content-section" id="account">
+                <div class="section-title">Your Account</div>
+                <div class="product-list">
+                    <div class="menu-item">
+                        <div class="menu-item-icon">📦</div>
+                        <div>Your Orders</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">❤️</div>
+                        <div>Your Lists</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">⚙️</div>
+                        <div>Account Settings</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🔒</div>
+                        <div>Login & Security</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">💳</div>
+                        <div>Payment Options</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Basket Section -->
+            <div class="content-section" id="basket">
+                <div class="section-title">Your Basket</div>
+                <div class="empty-state">
+                    <div class="empty-icon">🛒</div>
+                    <p>Your basket is empty</p>
+                    <button class="cta-button">Start Shopping</button>
+                </div>
+            </div>
+
+            <!-- Lists Section -->
+            <div class="content-section" id="lists">
+                <div class="section-title">Your Lists</div>
+                <div class="product-list">
+                    <div class="menu-item">
+                        <div class="menu-item-icon">❤️</div>
+                        <div>
+                            <div>Wish List</div>
+                            <div style="color: #666; font-size: 12px;">12 items</div>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🛒</div>
+                        <div>
+                            <div>Shopping List</div>
+                            <div style="color: #666; font-size: 12px;">5 items</div>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🎁</div>
+                        <div>
+                            <div>Gift Ideas</div>
+                            <div style="color: #666; font-size: 12px;">8 items</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buy Again Section -->
+            <div class="content-section" id="buy-again">
+                <div class="section-title">Buy Again</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">🧴</div>
+                        <div class="category-label">Hand Soap</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🧻</div>
+                        <div class="category-label">Kitchen Roll</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🦷</div>
+                        <div class="category-label">Toothpaste</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">📝</div>
+                        <div class="category-label">Printer Paper</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🧽</div>
+                        <div class="category-label">Cleaning Supplies</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🔋</div>
+                        <div class="category-label">Batteries</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional sections for all categories -->
+            <div class="content-section" id="deals">
+                <div class="section-title">Today's Deals</div>
+                <div class="product-list">
+                    <div class="product-item">
+                        <div class="product-image">💻</div>
+                        <div class="product-info">
+                            <div class="product-name">Laptop 30% OFF</div>
+                            <div class="product-price">£549 <span style="text-decoration: line-through; color: #666;">£799</span></div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-image">🎧</div>
+                        <div class="product-info">
+                            <div class="product-name">Wireless Headphones</div>
+                            <div class="product-price">£59 <span style="text-decoration: line-through; color: #666;">£99</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="prime">
+                <div class="section-title">Prime Benefits</div>
+                <div class="product-list">
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🚚</div>
+                        <div>Free Delivery</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">📺</div>
+                        <div>Prime Video</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🎵</div>
+                        <div>Amazon Music</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="gifting">
+                <div class="section-title">Gifts & Occasions</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">🎁</div>
+                        <div class="category-label">Gift Vouchers</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">💍</div>
+                        <div class="category-label">Wedding Registry</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="grocery">
+                <div class="section-title">Grocery & Food</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">🥬</div>
+                        <div class="category-label">Fresh Groceries</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🛒</div>
+                        <div class="category-label">Amazon Fresh</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="fashion">
+                <div class="section-title">Fashion</div>
+                <div class="product-list">
+                    <div class="menu-item">
+                        <div class="menu-item-icon">👔</div>
+                        <div>Men's Clothing</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">👗</div>
+                        <div>Women's Clothing</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="home-garden">
+                <div class="section-title">Home & Garden</div>
+                <div class="product-list">
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🍳</div>
+                        <div>Kitchen & Dining</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">🌱</div>
+                        <div>Garden & Outdoor</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="prime-video">
+                <div class="section-title">Prime Video</div>
+                <div class="empty-state">
+                    <div class="empty-icon">📺</div>
+                    <p>Watch thousands of films and TV programmes</p>
+                    <button class="cta-button">Start Watching</button>
+                </div>
+            </div>
+
+            <div class="content-section" id="electronics">
+                <div class="section-title">Electronics</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">📱</div>
+                        <div class="category-label">Mobiles</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">💻</div>
+                        <div class="category-label">Laptops</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="books">
+                <div class="section-title">Books</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">📚</div>
+                        <div class="category-label">Fiction</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">📖</div>
+                        <div class="category-label">Non-Fiction</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="sports">
+                <div class="section-title">Sports & Outdoors</div>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-image">⚽</div>
+                        <div class="category-label">Football</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-image">🏃</div>
+                        <div class="category-label">Running</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchBottomNav(this, 'home')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </div>
+            <div class="nav-item" onclick="switchBottomNav(this, 'account')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Account</div>
+            </div>
+            <div class="nav-item" onclick="switchBottomNav(this, 'basket')">
+                <div class="nav-icon">🛒</div>
+                <div class="nav-label">Basket</div>
+                <div class="cart-badge">3</div>
+            </div>
+            <div class="nav-item" onclick="switchBottomNav(this, 'orders')">
+                <div class="nav-icon">📦</div>
+                <div class="nav-label">Orders</div>
+            </div>
+            <div class="nav-item" onclick="toggleMenu()">
+                <div class="nav-icon">☰</div>
+                <div class="nav-label">Menu</div>
+            </div>
+        </div>
+
+        <!-- Menu Overlay -->
+        <div class="menu-overlay" id="menuOverlay" onclick="closeMenu(event)">
+            <div class="side-menu">
+                <div class="menu-header">
+                    <button class="close-menu" onclick="closeMenu()">×</button>
+                    <div class="menu-user">Hello, Customer</div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">Shop by Department</div>
+                    <div class="menu-item" onclick="switchSection('electronics')">
+                        <div class="menu-item-icon">📱</div>
+                        <div>Electronics</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('fashion')">
+                        <div class="menu-item-icon">👔</div>
+                        <div>Fashion</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('home-garden')">
+                        <div class="menu-item-icon">🏠</div>
+                        <div>Home & Garden</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('books')">
+                        <div class="menu-item-icon">📚</div>
+                        <div>Books</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('sports')">
+                        <div class="menu-item-icon">⚽</div>
+                        <div>Sports & Outdoors</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">Programs & Features</div>
+                    <div class="menu-item" onclick="switchSection('prime')">
+                        <div class="menu-item-icon">📦</div>
+                        <div>Prime</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('deals')">
+                        <div class="menu-item-icon">🏷️</div>
+                        <div>Today's Deals</div>
+                    </div>
+                    <div class="menu-item" onclick="switchSection('prime-video')">
+                        <div class="menu-item-icon">📺</div>
+                        <div>Prime Video</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">Help & Settings</div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">❓</div>
+                        <div>Help</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">⚙️</div>
+                        <div>Settings</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-icon">📞</div>
+                        <div>Customer Service</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to switch between content sections
+        function switchSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show the selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Close menu if it's open
+            closeMenu();
+        }
+
+        // Function to handle bottom navigation
+        function switchBottomNav(clickedItem, sectionId) {
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            clickedItem.classList.add('active');
+            
+            // Switch to the corresponding section
+            if (sectionId) {
+                switchSection(sectionId);
+            }
+        }
+
+        // Function to toggle the side menu
+        function toggleMenu() {
+            const menuOverlay = document.getElementById('menuOverlay');
+            menuOverlay.classList.toggle('active');
+        }
+
+        // Function to close the side menu
+        function closeMenu(event) {
+            const menuOverlay = document.getElementById('menuOverlay');
+            const sideMenu = document.querySelector('.side-menu');
+            
+            // Close if clicking on overlay (not on the menu itself)
+            if (!event || event.target === menuOverlay) {
+                menuOverlay.classList.remove('active');
+            }
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menuOverlay = document.getElementById('menuOverlay');
+            const menuButton = document.querySelector('.nav-item:last-child');
+            
+            if (menuOverlay.classList.contains('active') && 
+                !menuOverlay.contains(event.target) && 
+                !menuButton.contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        // Add smooth scrolling to top when switching sections
+        function smoothScrollToTop() {
+            const mainContent = document.querySelector('.main-content');
+            mainContent.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Enhanced switchSection with scroll to top
+        const originalSwitchSection = switchSection;
+        switchSection = function(sectionId) {
+            originalSwitchSection(sectionId);
+            smoothScrollToTop();
+        };
+
+        // Add touch support for better mobile experience
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndY = event.changedTouches[0].screenY;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeDistance = touchStartY - touchEndY;
+            const minSwipeDistance = 50;
+            
+            // You can add swipe functionality here if needed
+            // For example, swipe up to close menu
+            if (swipeDistance > minSwipeDistance) {
+                // Swipe up detected
+            } else if (swipeDistance < -minSwipeDistance) {
+                // Swipe down detected
+            }
+        }
+    </script>
+</body>
+</html>
