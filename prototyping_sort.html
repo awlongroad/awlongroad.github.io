@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototyping Models Card Sort Activity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5dc;
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fafafa;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #e8f4f8;
+            color: #2c3e50;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 30px;
+            color: #856404;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .instructions p {
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .timer {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 30px;
+            text-align: center;
+            color: #155724;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            min-height: 600px;
+        }
+
+        .cards-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .cards-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: #fff;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #2c3e50;
+            font-weight: normal;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.15);
+            border-color: #2c3e50;
+            background: #f8f9fa;
+        }
+
+        .card.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+            transform: rotate(2deg);
+        }
+
+        .card.placed {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card.placed:hover {
+            border-color: #34495e;
+            background: #f0f8ff;
+        }
+
+        .card.placed:hover::after {
+            content: "Click to return";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .sorting-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .category {
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+            min-height: 350px;
+            transition: all 0.3s ease;
+        }
+
+        .category.rapid-throwaway {
+            background: #ffe6e6;
+            border-color: #d0d0d0;
+        }
+
+        .category.incremental {
+            background: #e6ffe6;
+            border-color: #d0d0d0;
+        }
+
+        .category.evolutionary {
+            background: #e6f3ff;
+            border-color: #d0d0d0;
+        }
+
+        .category.drag-over {
+            background: #f0f8ff;
+            border-color: #2c3e50;
+            box-shadow: 0 0 15px rgba(44, 62, 80, 0.2);
+        }
+
+        .category-header {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e1e5e9;
+            color: #2c3e50;
+            background: #f8f9fa;
+        }
+
+        .subcategory {
+            padding: 15px;
+        }
+
+        .subcategory h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .card-count {
+            background: #e8e8e8;
+            color: #2c3e50;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: normal;
+            min-width: 40px;
+            border: 1px solid #d0d0d0;
+        }
+
+        .card-count.full {
+            background: #f0e6ff;
+            color: #2c3e50;
+            border-color: #d0d0d0;
+        }
+
+        .drop-zone {
+            min-height: 120px;
+            border: 2px dashed #d0d0d0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            background: #fff;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #2c3e50;
+            background: #f0f8ff;
+        }
+
+        .drop-zone.full {
+            border-color: #34495e;
+            background: #f8f9fa;
+        }
+
+        .drop-zone.full.drag-over {
+            border-color: #34495e;
+            background: #f0e6ff;
+        }
+
+        .drop-zone .card {
+            margin: 0;
+            font-size: 0.9rem;
+            padding: 12px;
+        }
+
+        .drop-zone.full::after {
+            content: "Slot Full - Remove a card first";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .drop-zone.full.drag-over::after {
+            opacity: 1;
+        }
+
+        .controls {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            background: #e8e8e8;
+            color: #2c3e50;
+            border: 2px solid #2c3e50;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .btn:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+        }
+
+        .btn.reset {
+            background: #f0e6ff;
+            color: #2c3e50;
+            border-color: #2c3e50;
+        }
+
+        .btn.reset:hover {
+            background: #e6d7ff;
+        }
+
+        .progress {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        .success-message {
+            display: none;
+            background: #e6ffe6;
+            color: #2c3e50;
+            border: 2px solid #d0d0d0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sorting-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .card {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
+
+            .btn {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
+        }
+
+        .btn:focus, .card:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.2);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2.1 Software Development Models - Prototyping Models</h1>
+            <p>Sort the statements into the correct categories and subcategories</p>
+            <p><small>💡 Tip: Click on placed cards to return them to the statement list</small></p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <p>Sort the following statements into the correct categories. Some may apply to multiple models.</p>
+            <p>Drag and drop each statement card into the appropriate advantages or disadvantages section for each prototyping model.</p>
+        </div>
+
+        <div class="timer">
+            ⏱️ Suggested Time: 8 minutes
+        </div>
+        
+        <div class="main-content">
+            <div class="cards-section">
+                <h2>📋 Statement Cards</h2>
+                <div class="cards-container" id="cardsContainer">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+            
+            <div class="sorting-grid">
+                <div class="category rapid-throwaway">
+                    <div class="category-header">🚀 Rapid Throwaway Model</div>
+                    <div class="subcategory">
+                        <h4>✅ Advantages: <span class="card-count" id="rapid-advantages-count">0/6</span></h4>
+                        <div class="drop-zone" data-category="rapid-advantages" data-max="6"></div>
+                        <h4>❌ Disadvantages: <span class="card-count" id="rapid-disadvantages-count">0/4</span></h4>
+                        <div class="drop-zone" data-category="rapid-disadvantages" data-max="4"></div>
+                    </div>
+                </div>
+                
+                <div class="category incremental">
+                    <div class="category-header">📈 Incremental Model</div>
+                    <div class="subcategory">
+                        <h4>✅ Advantages: <span class="card-count" id="incremental-advantages-count">0/5</span></h4>
+                        <div class="drop-zone" data-category="incremental-advantages" data-max="5"></div>
+                        <h4>❌ Disadvantages: <span class="card-count" id="incremental-disadvantages-count">0/3</span></h4>
+                        <div class="drop-zone" data-category="incremental-disadvantages" data-max="3"></div>
+                    </div>
+                </div>
+                
+                <div class="category evolutionary">
+                    <div class="category-header">🔄 Evolutionary Model</div>
+                    <div class="subcategory">
+                        <h4>✅ Advantages: <span class="card-count" id="evolutionary-advantages-count">0/5</span></h4>
+                        <div class="drop-zone" data-category="evolutionary-advantages" data-max="5"></div>
+                        <h4>❌ Disadvantages: <span class="card-count" id="evolutionary-disadvantages-count">0/4</span></h4>
+                        <div class="drop-zone" data-category="evolutionary-disadvantages" data-max="4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="checkAnswers()">Check Answers</button>
+            <button class="btn reset" onclick="resetCards()">Reset All</button>
+            <button class="btn" onclick="showHint()">Show Hint</button>
+            <button class="btn" onclick="shuffleCards()">Shuffle Cards</button>
+            <div class="progress">
+                <span id="progress">Cards remaining: <span id="cardCount">16</span></span>
+            </div>
+            <div class="success-message" id="successMessage">
+                🎉 Congratulations! You've successfully sorted all the cards!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statements = [
+            "Delivers working software earlier than rigid models",
+            "Time and resources wasted on something thrown away",
+            "Continuous user involvement ensures relevance",
+            "May create false expectations about final product",
+            "Reduces risk of building wrong product",
+            "Harder to plan final costs and timelines",
+            "Can respond to new needs in later stages",
+            "Requires frequent user feedback which is time-consuming",
+            "Easier to identify, test and fix issues in smaller sections",
+            "Project may grow beyond original plans (scope creep)",
+            "Encourages innovation and experimentation",
+            "Good planning required to decide stage content",
+            "Always have working software available for testing",
+            "Partial systems may mislead users about functionality",
+            "Improves understanding of user needs before development",
+            "Indecisive clients may drag project on indefinitely"
+        ];
+
+        const correctAnswers = {
+            "rapid-advantages": [
+                "Delivers working software earlier than rigid models",
+                "Continuous user involvement ensures relevance",
+                "Reduces risk of building wrong product",
+                "Encourages innovation and experimentation",
+                "Always have working software available for testing",
+                "Improves understanding of user needs before development"
+            ],
+            "rapid-disadvantages": [
+                "Time and resources wasted on something thrown away",
+                "May create false expectations about final product",
+                "Harder to plan final costs and timelines",
+                "Partial systems may mislead users about functionality"
+            ],
+            "incremental-advantages": [
+                "Delivers working software earlier than rigid models",
+                "Can respond to new needs in later stages",
+                "Easier to identify, test and fix issues in smaller sections",
+                "Always have working software available for testing",
+                "Good planning required to decide stage content"
+            ],
+            "incremental-disadvantages": [
+                "Requires frequent user feedback which is time-consuming",
+                "Project may grow beyond original plans (scope creep)",
+                "Good planning required to decide stage content"
+            ],
+            "evolutionary-advantages": [
+                "Continuous user involvement ensures relevance",
+                "Can respond to new needs in later stages",
+                "Easier to identify, test and fix issues in smaller sections",
+                "Encourages innovation and experimentation",
+                "Always have working software available for testing"
+            ],
+            "evolutionary-disadvantages": [
+                "Requires frequent user feedback which is time-consuming",
+                "Project may grow beyond original plans (scope creep)",
+                "Harder to plan final costs and timelines",
+                "Indecisive clients may drag project on indefinitely"
+            ]
+        };
+
+        let draggedCard = null;
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initializeCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            // Shuffle the statements array
+            const shuffledStatements = shuffleArray(statements);
+            
+            shuffledStatements.forEach((statement, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.draggable = true;
+                card.textContent = statement;
+                card.id = `card-${index}`;
+                card.tabIndex = 0;
+                
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('click', handleCardClick);
+                
+                container.appendChild(card);
+            });
+            
+            updateProgress();
+            updateAllCardCounts();
+        }
+
+        function shuffleCards() {
+            // Get all cards that are currently in the cards container
+            const cardsInContainer = Array.from(document.querySelectorAll('#cardsContainer .card'));
+            const cardsContainer = document.getElementById('cardsContainer');
+            
+            // Extract the text content from cards in container
+            const cardTexts = cardsInContainer.map(card => card.textContent);
+            
+            // Shuffle the texts
+            const shuffledTexts = shuffleArray(cardTexts);
+            
+            // Update the cards with shuffled order
+            cardsInContainer.forEach((card, index) => {
+                card.textContent = shuffledTexts[index];
+            });
+            
+            // Remove all cards from container and re-add in shuffled order
+            cardsContainer.innerHTML = '';
+            const shuffledCards = shuffleArray(cardsInContainer);
+            shuffledCards.forEach(card => {
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        function handleCardClick(e) {
+            const card = e.target;
+            
+            if (card.classList.contains('card') && !document.getElementById('cardsContainer').contains(card)) {
+                returnCardToList(card);
+            }
+        }
+
+        function returnCardToList(card) {
+            const cardsContainer = document.getElementById('cardsContainer');
+            
+            card.style.border = '2px solid #e1e5e9';
+            card.style.background = '#fff';
+            card.classList.remove('placed');
+            
+            cardsContainer.appendChild(card);
+            
+            updateProgress();
+            updateAllCardCounts();
+        }
+
+        function handleDragStart(e) {
+            draggedCard = e.target;
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedCard = null;
+        }
+
+        function setupDropZones() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone && !dropZone.contains(e.relatedTarget)) {
+                dropZone.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            
+            if (!dropZone) return;
+            
+            dropZone.classList.remove('drag-over');
+            
+            if (draggedCard) {
+                const maxCards = parseInt(dropZone.dataset.max);
+                const currentCards = dropZone.querySelectorAll('.card').length;
+                
+                if (currentCards >= maxCards) {
+                    dropZone.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        dropZone.style.animation = '';
+                    }, 500);
+                    return;
+                }
+                
+                draggedCard.classList.add('placed');
+                dropZone.appendChild(draggedCard);
+                updateProgress();
+                updateAllCardCounts();
+            }
+        }
+
+        function updateCardCount(category) {
+            const dropZone = document.querySelector(`[data-category="${category}"]`);
+            const countElement = document.getElementById(`${category}-count`);
+            const maxCards = parseInt(dropZone.dataset.max);
+            const currentCards = dropZone.querySelectorAll('.card').length;
+            
+            countElement.textContent = `${currentCards}/${maxCards}`;
+            
+            if (currentCards >= maxCards) {
+                countElement.classList.add('full');
+                dropZone.classList.add('full');
+            } else {
+                countElement.classList.remove('full');
+                dropZone.classList.remove('full');
+            }
+        }
+
+        function updateAllCardCounts() {
+            const categories = [
+                'rapid-advantages', 'rapid-disadvantages',
+                'incremental-advantages', 'incremental-disadvantages',
+                'evolutionary-advantages', 'evolutionary-disadvantages'
+            ];
+            
+            categories.forEach(category => {
+                updateCardCount(category);
+            });
+        }
+
+        function updateProgress() {
+            const remainingCards = document.querySelectorAll('#cardsContainer .card').length;
+            document.getElementById('cardCount').textContent = remainingCards;
+            
+            if (remainingCards === 0) {
+                document.getElementById('successMessage').style.display = 'block';
+            } else {
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        }
+
+        function checkAnswers() {
+            let correctCount = 0;
+            let totalSorted = 0;
+            
+            Object.keys(correctAnswers).forEach(category => {
+                const dropZone = document.querySelector(`[data-category="${category}"]`);
+                const cards = dropZone.querySelectorAll('.card');
+                
+                cards.forEach(card => {
+                    totalSorted++;
+                    if (correctAnswers[category].includes(card.textContent)) {
+                        card.style.border = '3px solid #2c3e50';
+                        card.style.background = '#e6ffe6';
+                        correctCount++;
+                    } else {
+                        card.style.border = '3px solid #34495e';
+                        card.style.background = '#ffe6e6';
+                    }
+                });
+            });
+            
+            if (totalSorted === 0) {
+                alert('Please sort some cards first!');
+                return;
+            }
+            
+            const percentage = Math.round((correctCount / totalSorted) * 100);
+            alert(`You got ${correctCount} out of ${totalSorted} cards correct (${percentage}%)!`);
+            
+            // Reset card styling after 3 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.style.border = '2px solid #e1e5e9';
+                    card.style.background = '#fff';
+                });
+            }, 3000);
+        }
+
+        function resetCards() {
+            const allCards = document.querySelectorAll('.card');
+            const cardsContainer = document.getElementById('cardsContainer');
+            
+            allCards.forEach(card => {
+                card.style.border = '2px solid #e1e5e9';
+                card.style.background = '#fff';
+                card.classList.remove('placed');
+                cardsContainer.appendChild(card);
+            });
+            
+            updateProgress();
+            updateAllCardCounts();
+        }
+
+        function showHint() {
+            const hints = [
+                "💡 Think about which models throw away prototypes vs. keep building on them",
+                "💡 Consider which models allow for continuous feedback throughout development",
+                "💡 Look at planning requirements - some models need more upfront planning than others",
+                "💡 Consider the trade-offs between speed of development and resource usage",
+                "💡 Think about client involvement - some models require more client time than others",
+                "💡 Look at the card limits - they show how many statements belong in each section!"
+            ];
+            
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            alert(randomHint);
+        }
+
+        // Initialize the activity
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCards();
+            setupDropZones();
+        });
+    </script>
+</body>
+</html>
