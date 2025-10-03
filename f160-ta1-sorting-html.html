@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F160 TA1 Self-Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border: 2px solid #1a1a1a;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #4a4a4a;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 12px;
+            background: #e0e0e0;
+            border: 1px solid #1a1a1a;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1a1a1a;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #1a1a1a;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            cursor: move;
+            transition: box-shadow 0.2s;
+        }
+
+        .question-card:hover {
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.1);
+        }
+
+        .question-card.dragging {
+            opacity: 0.5;
+        }
+
+        .question-topic {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .drag-hint {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .drop-zones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .drop-zone {
+            border: 2px solid;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .drop-zone:hover {
+            transform: scale(1.02);
+        }
+
+        .drop-zone.drag-over {
+            transform: scale(1.05);
+        }
+
+        .zone-green {
+            border-color: #16a34a;
+        }
+
+        .zone-green:hover {
+            background: #f0fdf4;
+        }
+
+        .zone-green.drag-over {
+            background: #dcfce7;
+        }
+
+        .zone-amber {
+            border-color: #d97706;
+        }
+
+        .zone-amber:hover {
+            background: #fffbeb;
+        }
+
+        .zone-amber.drag-over {
+            background: #fef3c7;
+        }
+
+        .zone-red {
+            border-color: #dc2626;
+        }
+
+        .zone-red:hover {
+            background: #fef2f2;
+        }
+
+        .zone-red.drag-over {
+            background: #fee2e2;
+        }
+
+        .zone-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 1rem;
+        }
+
+        .zone-green .zone-icon {
+            background: #16a34a;
+        }
+
+        .zone-amber .zone-icon {
+            background: #d97706;
+        }
+
+        .zone-red .zone-icon {
+            background: #dc2626;
+        }
+
+        .zone-title {
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .zone-description {
+            font-size: 0.875rem;
+            color: #4a4a4a;
+        }
+
+        .tip {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results-header {
+            background: white;
+            border: 2px solid #1a1a1a;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .results-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .results-category {
+            background: white;
+            border: 2px solid;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-category.green {
+            border-color: #16a34a;
+        }
+
+        .results-category.amber {
+            border-color: #d97706;
+        }
+
+        .results-category.red {
+            border-color: #dc2626;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .category-title h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .category-subtitle {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .question-list {
+            list-style: none;
+        }
+
+        .question-list li {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .question-number {
+            color: #666;
+        }
+
+        .question-topic-tag {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        .reset-button {
+            display: block;
+            margin: 2rem auto;
+            padding: 0.75rem 1.5rem;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .reset-button:hover {
+            background: #4a4a4a;
+        }
+
+        .leitner-info {
+            background: white;
+            border: 2px solid #1a1a1a;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .leitner-info h3 {
+            margin-bottom: 1rem;
+        }
+
+        .leitner-info p {
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: #4a4a4a;
+            line-height: 1.5;
+        }
+
+        .leitner-info strong {
+            font-weight: bold;
+        }
+
+        .green-text {
+            color: #16a34a;
+        }
+
+        .amber-text {
+            color: #d97706;
+        }
+
+        .red-text {
+            color: #dc2626;
+        }
+
+        .sorting {
+            display: block;
+        }
+
+        .sorting.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sorting Interface -->
+        <div id="sortingInterface" class="sorting">
+            <div class="header">
+                <h1>F160 Topic Area 1: Self-Assessment</h1>
+                <p>Honestly assess your confidence with each question. Drag the card into the box that best describes how well you know the answer.</p>
+                <div class="progress-container">
+                    <span style="color: #666;">Progress:</span>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span id="progressText" class="progress-text">0 / 47</span>
+                </div>
+            </div>
+
+            <div id="questionCard" class="question-card" draggable="true">
+                <div id="questionTopic" class="question-topic"></div>
+                <p id="questionText" class="question-text"></p>
+            </div>
+
+            <div class="drag-hint">Drag this card into one of the boxes below</div>
+
+            <div class="drop-zones">
+                <div class="drop-zone zone-green" data-confidence="green">
+                    <div class="zone-icon"></div>
+                    <h3 class="zone-title">Confident</h3>
+                    <p class="zone-description">I know this well and can explain it clearly</p>
+                </div>
+
+                <div class="drop-zone zone-amber" data-confidence="amber">
+                    <div class="zone-icon"></div>
+                    <h3 class="zone-title">Moderate</h3>
+                    <p class="zone-description">I have some understanding but need more practice</p>
+                </div>
+
+                <div class="drop-zone zone-red" data-confidence="red">
+                    <div class="zone-icon"></div>
+                    <h3 class="zone-title">Need Practice</h3>
+                    <p class="zone-description">I'm not confident with this and need to revise</p>
+                </div>
+            </div>
+
+            <div class="tip">Tip: You can also click on a box instead of dragging</div>
+        </div>
+
+        <!-- Results Interface -->
+        <div id="resultsInterface" class="results">
+            <div class="results-header">
+                <h1>Your Revision Plan</h1>
+                <p>Based on your self-assessment, here's how often you should revisit each question using the Leitner system approach.</p>
+            </div>
+
+            <div class="results-category green">
+                <div class="category-header">
+                    <div class="category-icon" style="background: #16a34a;"></div>
+                    <div class="category-title">
+                        <h2>Confident</h2>
+                        <p class="category-subtitle">Review once every 2-3 weeks (<span id="greenCount">0</span> questions)</p>
+                    </div>
+                </div>
+                <ul id="greenList" class="question-list"></ul>
+            </div>
+
+            <div class="results-category amber">
+                <div class="category-header">
+                    <div class="category-icon" style="background: #d97706;"></div>
+                    <div class="category-title">
+                        <h2>Moderate</h2>
+                        <p class="category-subtitle">Review once a week (<span id="amberCount">0</span> questions)</p>
+                    </div>
+                </div>
+                <ul id="amberList" class="question-list"></ul>
+            </div>
+
+            <div class="results-category red">
+                <div class="category-header">
+                    <div class="category-icon" style="background: #dc2626;"></div>
+                    <div class="category-title">
+                        <h2>Need Practice</h2>
+                        <p class="category-subtitle">Review daily or every other day (<span id="redCount">0</span> questions)</p>
+                    </div>
+                </div>
+                <ul id="redList" class="question-list"></ul>
+            </div>
+
+            <button class="reset-button" onclick="resetSorting()">Start Again</button>
+
+            <div class="leitner-info">
+                <h3>How the Leitner System Works:</h3>
+                <p><strong class="green-text">Green questions</strong> are ones you're confident about. Review them occasionally to maintain your knowledge.</p>
+                <p><strong class="amber-text">Amber questions</strong> need regular practice. Once you're consistently confident, move them to green.</p>
+                <p><strong class="red-text">Red questions</strong> need frequent revision. Focus most of your study time here. As you improve, move them to amber.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { id: 1, text: "Define what a program is", topic: "Programs and Applications" },
+            { id: 2, text: "Define what an application is", topic: "Programs and Applications" },
+            { id: 3, text: "State three characteristics of a program", topic: "Programs and Applications" },
+            { id: 4, text: "State three characteristics of an application", topic: "Programs and Applications" },
+            { id: 5, text: "Explain the relationship between programs and applications", topic: "Programs and Applications" },
+            { id: 6, text: "Compare the characteristics of programs and applications", topic: "Programs and Applications" },
+            { id: 7, text: "Evaluate the effectiveness of applications versus programs for specific user needs", topic: "Programs and Applications" },
+            { id: 8, text: "Define what a network operating system is", topic: "Operating Systems" },
+            { id: 9, text: "Define what an open OS is", topic: "Operating Systems" },
+            { id: 10, text: "Define what a proprietary OS is", topic: "Operating Systems" },
+            { id: 11, text: "State two characteristics of each OS type", topic: "Operating Systems" },
+            { id: 12, text: "Compare open and proprietary operating systems", topic: "Operating Systems" },
+            { id: 13, text: "Explain how client requirements affect OS selection", topic: "Operating Systems" },
+            { id: 14, text: "Evaluate OS choices for different organisational needs", topic: "Operating Systems" },
+            { id: 15, text: "Analyse the total cost of ownership for different OS types", topic: "Operating Systems" },
+            { id: 16, text: "List the eight main application types", topic: "Application Types" },
+            { id: 17, text: "State the purpose of communication applications", topic: "Application Types" },
+            { id: 18, text: "State the purpose of productivity applications", topic: "Application Types" },
+            { id: 19, text: "Name two examples of each application type", topic: "Application Types" },
+            { id: 20, text: "Compare communication and productivity application types", topic: "Application Types" },
+            { id: 21, text: "Explain the characteristics of educational applications", topic: "Application Types" },
+            { id: 22, text: "Evaluate which application type is most suitable for specific user needs", topic: "Application Types" },
+            { id: 23, text: "Define what open software means", topic: "Software Categories" },
+            { id: 24, text: "Define what closed software means", topic: "Software Categories" },
+            { id: 25, text: "Define what shareware is", topic: "Software Categories" },
+            { id: 26, text: "Define what freeware is", topic: "Software Categories" },
+            { id: 27, text: "Define what embedded software is", topic: "Software Categories" },
+            { id: 28, text: "State two characteristics of open software", topic: "Software Categories" },
+            { id: 29, text: "List two advantages of open software", topic: "Software Categories" },
+            { id: 30, text: "Name three examples of open source software", topic: "Software Categories" },
+            { id: 31, text: "Compare open and closed source software", topic: "Software Categories" },
+            { id: 32, text: "Explain why organisations choose shareware", topic: "Software Categories" },
+            { id: 33, text: "Describe how shareware differs from freeware", topic: "Software Categories" },
+            { id: 34, text: "Evaluate software category choices for different organisational needs", topic: "Software Categories" },
+            { id: 35, text: "Analyse security implications of different software categories", topic: "Software Categories" },
+            { id: 36, text: "Define what off-the-shelf software is", topic: "Software Types" },
+            { id: 37, text: "Define what custom off-the-shelf software is", topic: "Software Types" },
+            { id: 38, text: "Define what bespoke software is", topic: "Software Types" },
+            { id: 39, text: "State two characteristics of bespoke software", topic: "Software Types" },
+            { id: 40, text: "List two advantages of off-the-shelf software", topic: "Software Types" },
+            { id: 41, text: "Name two examples of off-the-shelf software", topic: "Software Types" },
+            { id: 42, text: "Compare off-the-shelf and bespoke software", topic: "Software Types" },
+            { id: 43, text: "Explain why organisations choose bespoke software", topic: "Software Types" },
+            { id: 44, text: "Describe how custom off-the-shelf differs from standard off-the-shelf", topic: "Software Types" },
+            { id: 45, text: "Evaluate software type choices for different organisational needs", topic: "Software Types" },
+            { id: 46, text: "Analyse the total cost of ownership for different software types", topic: "Software Types" },
+            { id: 47, text: "Justify the choice between bespoke and off-the-shelf options", topic: "Software Types" }
+        ];
+
+        let currentIndex = 0;
+        let sorted = { green: [], amber: [], red: [] };
+        let draggedOverZone = null;
+
+        const questionCard = document.getElementById('questionCard');
+        const questionTopic = document.getElementById('questionTopic');
+        const questionText = document.getElementById('questionText');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const sortingInterface = document.getElementById('sortingInterface');
+        const resultsInterface = document.getElementById('resultsInterface');
+
+        function showQuestion() {
+            const question = questions[currentIndex];
+            questionTopic.textContent = question.topic;
+            questionText.textContent = question.text;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const percentage = (currentIndex / questions.length) * 100;
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = currentIndex + ' / ' + questions.length;
+        }
+
+        function handleSort(confidence) {
+            sorted[confidence].push(questions[currentIndex]);
+            currentIndex++;
+
+            if (currentIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            sortingInterface.classList.add('hidden');
+            resultsInterface.classList.add('active');
+
+            document.getElementById('greenCount').textContent = sorted.green.length;
+            document.getElementById('amberCount').textContent = sorted.amber.length;
+            document.getElementById('redCount').textContent = sorted.red.length;
+
+            populateList('greenList', sorted.green);
+            populateList('amberList', sorted.amber);
+            populateList('redList', sorted.red);
+        }
+
+        function populateList(listId, questions) {
+            const list = document.getElementById(listId);
+            list.innerHTML = '';
+            questions.forEach(q => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="question-number">${q.id}.</span>
+                    <span>${q.text}</span>
+                    <span class="question-topic-tag">(${q.topic})</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function resetSorting() {
+            currentIndex = 0;
+            sorted = { green: [], amber: [], red: [] };
+            sortingInterface.classList.remove('hidden');
+            resultsInterface.classList.remove('active');
+            showQuestion();
+        }
+
+        // Drag and drop handlers
+        questionCard.addEventListener('dragstart', (e) => {
+            questionCard.classList.add('dragging');
+        });
+
+        questionCard.addEventListener('dragend', (e) => {
+            questionCard.classList.remove('dragging');
+            dropZones.forEach(zone => zone.classList.remove('drag-over'));
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', (e) => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const confidence = zone.dataset.confidence;
+                handleSort(confidence);
+            });
+
+            zone.addEventListener('click', (e) => {
+                const confidence = zone.dataset.confidence;
+                handleSort(confidence);
+            });
+        });
+
+        // Initialize
+        showQuestion();
+    </script>
+</body>
+</html>
