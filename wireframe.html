@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe & Task Flow Activity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #FAFAC8;
+            color: #1a1a1a;
+            line-height: 1.8;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            background-color: #4A90E2;
+            color: #FAFAC8;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        h2 {
+            background-color: #7CB342;
+            color: #FAFAC8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        h3 {
+            background-color: #FFB74D;
+            color: #1a1a1a;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        p, li {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .box {
+            background-color: #E8F5E9;
+            border: 3px solid #7CB342;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .important {
+            background-color: #FFF9C4;
+            border: 3px solid #FFB74D;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tip {
+            background-color: #E1F5FE;
+            border: 3px solid #4A90E2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .checklist {
+            list-style-type: none;
+            margin-left: 0;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            font-size: 1.3em;
+            margin-right: 10px;
+        }
+
+        .step-number {
+            background-color: #4A90E2;
+            color: #FAFAC8;
+            padding: 8px 15px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        .example {
+            background-color: #F5F5F5;
+            border-left: 5px solid #4A90E2;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        strong {
+            color: #C62828;
+        }
+
+        a {
+            color: #1976D2;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .button-example {
+            background-color: #4A90E2;
+            color: #FAFAC8;
+            padding: 15px 30px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Login Screen Design Activity</h1>
+
+    <div class="important">
+        <h2>Your Task</h2>
+        <p><strong>Create 2 things:</strong></p>
+        <ol>
+            <li>A wireframe for a login/sign-up screen</li>
+            <li>A task flow showing how a user creates an account</li>
+        </ol>
+    </div>
+
+    <h2>Part 1: What is a Low-Fidelity Wireframe?</h2>
+
+    <div class="box">
+        <p>A <strong>wireframe</strong> is a simple sketch that shows:</p>
+        <ul>
+            <li>Where things go on the screen</li>
+            <li>What buttons and boxes you need</li>
+            <li>How the screen is organized</li>
+        </ul>
+    </div>
+
+    <div class="tip">
+        <h3>💡 Keep it Simple!</h3>
+        <p><strong>DO include:</strong> Boxes, buttons, labels</p>
+        <p><strong>DON'T include:</strong> Colors, images, fancy fonts</p>
+        <p>Think of it like drawing a map - you just need the basic shapes!</p>
+    </div>
+
+    <h2>Part 2: Using Excalidraw</h2>
+
+    <div class="box">
+        <p><strong>Website:</strong> <a href="https://excalidraw.com" target="_blank">excalidraw.com</a></p>
+        <p>Excalidraw is free and perfect for quick wireframes!</p>
+        
+        <h3>Tools You'll Use:</h3>
+        <ul>
+            <li><strong>Rectangle</strong> - for screens, buttons, input boxes</li>
+            <li><strong>Text</strong> - for labels</li>
+            <li><strong>Arrows</strong> - to show what connects to what</li>
+            <li><strong>Circle</strong> - for profile pictures or icons</li>
+        </ul>
+    </div>
+
+    <h2>Part 3: Design Your Login Screen</h2>
+
+    <div class="important">
+        <h3>Remember Your Target Audience!</h3>
+        <p>You're designing for <strong>teenagers aged 13-18</strong> who:</p>
+        <ul>
+            <li>Use their phones for everything</li>
+            <li>Want things to be quick and easy</li>
+            <li>Need the app to be safe</li>
+            <li>May have disabilities (accessibility matters!)</li>
+        </ul>
+    </div>
+
+    <h3>What to Include on Your Login Screen:</h3>
+    
+    <ul class="checklist">
+        <li>App logo/name at the top</li>
+        <li>Box for username or email</li>
+        <li>Box for password</li>
+        <li>Button to show/hide password</li>
+        <li>Big LOGIN button</li>
+        <li>"Forgot password?" link</li>
+        <li>"Don't have an account? Sign up" link</li>
+    </ul>
+
+    <h3>What to Include on Your Sign-Up Screen:</h3>
+    
+    <ul class="checklist">
+        <li>App logo/name</li>
+        <li>Welcome message</li>
+        <li>Box for username</li>
+        <li>Box for email</li>
+        <li>Box for date of birth (to check age)</li>
+        <li>Box for password</li>
+        <li>Box to type password again</li>
+        <li>Checkbox for terms and conditions</li>
+        <li>Big CREATE ACCOUNT button</li>
+        <li>"Already have an account? Login" link</li>
+    </ul>
+
+    <div class="tip">
+        <h3>💡 Design Tips</h3>
+        <ul>
+            <li>Draw a phone shape first (tall rectangle)</li>
+            <li>Make buttons BIG - easy to tap with thumbs</li>
+            <li>Put the most important button (Login/Sign Up) in the middle</li>
+            <li>Label everything clearly</li>
+            <li>Add notes to explain what things do</li>
+        </ul>
+    </div>
+
+    <h2>Part 4: Create Your Task Flow</h2>
+
+    <div class="box">
+        <p>A <strong>task flow</strong> shows the steps a user takes through your app.</p>
+        <p>It's like a flowchart, but for <strong>user actions</strong>, not code!</p>
+    </div>
+
+    <h3>Shapes to Use:</h3>
+    
+    <div class="example">
+        Rectangle = A screen<br>
+        ↓ Arrow = User moves forward<br>
+        Diamond ◇ = A decision/question<br>
+    </div>
+
+    <h3>Steps for Your Task Flow:</h3>
+
+    <div class="box">
+        <p><span class="step-number">1</span> <strong>Start</strong> - User opens the app</p>
+        <p><span class="step-number">2</span> <strong>Welcome Screen</strong> - First thing they see</p>
+        <p><span class="step-number">3</span> <strong>User Action</strong> - They click "Sign Up"</p>
+        <p><span class="step-number">4</span> <strong>Sign Up Screen</strong> - The form appears</p>
+        <p><span class="step-number">5</span> <strong>User Action</strong> - They fill in the form</p>
+        <p><span class="step-number">6</span> <strong>User Action</strong> - They click "Create Account"</p>
+        <p><span class="step-number">7</span> <strong>Decision</strong> - Is the user aged 13-18?</p>
+        <ul>
+            <li>If NO → Show error message</li>
+            <li>If YES → Continue to next step</li>
+        </ul>
+        <p><span class="step-number">8</span> <strong>Success Screen</strong> - Account created!</p>
+        <p><span class="step-number">9</span> <strong>End</strong> - User goes to home screen</p>
+    </div>
+
+    <div class="important">
+        <h3>⚠️ Don't Forget!</h3>
+        <p>Show what happens when things go wrong:</p>
+        <ul>
+            <li>What if password is too short?</li>
+            <li>What if email is already used?</li>
+            <li>What if user is too young?</li>
+        </ul>
+    </div>
+
+    <h2>Part 5: Things to Think About</h2>
+
+    <div class="tip">
+        <h3>Safety First! 🔒</h3>
+        <ul>
+            <li>How will you check if users are really 13-18?</li>
+            <li>Should you ask for real names or just usernames?</li>
+            <li>How can you keep the platform safe for teens?</li>
+        </ul>
+    </div>
+
+    <div class="tip">
+        <h3>Mobile-Friendly! 📱</h3>
+        <ul>
+            <li>Can users tap buttons easily with their thumb?</li>
+            <li>Is the text big enough to read on a phone?</li>
+            <li>Do they have to type a lot? (Keep it minimal!)</li>
+        </ul>
+    </div>
+
+    <div class="tip">
+        <h3>Accessible for Everyone! ♿</h3>
+        <ul>
+            <li>Are all the labels clear?</li>
+            <li>Can someone using a screen reader understand it?</li>
+            <li>Are the buttons clearly labeled?</li>
+        </ul>
+    </div>
+
+    <h2>Checklist: Is Your Design Good?</h2>
+
+    <div class="important">
+        <h3>Check Your Wireframe:</h3>
+        <ul class="checklist">
+            <li>Is it designed for a phone screen?</li>
+            <li>Are buttons big and easy to tap?</li>
+            <li>Is it simple and not overwhelming?</li>
+            <li>Are all boxes and buttons labeled?</li>
+            <li>Does it look good for teenagers?</li>
+        </ul>
+
+        <h3>Check Your Task Flow:</h3>
+        <ul class="checklist">
+            <li>Does it show where the user starts?</li>
+            <li>Can you follow it from start to finish?</li>
+            <li>Does it show what happens if something goes wrong?</li>
+            <li>Would someone else understand it?</li>
+            <li>Does it end with a clear result?</li>
+        </ul>
+    </div>
+
+    <h2>Summary: What You're Doing</h2>
+
+    <div class="box">
+        <p><strong>Step 1:</strong> Open Excalidraw</p>
+        <p><strong>Step 2:</strong> Draw a phone-shaped rectangle</p>
+        <p><strong>Step 3:</strong> Sketch your login screen inside (boxes and labels only!)</p>
+        <p><strong>Step 4:</strong> Draw another phone for your sign-up screen</p>
+        <p><strong>Step 5:</strong> Create a task flow showing the user journey</p>
+        <p><strong>Step 6:</strong> Add notes and labels to explain everything</p>
+    </div>
+
+    <div class="important">
+        <h3>⏰ Time Guide:</h3>
+        <p><strong>Wireframes:</strong> 30-40 minutes</p>
+        <p><strong>Task Flow:</strong> 20-30 minutes</p>
+        <p><strong>Total:</strong> About 1 hour</p>
+    </div>
+
+    <div class="tip">
+        <h3>Remember! 🎯</h3>
+        <p><strong>Keep it rough and simple!</strong></p>
+        <p>Wireframes should be quick sketches, not finished designs.</p>
+        <p>Focus on <strong>where things go</strong>, not how they look!</p>
+    </div>
+
+</body>
+</html>
