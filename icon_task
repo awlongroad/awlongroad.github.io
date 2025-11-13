@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recognition vs Recall: The Evolution of UI Icons</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+        .content-box {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .concept-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .task-section {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        .icon-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .icon-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .resource-link {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .resource-link a {
+            color: #155724;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .resource-link a:hover {
+            text-decoration: underline;
+        }
+        .checklist {
+            background-color: #fff;
+            border: 2px solid #3498db;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .checklist li:before {
+            content: "☐ ";
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        .step {
+            background-color: #ffffff;
+            border: 2px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .step h4 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Recognition vs Recall: The Evolution of UI Icons</h1>
+        <p><strong>Unit 3: Human-Computer Interaction | Learning Aim A3</strong></p>
+        <p>Name: __________________ Date: __________________</p>
+    </div>
+
+    <div class="content-box">
+        <h2>Understanding the Key Principle</h2>
+        
+        <div class="concept-box">
+            <h3>What is Recognition vs Recall?</h3>
+            <p><strong>RECALL</strong> means remembering information from memory without any help.</p>
+            <ul>
+                <li>Example: Remembering that Ctrl+S saves a document</li>
+                <li>Problem: Users must be trained and remember commands</li>
+                <li>Difficult for new or occasional users</li>
+            </ul>
+            
+            <p><strong>RECOGNITION</strong> means identifying something when you see it.</p>
+            <ul>
+                <li>Example: Seeing a floppy disc icon and knowing it means "save"</li>
+                <li>Benefit: Users can understand immediately without training</li>
+                <li>Much easier for all users</li>
+            </ul>
+        </div>
+
+        <div class="important">
+            <strong>Core HCI Principle:</strong> Good interface design uses visual icons and symbols (recognition) rather than requiring users to remember commands (recall). This makes systems easier to learn and use.
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Your Task</h2>
+        
+        <p>You will research the history of UI icons and create a visual timeline in <strong>Excalidraw</strong> showing how icons have evolved and why they help users recognise actions instantly.</p>
+        
+        <div class="task-section">
+            <h3>What You Need to Create</h3>
+            <p>An interactive visual timeline in Excalidraw that includes:</p>
+            <ul>
+                <li>The evolution of <strong>THREE</strong> different UI icons from past to present</li>
+                <li>Clear labels showing which decade each version comes from</li>
+                <li>Text annotations explaining why each icon is easy (or difficult) to recognise</li>
+                <li>A summary box explaining the principle of recognition vs recall</li>
+                <li>Examples from modern apps and websites</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Step 1: Choose Your Icons</h2>
+        
+        <p>Select <strong>THREE icons</strong> from the list below to research:</p>
+        
+        <div class="icon-list">
+            <div class="icon-item">
+                <strong>Save Icon</strong><br>
+                (Floppy disc → Cloud)
+            </div>
+            <div class="icon-item">
+                <strong>Menu Icon</strong><br>
+                (Hamburger menu ≡)
+            </div>
+            <div class="icon-item">
+                <strong>Delete Icon</strong><br>
+                (Bin/Rubbish bin)
+            </div>
+            <div class="icon-item">
+                <strong>Search Icon</strong><br>
+                (Magnifying glass)
+            </div>
+            <div class="icon-item">
+                <strong>Home Icon</strong><br>
+                (House symbol)
+            </div>
+            <div class="icon-item">
+                <strong>Settings Icon</strong><br>
+                (Gear/Cog)
+            </div>
+            <div class="icon-item">
+                <strong>Share Icon</strong><br>
+                (Connected dots/arrows)
+            </div>
+            <div class="icon-item">
+                <strong>User Profile Icon</strong><br>
+                (Person silhouette)
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Step 2: Research Your Icons</h2>
+        
+        <p>For each icon you selected, use the resources below to discover:</p>
+        
+        <table>
+            <tr>
+                <th>Research Question</th>
+                <th>What to Find Out</th>
+            </tr>
+            <tr>
+                <td>When was it first used?</td>
+                <td>Which decade did this icon first appear?</td>
+            </tr>
+            <tr>
+                <td>What inspired the design?</td>
+                <td>What real-world object does it represent?</td>
+            </tr>
+            <tr>
+                <td>How has it changed?</td>
+                <td>Find at least 3 different versions from different time periods</td>
+            </tr>
+            <tr>
+                <td>Why is it easy to recognise?</td>
+                <td>What makes it instantly understandable?</td>
+            </tr>
+            <tr>
+                <td>Does it still make sense today?</td>
+                <td>Do young people still recognise the object it represents?</td>
+            </tr>
+        </table>
+
+        <h3>Essential Research Resources</h3>
+        
+        <div class="resource-link">
+            <strong>General Icon History:</strong><br>
+            <a href="https://icons8.com/articles/the-history-of-ui-icons/" target="_blank">Icons8 - The History of UI Icons</a><br>
+            Comprehensive timeline with images and explanations
+        </div>
+
+        <div class="resource-link">
+            <strong>Save Icon (Floppy Disc):</strong><br>
+            <a href="https://www.bbc.co.uk/news/magazine-22335013" target="_blank">BBC - Why is the Save Icon Still a Floppy Disc?</a><br>
+            Article explaining why we still use outdated symbols
+        </div>
+
+        <div class="resource-link">
+            <strong>Skeuomorphism to Flat Design:</strong><br>
+            <a href="https://www.interaction-design.org/literature/article/skeuomorphism-is-dead-long-live-skeuomorphism" target="_blank">Interaction Design Foundation - Skeuomorphism Evolution</a><br>
+            Explains the shift from realistic to simplified icons
+        </div>
+
+        <div class="resource-link">
+            <strong>Recognition vs Recall Principle:</strong><br>
+            <a href="https://www.interaction-design.org/literature/article/recognition-vs-recall-in-user-interfaces" target="_blank">Interaction Design Foundation - Recognition vs Recall</a><br>
+            Theory and examples of this core principle
+        </div>
+
+        <div class="resource-link">
+            <strong>Icon Usability Research:</strong><br>
+            <a href="https://www.nngroup.com/articles/icon-usability/" target="_blank">Nielsen Norman Group - Icon Usability</a><br>
+            Research on what makes icons work effectively
+        </div>
+
+        <div class="resource-link">
+            <strong>Material Design Icons:</strong><br>
+            <a href="https://material.io/design/iconography/system-icons.html" target="_blank">Google Material Design - Icon Principles</a><br>
+            Modern approach to icon design with examples
+        </div>
+
+        <div class="resource-link">
+            <strong>Apple Icon Guidelines:</strong><br>
+            <a href="https://developer.apple.com/design/human-interface-guidelines/sf-symbols" target="_blank">Apple Human Interface Guidelines - Icons</a><br>
+            Apple's icon design evolution and reasoning
+        </div>
+
+        <div class="resource-link">
+            <strong>Hamburger Menu History:</strong><br>
+            <a href="https://www.theverge.com/2014/4/7/5585034/hamburger-menu-history" target="_blank">The Verge - The History of the Hamburger Menu</a><br>
+            Origins and evolution of the three-line menu icon
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Step 3: Create Your Timeline in Excalidraw</h2>
+        
+        <div class="important">
+            <strong>Access Excalidraw:</strong> Go to <a href="https://excalidraw.com" target="_blank">https://excalidraw.com</a><br>
+            No account needed - you can start drawing immediately!
+        </div>
+
+        <div class="step">
+            <h4>Part A: Set Up Your Timeline</h4>
+            <ul>
+                <li>Create a horizontal or vertical timeline showing decades (1980s to 2020s)</li>
+                <li>Use the line tool and text tool to create clear decade markers</li>
+                <li>Leave space for three separate icon evolution tracks</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h4>Part B: Add Icon Evolutions</h4>
+            <ul>
+                <li>For each of your three chosen icons, show at least 3 versions across different time periods</li>
+                <li>You can draw icons using shapes, or drag and drop screenshots from your research</li>
+                <li>Use arrows to show the progression from old to new versions</li>
+                <li>Label each version with the decade and where it appeared (e.g., "1990s - Windows 95")</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h4>Part C: Add Recognition Explanations</h4>
+            <p>For each icon version, add text boxes explaining:</p>
+            <ul>
+                <li>What real-world object it represents</li>
+                <li>Why it was easy to recognise at that time</li>
+                <li>Whether it still works today (or why it's outdated)</li>
+                <li>How it demonstrates the recognition principle</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h4>Part D: Create a Key Principle Box</h4>
+            <p>Add a highlighted section (use a coloured rectangle) that explains:</p>
+            <ul>
+                <li>The difference between recognition and recall</li>
+                <li>Why designers prefer recognition over recall</li>
+                <li>2-3 specific examples from your research</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h4>Part E: Modern Examples Section</h4>
+            <ul>
+                <li>Take screenshots of your three icons as they appear in current apps/websites</li>
+                <li>Add these to your timeline with labels</li>
+                <li>Note which apps use them (e.g., Instagram, Chrome, Windows 11)</li>
+                <li>Comment on whether they're still effective for recognition</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Excalidraw Tips</h2>
+        
+        <h3>Useful Tools:</h3>
+        <ul>
+            <li><strong>Rectangle Tool:</strong> Create boxes for text and boundaries</li>
+            <li><strong>Circle/Ellipse Tool:</strong> Draw icon elements</li>
+            <li><strong>Arrow Tool:</strong> Show progression and connections</li>
+            <li><strong>Text Tool (T):</strong> Add all your explanations and labels</li>
+            <li><strong>Selection Tool (V):</strong> Move and resize elements</li>
+            <li><strong>Pen Tool:</strong> Draw custom icon shapes</li>
+            <li><strong>Image Import:</strong> Drag screenshots directly onto your canvas</li>
+        </ul>
+
+        <h3>Organisation Tips:</h3>
+        <ul>
+            <li>Use different colours for different decades to make them stand out</li>
+            <li>Group related elements together</li>
+            <li>Keep text clear and readable - use a sensible font size</li>
+            <li>Use connecting lines and arrows to show relationships</li>
+            <li>Save your work regularly (File → Save to download .excalidraw file)</li>
+        </ul>
+    </div>
+
+    <div class="content-box">
+        <h2>What You Will Be Assessed On</h2>
+        
+        <div class="checklist">
+            <h3>Success Criteria</h3>
+            <ul>
+                <li><strong>Research Quality:</strong> Have you thoroughly researched the history of your three icons?</li>
+                <li><strong>Recognition Principle:</strong> Have you clearly explained why icons help recognition rather than recall?</li>
+                <li><strong>Visual Timeline:</strong> Is your timeline clear, well-organised and easy to follow?</li>
+                <li><strong>Icon Evolution:</strong> Have you shown at least 3 versions of each icon with dates and sources?</li>
+                <li><strong>Text Annotations:</strong> Are your explanations clear, detailed and accurate?</li>
+                <li><strong>Modern Examples:</strong> Have you included current examples from real apps/websites?</li>
+                <li><strong>Principle Application:</strong> Have you explained how this connects to HCI design?</li>
+                <li><strong>Presentation:</strong> Is your work professional, creative and easy to understand?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Extension Challenge (Optional)</h2>
+        
+        <h3>If you finish early, explore one of these:</h3>
+        
+        <div class="task-section">
+            <strong>Icon Detective:</strong> Find the very first version and the newest version of your icon. Calculate how many years apart they are. Interview someone older than 40 and someone younger than 15 - do they both recognise the original version?
+        </div>
+
+        <div class="task-section">
+            <strong>Failed Icons:</strong> Research icons that didn't work and were replaced. Why did users not recognise them? What made them fail?
+        </div>
+
+        <div class="task-section">
+            <strong>Predict the Future:</strong> Design what you think your icons will look like in 2030. Consider voice interfaces, AR/VR, and AI. Will we still need visual icons?
+        </div>
+
+        <div class="task-section">
+            <strong>Cultural Differences:</strong> Compare how the same icon appears differently in UK, US, and Asian interfaces. Are recognition principles universal?
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>How This Links to Your Assessment</h2>
+        
+        <div class="important">
+            <p><strong>Unit 3 Assessment Connection:</strong></p>
+            <p>This task prepares you for <strong>Learning Aim A</strong> where you must explain and evaluate HCI design principles.</p>
+            
+            <p>You will need to demonstrate understanding of:</p>
+            <ul>
+                <li>How UX and UI design principles (like recognition vs recall) impact interface design</li>
+                <li>Why certain design choices help users interact effectively with systems</li>
+                <li>How to evaluate the effectiveness of design principles in real interfaces</li>
+            </ul>
+            
+            <p><strong>For your PSAB:</strong> You will apply the recognition principle when designing your own HCI solution, ensuring users can recognise actions through visual cues rather than having to remember commands.</p>
+        </div>
+    </div>
+
+    <div class="content-box" style="background-color: #e8f5e9;">
+        <h2>Submission Instructions</h2>
+        <ol>
+            <li>Complete your research and Excalidraw timeline</li>
+            <li>Save your Excalidraw file: File → Save (downloads as .excalidraw)</li>
+            <li>Export as PNG image: File → Export image → PNG</li>
+            <li>Submit both the .excalidraw file and the PNG image</li>
+            <li>Be prepared to present your findings to the class</li>
+        </ol>
+    </div>
+
+</body>
+</html>
