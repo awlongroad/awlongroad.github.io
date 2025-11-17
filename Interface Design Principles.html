@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestalt Principles in Interface Design</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .header {
+            border-bottom: 3px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #000;
+        }
+        .header p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .content-box {
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+        .key-info {
+            background-color: #f5f5f5;
+            border-left: 4px solid #333;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .definition-box {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        h2 {
+            color: #000;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #333;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        h4 {
+            color: #333;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        .principle-section {
+            border-left: 4px solid #666;
+            padding-left: 20px;
+            margin: 25px 0;
+        }
+        .principle-section h3 {
+            margin-top: 0;
+        }
+        .example-box {
+            background-color: #f9f9f9;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        .task-brief {
+            background-color: #f5f5f5;
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .resource-link {
+            background-color: #fafafa;
+            border-left: 3px solid #666;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .resource-link a {
+            color: #000;
+            text-decoration: underline;
+        }
+        .resource-link a:hover {
+            color: #666;
+        }
+        .instruction-section {
+            background-color: #ffffff;
+            border: 1px solid #333;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid #333;
+        }
+        th {
+            background-color: #333;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .note {
+            font-style: italic;
+            color: #666;
+            margin: 10px 0;
+        }
+        .submission-box {
+            background-color: #f5f5f5;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Gestalt Principles in Interface Design</h1>
+        <p><strong>Unit 3: Human-Computer Interaction</strong></p>
+    </div>
+
+    <div class="content-box">
+        <h2>Introduction to Gestalt Principles</h2>
+        
+        <div class="definition-box">
+            <p><strong>Gestalt</strong> is a German word meaning "shape" or "form", referring to a unified whole.</p>
+            
+            <p>In the early 1920s, German psychologists Max Wertheimer, Kurt Koffka, and Wolfgang Köhler studied visual perception and discovered that the human brain automatically organises visual information into patterns and groups. Rather than perceiving individual elements separately, we perceive organised, meaningful wholes.</p>
+            
+            <p>The fundamental principle is: "The whole is different from the sum of its parts." The brain constantly seeks the simplest, most organised interpretation of visual information. This processing happens automatically and unconsciously.</p>
+        </div>
+
+        <div class="key-info">
+            <strong>Why this matters for HCI design:</strong>
+            <p>Understanding how people naturally perceive visual information allows designers to create interfaces that are intuitive and require minimal cognitive effort. When Gestalt principles are applied correctly, users can navigate and understand interfaces without conscious thought.</p>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>The Six Gestalt Principles</h2>
+
+        <div class="principle-section">
+            <h3>1. Proximity (Law of Nearness)</h3>
+            <p><strong>Definition:</strong> Objects that are positioned near each other are perceived as belonging to the same group, even if they differ in other characteristics such as colour or shape.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Group related information together using white space to separate unrelated items. Users will automatically understand which elements belong together without requiring additional labels or visual separators.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>Form fields grouped by category with white space between sections</li>
+                <li>Navigation menu items clustered by related functions</li>
+                <li>Contact information elements grouped together on a page</li>
+                <li>Product cards on e-commerce sites with minimal spacing within the card and larger spacing between cards</li>
+            </ul>
+        </div>
+
+        <div class="principle-section">
+            <h3>2. Similarity (Law of Similarity)</h3>
+            <p><strong>Definition:</strong> Elements that share visual characteristics (colour, shape, size, texture, or orientation) are perceived as being related or having the same function, even if they are not positioned near each other.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Ensure elements with similar functions have similar appearances. This creates predictability and helps users understand functionality before interaction. All primary action buttons should look alike; all text links should use consistent styling.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>All clickable buttons using the same colour and rounded corners</li>
+                <li>Hyperlinks consistently underlined and coloured blue</li>
+                <li>Warning messages all using red icons and borders</li>
+                <li>Navigation items styled identically to indicate they serve the same purpose</li>
+            </ul>
+        </div>
+
+        <div class="principle-section">
+            <h3>3. Closure (Law of Closure)</h3>
+            <p><strong>Definition:</strong> The brain completes incomplete shapes or patterns by filling in missing visual information. We perceive complete forms even when parts are absent, as our minds automatically close gaps to create whole objects.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Designers can use minimal visual elements because users' brains will complete the pattern. This allows for cleaner, less cluttered interfaces whilst maintaining recognition and understanding. Particularly effective in logo design and iconography.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>The World Wildlife Fund (WWF) panda logo uses incomplete shapes that our brains complete into a recognisable panda</li>
+                <li>Loading spinners often use partial circles or arcs that we perceive as complete circles</li>
+                <li>Simplified icons where users mentally complete missing details (e.g., an envelope icon with just an outline)</li>
+                <li>Progress indicators using segmented circles where gaps are mentally filled</li>
+            </ul>
+        </div>
+
+        <div class="principle-section">
+            <h3>4. Continuity (Law of Continuity)</h3>
+            <p><strong>Definition:</strong> The eye naturally follows lines, curves, and established directions. We prefer to perceive continuous, smooth flowing patterns rather than abrupt directional changes. Elements arranged on a line or curve are perceived as related.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Create visual flow through alignment, lines, and curves that guide users' attention through the interface in a logical sequence. This creates an intuitive reading pattern and helps prioritise information hierarchy.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>Progress indicators showing steps in a linear sequence</li>
+                <li>Breadcrumb navigation following a continuous path from left to right</li>
+                <li>Aligned form fields that guide the eye downward in a natural reading pattern</li>
+                <li>Horizontal scrolling galleries where items are perceived as a continuous sequence</li>
+            </ul>
+        </div>
+
+        <div class="principle-section">
+            <h3>5. Figure/Ground (Law of Figure and Ground)</h3>
+            <p><strong>Definition:</strong> We instinctively distinguish objects in the foreground (figure) from the background (ground). The figure is the element in focus; the ground is everything else that recedes into the background. This relationship can sometimes be ambiguous or reversible.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Create clear contrast between important content and background elements. Use colour, size, shadow, and spacing to establish visual hierarchy and direct user attention to key interface elements. Ensure there is no ambiguity about what is figure and what is ground.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>Modal dialogue boxes appearing over a dimmed or blurred background</li>
+                <li>Drop shadows separating cards from the page background</li>
+                <li>High contrast between text and background for readability</li>
+                <li>Navigation bars with distinct background colours separating them from page content</li>
+            </ul>
+        </div>
+
+        <div class="principle-section">
+            <h3>6. Common Fate (Law of Common Fate)</h3>
+            <p><strong>Definition:</strong> Elements moving in the same direction, at the same speed, or changing in the same way are perceived as being part of the same group or having a relationship. This principle applies to both motion and transformation.</p>
+            
+            <div class="example-box">
+                <strong>Application in HCI:</strong> Use coordinated animation to demonstrate relationships between interface elements. When elements move or change together, users understand they are connected or affected by the same action. This is particularly effective for showing cause and effect relationships.
+            </div>
+            
+            <p><strong>Interface examples:</strong></p>
+            <ul>
+                <li>Files moving together with the cursor when being dragged</li>
+                <li>Menu items sliding in as a coordinated group</li>
+                <li>Related notifications appearing with synchronised animation</li>
+                <li>Multiple items in a list moving together when being reordered</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Task Overview</h2>
+
+        <div class="task-brief">
+            <h3>Research and Analysis Task</h3>
+            <p>You will investigate how Gestalt principles are applied in real-world interfaces and create a visual analysis document in Excalidraw demonstrating your understanding.</p>
+            
+            <p><strong>Deliverable:</strong> A structured visual analysis board showing evidence and evaluation of Gestalt principles in professional interface design.</p>
+        </div>
+
+        <h3>Task Requirements</h3>
+
+        <div class="instruction-section">
+            <h4>Part 1: Evidence Collection</h4>
+            <p>Collect screenshot evidence showing each Gestalt principle being applied in real interfaces.</p>
+            
+            <p><strong>Requirements:</strong></p>
+            <ul>
+                <li>Minimum of <strong>two examples</strong> for each principle (total: 12 screenshots)</li>
+                <li>Examples must come from <strong>different sources</strong> (various websites, applications, or operating systems)</li>
+                <li>Include examples from <strong>at least three different sectors:</strong> Education, Entertainment, Retail, Manufacturing, or Hospitality</li>
+                <li>Mix of effective applications and poor applications of principles</li>
+            </ul>
+            
+            <p><strong>Suggested sources:</strong></p>
+            <ul>
+                <li>Websites: BBC, Amazon, Spotify, Netflix, Instagram, LinkedIn</li>
+                <li>Mobile applications on your device</li>
+                <li>Desktop applications: Microsoft Office, Adobe Creative Suite, Canva</li>
+                <li>Operating systems: Windows 11, macOS, iOS, Android</li>
+                <li>Gaming interfaces and menu systems</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Part 2: Analysis</h4>
+            <p>For each screenshot, provide detailed analysis addressing:</p>
+            <ul>
+                <li><strong>Identification:</strong> Which Gestalt principle is demonstrated?</li>
+                <li><strong>Application:</strong> Describe specifically how the designer has applied this principle</li>
+                <li><strong>Effectiveness:</strong> Evaluate why this application works (or fails) for users</li>
+                <li><strong>Impact:</strong> Explain what would happen without this principle</li>
+                <li><strong>Assessment:</strong> Rate the effectiveness (1-5 scale) with justification</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Part 3: Redesign Challenge</h4>
+            <p>Select one interface that poorly applies Gestalt principles or violates multiple principles.</p>
+            
+            <p><strong>Requirements:</strong></p>
+            <ul>
+                <li>Screenshot the original interface design</li>
+                <li>Identify which principles are absent, violated, or poorly executed</li>
+                <li>Create a redesigned version applying Gestalt principles correctly</li>
+                <li>Annotate your redesign explaining each design decision</li>
+                <li>Provide justification for how your redesign improves user experience</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Part 4: Summary Analysis</h4>
+            <p>Include a concluding section that addresses:</p>
+            <ul>
+                <li>Which principle is most commonly applied across interfaces you studied?</li>
+                <li>Which principle is most frequently violated or poorly implemented?</li>
+                <li>Which interface demonstrated the most effective use of Gestalt principles?</li>
+                <li>How you will apply these principles in your own HCI design work</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Research Resources</h2>
+
+        <h3>Core Reading on Gestalt Principles</h3>
+
+        <div class="resource-link">
+            <strong>Interaction Design Foundation - Gestalt Principles</strong><br>
+            <a href="https://www.interaction-design.org/literature/topics/gestalt-principles" target="_blank">https://www.interaction-design.org/literature/topics/gestalt-principles</a><br>
+            Comprehensive explanation with visual examples and applications
+        </div>
+
+        <div class="resource-link">
+            <strong>Smashing Magazine - Visual Perception and Gestalt Principles</strong><br>
+            <a href="https://www.smashingmagazine.com/2014/03/design-principles-visual-perception-and-the-principles-of-gestalt/" target="_blank">https://www.smashingmagazine.com/2014/03/design-principles-visual-perception-and-the-principles-of-gestalt/</a><br>
+            Detailed article on applying Gestalt theory to web design
+        </div>
+
+        <div class="resource-link">
+            <strong>Laws of UX</strong><br>
+            <a href="https://lawsofux.com" target="_blank">https://lawsofux.com</a><br>
+            Interactive demonstrations of UX principles including Gestalt laws (search individual principles)
+        </div>
+
+        <div class="resource-link">
+            <strong>Nielsen Norman Group - Principles of Visual Design</strong><br>
+            <a href="https://www.nngroup.com/articles/principles-visual-design/" target="_blank">https://www.nngroup.com/articles/principles-visual-design/</a><br>
+            Research-based article on visual design principles in user interfaces
+        </div>
+
+        <div class="resource-link">
+            <strong>Canva - Gestalt Theory in Design</strong><br>
+            <a href="https://www.canva.com/learn/gestalt-theory/" target="_blank">https://www.canva.com/learn/gestalt-theory/</a><br>
+            Accessible guide with practical design applications
+        </div>
+
+        <div class="resource-link">
+            <strong>UX Planet - Gestalt Principles in UI Design</strong><br>
+            <a href="https://uxplanet.org/gestalt-principles-in-ui-design-6b75a41e9965" target="_blank">https://uxplanet.org/gestalt-principles-in-ui-design-6b75a41e9965</a><br>
+            Contemporary interface examples demonstrating each principle
+        </div>
+
+        <div class="resource-link">
+            <strong>Material Design - Layout Principles</strong><br>
+            <a href="https://m3.material.io/foundations/layout/understanding-layout/overview" target="_blank">https://m3.material.io/foundations/layout/understanding-layout/overview</a><br>
+            Google's application of Gestalt principles in Material Design system
+        </div>
+
+        <div class="resource-link">
+            <strong>Apple Human Interface Guidelines - Layout</strong><br>
+            <a href="https://developer.apple.com/design/human-interface-guidelines/layout" target="_blank">https://developer.apple.com/design/human-interface-guidelines/layout</a><br>
+            Apple's approach to visual organisation and Gestalt principles
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Working in Excalidraw</h2>
+
+        <p>Access Excalidraw at: <a href="https://excalidraw.com" target="_blank">https://excalidraw.com</a></p>
+        <p class="note">Note: No account registration required. You can begin working immediately.</p>
+
+        <h3>Document Structure</h3>
+
+        <div class="instruction-section">
+            <h4>Organisation</h4>
+            <p>Structure your document with clear sections:</p>
+            <ul>
+                <li>Header section with your name and task title</li>
+                <li>Six principle sections (one per Gestalt principle)</li>
+                <li>Each section containing minimum two annotated examples</li>
+                <li>Redesign comparison section (before/after)</li>
+                <li>Summary analysis section</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Adding Screenshots</h4>
+            <ul>
+                <li>Capture screenshots of interfaces demonstrating principles</li>
+                <li>Drag and drop image files directly onto the Excalidraw canvas</li>
+                <li>Resize images to maintain consistent dimensions throughout document</li>
+                <li>Label each screenshot with source and context (e.g., "Amazon.co.uk Product Listing Page")</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Annotations</h4>
+            <p>Use Excalidraw tools to analyse each screenshot:</p>
+            <ul>
+                <li><strong>Arrow tool:</strong> Point to specific interface elements demonstrating the principle</li>
+                <li><strong>Text boxes:</strong> Provide analysis (principle identification, application method, effectiveness evaluation)</li>
+                <li><strong>Rectangle tool:</strong> Highlight or frame key areas of interest</li>
+                <li><strong>Line tool:</strong> Create section dividers and organisational structure</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Redesign Section</h4>
+            <ul>
+                <li>Position original screenshot and redesign side by side for comparison</li>
+                <li>Use Excalidraw drawing tools to create your redesigned interface</li>
+                <li>Add annotations explaining each design change</li>
+                <li>Use arrows to connect explanations to specific design elements</li>
+                <li>Include a summary of which principles you have applied and how</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Technical Tips</h4>
+            <ul>
+                <li>Use <strong>Select tool (V)</strong> to move and resize elements</li>
+                <li>Use <strong>Ctrl+G</strong> to group related elements together</li>
+                <li>Use <strong>alignment tools</strong> for professional-looking layouts</li>
+                <li>Use <strong>layers</strong> (Send to back / Bring to front) to organise overlapping elements</li>
+                <li>Maintain consistent text size and style throughout the document</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h4>Saving Your Work</h4>
+            <ul>
+                <li>Click <strong>Menu (☰) → Save to...</strong> to download the .excalidraw file to your device</li>
+                <li>Save regularly throughout your work session</li>
+                <li>To continue working: return to excalidraw.com and use <strong>Menu (☰) → Open</strong> to load your saved file</li>
+                <li>For final submission: use <strong>Menu (☰) → Export image → PNG</strong> to create an image file</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="content-box">
+        <div class="submission-box">
+            <h2>Submission Requirements</h2>
+            <ol>
+                <li>Complete all sections of your Excalidraw analysis document</li>
+                <li>Ensure all six Gestalt principles have minimum two annotated examples each</li>
+                <li>Include redesign challenge with before/after comparison</li>
+                <li>Add summary analysis section addressing required points</li>
+                <li>Save your work: <strong>Menu (☰) → Save to...</strong> (downloads .excalidraw file)</li>
+                <li>Export final version: <strong>Menu (☰) → Export image → PNG</strong></li>
+                <li>Submit both the .excalidraw source file and PNG export</li>
+            </ol>
+            
+            <p class="note">You may be asked to present key findings from your analysis to the class.</p>
+        </div>
+    </div>
+
+</body>
+</html>
