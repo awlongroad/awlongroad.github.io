@@ -107,6 +107,21 @@
             color: white;
         }
 
+        .card.locked {
+            background: #90caf9;
+            border-color: #1976d2;
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .card.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+        }
+
         .suit {
             font-size: 1.5em;
             margin-top: 5px;
@@ -299,33 +314,52 @@
 <body>
     <div class="container">
         <h1>🎴 Bubble Sort Activity</h1>
-        
+        <p style="text-align: center; color: #666; font-size: 1.1em; margin-bottom: 30px;">
+            Learn how bubble sort works by sorting playing cards step-by-step
+        </p>
         <div class="instructions">
-            <h2>Instructions for One Pass of a Bubble Sort:</h2>
-            <ol>
-                <li>Take a list of data to be sorted.</li>
-                <li>Repeat steps a-c for all the items in the list, starting from the first one:
-                    <ul style="margin-left: 20px; margin-top: 5px;">
-                        <li><strong>a.</strong> Compare the item at the current position to the one next to it.</li>
-                        <li><strong>b.</strong> If the item at the current position is greater than the one next to it, swap the items within the list.</li>
-                        <li><strong>c.</strong> Go to the next item in the list.</li>
-                    </ul>
-                </li>
-            </ol>
-            <p style="margin-top: 15px; color: #667eea; font-weight: 600;">
-                Note: Cards should be ordered from lowest to highest, where Ace is considered low.
+            <h2>What is Bubble Sort?</h2>
+            <p style="color: #555; line-height: 1.6; margin-bottom: 15px;">
+                Bubble sort is a simple sorting algorithm that works by repeatedly comparing pairs of adjacent cards and swapping them if they're in the wrong order. The largest values "bubble up" to the end of the list, just like bubbles rising in water!
             </p>
+            
+            <h3 style="color: #667eea; margin-top: 20px;">How to Complete One Pass:</h3>
+            <ol style="line-height: 1.8;">
+                <li>Start at the beginning of the list</li>
+                <li>Compare two cards next to each other</li>
+                <li>If the left card is bigger than the right card, <strong>swap them</strong></li>
+                <li>If they're already in the correct order, <strong>leave them</strong></li>
+                <li>Move to the next pair and repeat until you reach the end</li>
+            </ol>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ff9800;">
+                <p style="margin: 0; color: #e65100; font-weight: 600;">📌 Remember:</p>
+                <p style="margin: 5px 0 0 0; color: #e65100;">
+                    We're sorting from <strong>lowest to highest</strong>. Ace counts as 1 (the lowest card).
+                </p>
+            </div>
+
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #4caf50;">
+                <p style="margin: 0; color: #2e7d32; font-weight: 600;">💡 Watch for:</p>
+                <ul style="margin: 10px 0 0 20px; color: #2e7d32; line-height: 1.6;">
+                    <li>Cards marked with 🔒 are already in their final position</li>
+                    <li>You'll need multiple passes to fully sort the cards</li>
+                    <li>The activity will tell you when the sorting is complete!</li>
+                </ul>
+            </div>
         </div>
 
         <div class="info">
-            <h3>Current Task:</h3>
-            <p id="task-description">Click "Start Comparison" to begin the bubble sort pass</p>
+            <h3>What to Do:</h3>
+            <p id="task-description">Click "Start Comparison" to begin sorting the cards</p>
         </div>
 
         <div class="stats">
-            <h3>📊 Progress Statistics</h3>
-            <p><strong>Current Pass:</strong> <span id="current-pass">1</span></p>
+            <h3>📊 Your Progress</h3>
+            <p><strong>Pass Number:</strong> <span id="current-pass">1</span></p>
+            <p><strong>Comparisons This Pass:</strong> <span id="pass-comparisons">0</span> / <span id="max-comparisons">7</span></p>
             <p><strong>Swaps This Pass:</strong> <span id="pass-swaps">0</span></p>
+            <p><strong>Total Comparisons:</strong> <span id="total-comparisons">0</span></p>
             <p><strong>Total Swaps:</strong> <span id="total-swaps">0</span></p>
         </div>
 
@@ -353,7 +387,11 @@
         <div class="completion-message" id="completion-message">
             <h2>🎉 Brilliant! The list is now fully sorted!</h2>
             <p style="margin-top: 10px;">You completed the bubble sort in <span id="total-passes">0</span> pass(es).</p>
-            <p style="margin-top: 5px;">Total swaps made: <span id="final-swap-count">0</span></p>
+            <p style="margin-top: 5px;">Total comparisons: <span id="final-comparison-count">0</span></p>
+            <p style="margin-top: 5px;">Total swaps: <span id="final-swap-count">0</span></p>
+            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.9;">
+                💡 The optimizations reduced comparisons by avoiding already-sorted elements and detecting early completion!
+            </p>
             <p style="margin-top: 10px;">Click "Reset Activity" to try again or practise more.</p>
         </div>
     </div>
@@ -377,6 +415,9 @@
         let totalSwapCount = 0;
         let currentPass = 1;
         let comparisons = [];
+        let maxComparisonIndex = cards.length - 1; // Reduces by 1 each pass
+        let totalComparisons = 0;
+        let passComparisons = 0;
 
         function isSorted() {
             for (let i = 0; i < cards.length - 1; i++) {
@@ -391,6 +432,9 @@
             document.getElementById('current-pass').textContent = currentPass;
             document.getElementById('pass-swaps').textContent = passSwapCount;
             document.getElementById('total-swaps').textContent = totalSwapCount;
+            document.getElementById('pass-comparisons').textContent = passComparisons;
+            document.getElementById('max-comparisons').textContent = maxComparisonIndex;
+            document.getElementById('total-comparisons').textContent = totalComparisons;
         }
 
         function initializeCards() {
@@ -400,6 +444,12 @@
             cards.forEach((card, index) => {
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card';
+                
+                // Mark cards that are already in their correct position (past maxComparisonIndex)
+                if (index > maxComparisonIndex) {
+                    cardElement.classList.add('locked');
+                }
+                
                 cardElement.innerHTML = `
                     ${card.display}
                     <span class="suit">♠</span>
@@ -410,9 +460,14 @@
         }
 
         function startComparison() {
-            if (currentIndex >= cards.length - 1) {
+            if (currentIndex >= maxComparisonIndex) {
                 return;
             }
+
+            // Increment comparison counters
+            totalComparisons++;
+            passComparisons++;
+            updateStats();
 
             // Highlight the two cards being compared
             const cardElements = document.querySelectorAll('.card');
@@ -491,7 +546,7 @@
             removeHighlights();
             currentIndex++;
 
-            if (currentIndex >= cards.length - 1) {
+            if (currentIndex >= maxComparisonIndex) {
                 // Completed one pass
                 completePass();
             } else {
@@ -520,19 +575,41 @@
             document.getElementById('swap-btn').disabled = true;
             document.getElementById('no-swap-btn').disabled = true;
 
-            // Check if the array is fully sorted
-            if (isSorted()) {
+            // Check if no swaps were made this pass (early completion optimization)
+            if (passSwapCount === 0) {
+                // Array is already sorted - no swaps needed
+                document.getElementById('task-description').innerHTML = 
+                    '✅ No swaps needed! The list is already sorted!';
+                
+                document.getElementById('total-passes').textContent = currentPass;
+                document.getElementById('final-swap-count').textContent = totalSwapCount;
+                document.getElementById('final-comparison-count').textContent = totalComparisons;
+                document.getElementById('completion-message').classList.add('show');
+
+                // Add note about early completion optimization
+                addLogEntry(`🎯 Optimization: Pass ${currentPass} had 0 swaps - list is sorted!`, 'no-swap');
+
+                // Highlight all cards as correct
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('correct');
+                    card.classList.remove('locked');
+                });
+            }
+            // Check if the array is fully sorted (should not be needed if no swaps optimization works)
+            else if (isSorted()) {
                 // Fully sorted - show completion message
                 document.getElementById('task-description').innerHTML = 
                     '✅ The list is now fully sorted!';
                 
                 document.getElementById('total-passes').textContent = currentPass;
                 document.getElementById('final-swap-count').textContent = totalSwapCount;
+                document.getElementById('final-comparison-count').textContent = totalComparisons;
                 document.getElementById('completion-message').classList.add('show');
 
                 // Highlight all cards as correct
                 document.querySelectorAll('.card').forEach(card => {
                     card.classList.add('correct');
+                    card.classList.remove('locked');
                 });
             } else {
                 // Not sorted yet - show pass complete message
@@ -542,6 +619,11 @@
                 document.getElementById('completed-pass-number').textContent = currentPass;
                 document.getElementById('pass-swap-count').textContent = passSwapCount;
                 document.getElementById('pass-complete-message').classList.add('show');
+                
+                // Add optimization note
+                const reductionNote = maxComparisonIndex < cards.length - 1 ? 
+                    ` (${cards.length - maxComparisonIndex} element(s) already in correct position)` : '';
+                addLogEntry(`✓ Pass ${currentPass} complete: ${passComparisons} comparison(s), ${passSwapCount} swap(s)${reductionNote}`, 'no-swap');
             }
         }
 
@@ -553,13 +635,19 @@
             currentPass++;
             currentIndex = 0;
             passSwapCount = 0;
+            passComparisons = 0;
+            maxComparisonIndex--; // Optimization: reduce by 1 each pass (largest element is now in place)
             updateStats();
             
-            // Add separator in log
-            addLogEntry(`--- Starting Pass ${currentPass} ---`, 'no-swap');
+            // Add separator in log with optimization note
+            const comparisonsThisPass = maxComparisonIndex;
+            addLogEntry(`--- Starting Pass ${currentPass} (${comparisonsThisPass} comparison${comparisonsThisPass !== 1 ? 's' : ''}) ---`, 'no-swap');
             
             document.getElementById('task-description').innerHTML = 
                 `Starting Pass ${currentPass}. Click "Start Comparison" to continue sorting.`;
+            
+            // Re-render cards to show newly locked elements
+            initializeCards();
             
             enableCompareButton();
         }
@@ -580,6 +668,9 @@
             totalSwapCount = 0;
             currentPass = 1;
             comparisons = [];
+            maxComparisonIndex = cards.length - 1; // Reset optimization
+            totalComparisons = 0;
+            passComparisons = 0;
 
             initializeCards();
             updateStats();
