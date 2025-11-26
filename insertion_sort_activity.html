@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertion Sort Activity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .instructions {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .instructions h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            min-height: 140px;
+            align-items: flex-end;
+        }
+
+        .card {
+            width: 100px;
+            height: 110px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.selected {
+            background: #ffd700;
+            border-color: #ff9800;
+            transform: translateY(-10px);
+        }
+
+        .card.comparing {
+            background: #ffeb3b;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .card.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .card.sorted {
+            background: #90caf9;
+            border-color: #1976d2;
+        }
+
+        .card.current {
+            background: #ff9800;
+            color: white;
+            border-color: #f57c00;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .select-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .select-btn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .compare-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .compare-btn:hover:not(:disabled) {
+            background: #f57c00;
+        }
+
+        .insert-btn {
+            background: #51cf66;
+            color: white;
+        }
+
+        .insert-btn:hover:not(:disabled) {
+            background: #40c057;
+        }
+
+        .shift-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .shift-btn:hover:not(:disabled) {
+            background: #ee5a52;
+        }
+
+        .reset-btn {
+            background: #868e96;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #6c757d;
+        }
+
+        .info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .info h3 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        .info p {
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .comparison-log {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .comparison-log h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: white;
+            border-left: 4px solid #667eea;
+        }
+
+        .log-entry.insert {
+            border-left-color: #51cf66;
+        }
+
+        .log-entry.shift {
+            border-left-color: #ff6b6b;
+        }
+
+        .log-entry.compare {
+            border-left-color: #ff9800;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+
+        .stat-card h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .stat-card p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .completion-message.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .completion-message h2 {
+            margin-bottom: 15px;
+        }
+
+        .highlight-text {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        #task-description {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #ff9800;
+            font-weight: 500;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Insertion Sort Activity</h1>
+        
+        <div class="instructions">
+            <h2>How Insertion Sort Works:</h2>
+            <ol>
+                <li><strong>Start with the second element</strong> - The first element is already "sorted"</li>
+                <li><strong>Pick the current element</strong> - This is the element to be inserted</li>
+                <li><strong>Compare backwards</strong> - Compare with elements in the sorted portion (to the left)</li>
+                <li><strong>Shift elements right</strong> - Move larger elements one position to the right</li>
+                <li><strong>Insert in correct position</strong> - Place the current element in its proper place</li>
+                <li><strong>Repeat</strong> - Continue until all elements are processed</li>
+            </ol>
+        </div>
+
+        <div id="task-description">
+            Click "Select Next" to pick the first element to insert
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h4>Current Position</h4>
+                <p id="current-position">1</p>
+            </div>
+            <div class="stat-card">
+                <h4>Comparisons</h4>
+                <p id="comparison-count">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>Shifts</h4>
+                <p id="shift-count">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>Insertions</h4>
+                <p id="insertion-count">0</p>
+            </div>
+        </div>
+
+        <div class="cards-container" id="cards-container"></div>
+
+        <div class="controls">
+            <button id="select-btn" class="select-btn" onclick="selectNext()">Select Next</button>
+            <button id="compare-btn" class="compare-btn" onclick="startComparison()" disabled>Compare Left</button>
+            <button id="shift-btn" class="shift-btn" onclick="shiftRight()" disabled>Shift Right</button>
+            <button id="insert-btn" class="insert-btn" onclick="insertElement()" disabled>Insert Here</button>
+            <button class="reset-btn" onclick="resetActivity()">Reset</button>
+        </div>
+
+        <div class="comparison-log">
+            <h3>Activity Log</h3>
+            <div id="log-container"></div>
+        </div>
+
+        <div class="completion-message" id="completion-message">
+            <h2>🎉 Congratulations!</h2>
+            <p>You've successfully completed the Insertion Sort!</p>
+            <p style="margin-top: 15px;">
+                <strong>Total Comparisons:</strong> <span id="final-comparison-count">0</span><br>
+                <strong>Total Shifts:</strong> <span id="final-shift-count">0</span><br>
+                <strong>Total Insertions:</strong> <span id="final-insertion-count">0</span>
+            </p>
+        </div>
+
+        <div class="info">
+            <h3>💡 Key Concepts</h3>
+            <p>
+                Insertion Sort builds a sorted list one element at a time by inserting each element 
+                into its correct position within the already-sorted portion. It's like sorting playing cards 
+                in your hand - you pick up one card at a time and insert it in the right place!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initial unsorted names
+        const initialNames = [
+            { name: "Rhonda", value: "Rhonda" },
+            { name: "Vicky", value: "Vicky" },
+            { name: "Jorge", value: "Jorge" },
+            { name: "Toby", value: "Toby" },
+            { name: "Ada", value: "Ada" },
+            { name: "Fatima", value: "Fatima" }
+        ];
+
+        let names = [...initialNames];
+        let currentIndex = 1; // Start from second element (index 1)
+        let currentElement = null;
+        let compareIndex = -1; // Index for comparison in sorted portion
+        let totalComparisons = 0;
+        let totalShifts = 0;
+        let totalInsertions = 0;
+        let state = 'select'; // States: 'select', 'compare', 'shift', 'insert'
+
+        function initializeCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            names.forEach((item, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                
+                // Mark sorted portion (everything before currentIndex)
+                if (index < currentIndex && state !== 'select') {
+                    cardElement.classList.add('sorted');
+                }
+                
+                // Mark current element being inserted
+                if (item === currentElement && state !== 'select') {
+                    cardElement.classList.add('current');
+                }
+                
+                // Mark element being compared
+                if (index === compareIndex && state === 'compare') {
+                    cardElement.classList.add('comparing');
+                }
+                
+                // Mark completed sort
+                if (currentIndex >= names.length) {
+                    cardElement.classList.add('correct');
+                }
+                
+                cardElement.innerHTML = item.name;
+                cardElement.dataset.index = index;
+                container.appendChild(cardElement);
+            });
+        }
+
+        function selectNext() {
+            if (currentIndex >= names.length) {
+                return;
+            }
+
+            // Pick the current element
+            currentElement = names[currentIndex];
+            compareIndex = currentIndex - 1;
+            state = 'compare';
+
+            addLogEntry(`📍 Selected "${currentElement.name}" at position ${currentIndex + 1} for insertion`, 'compare');
+
+            document.getElementById('task-description').innerHTML = 
+                `Selected <span class="highlight-text">${currentElement.name}</span>. Now compare it with elements to the left.`;
+
+            updateButtons();
+            initializeCards();
+        }
+
+        function startComparison() {
+            if (compareIndex < 0) {
+                // No more elements to compare - insert at beginning
+                state = 'insert';
+                document.getElementById('task-description').innerHTML = 
+                    `<span class="highlight-text">${currentElement.name}</span> is smaller than all elements. Insert at the beginning!`;
+                updateButtons();
+                return;
+            }
+
+            totalComparisons++;
+            updateStats();
+
+            const compareWith = names[compareIndex];
+            
+            addLogEntry(`🔍 Comparing "${currentElement.name}" with "${compareWith.name}"`, 'compare');
+
+            // Compare alphabetically
+            if (currentElement.name.toLowerCase() < compareWith.name.toLowerCase()) {
+                // Need to shift
+                document.getElementById('task-description').innerHTML = 
+                    `<span class="highlight-text">${currentElement.name}</span> < <span class="highlight-text">${compareWith.name}</span>. 
+                    Shift <span class="highlight-text">${compareWith.name}</span> right and continue comparing.`;
+                state = 'shift';
+            } else {
+                // Found correct position - insert after compareWith
+                document.getElementById('task-description').innerHTML = 
+                    `<span class="highlight-text">${currentElement.name}</span> ≥ <span class="highlight-text">${compareWith.name}</span>. 
+                    Found the correct position! Insert here.`;
+                state = 'insert';
+            }
+
+            updateButtons();
+            initializeCards();
+        }
+
+        function shiftRight() {
+            if (compareIndex < 0) return;
+
+            const shiftedElement = names[compareIndex];
+            
+            // Shift element to the right
+            names[compareIndex + 1] = names[compareIndex];
+            totalShifts++;
+            updateStats();
+
+            addLogEntry(`➡️ Shifted "${shiftedElement.name}" one position to the right`, 'shift');
+
+            // Move comparison index left
+            compareIndex--;
+
+            if (compareIndex < 0) {
+                // Reached the beginning
+                state = 'insert';
+                document.getElementById('task-description').innerHTML = 
+                    `Reached the beginning. Insert <span class="highlight-text">${currentElement.name}</span> at position 1.`;
+            } else {
+                // Continue comparing
+                state = 'compare';
+                document.getElementById('task-description').innerHTML = 
+                    `Continue comparing <span class="highlight-text">${currentElement.name}</span> with the next element to the left.`;
+            }
+
+            updateButtons();
+            initializeCards();
+        }
+
+        function insertElement() {
+            // Insert the current element at compareIndex + 1
+            const insertPosition = compareIndex + 1;
+            names[insertPosition] = currentElement;
+            totalInsertions++;
+            updateStats();
+
+            addLogEntry(`✅ Inserted "${currentElement.name}" at position ${insertPosition + 1}`, 'insert');
+
+            // Move to next element
+            currentIndex++;
+
+            if (currentIndex >= names.length) {
+                // Sorting complete
+                completeSorting();
+            } else {
+                // Continue with next element
+                currentElement = null;
+                compareIndex = -1;
+                state = 'select';
+                
+                document.getElementById('task-description').innerHTML = 
+                    `Position ${currentIndex} sorted! Click "Select Next" to continue.`;
+                
+                updateButtons();
+            }
+
+            initializeCards();
+        }
+
+        function completeSorting() {
+            state = 'complete';
+            
+            document.getElementById('task-description').innerHTML = 
+                '✅ All elements have been inserted in the correct order!';
+
+            document.getElementById('final-comparison-count').textContent = totalComparisons;
+            document.getElementById('final-shift-count').textContent = totalShifts;
+            document.getElementById('final-insertion-count').textContent = totalInsertions;
+            document.getElementById('completion-message').classList.add('show');
+
+            addLogEntry(`🎉 Sorting complete! The list is now in alphabetical order.`, 'insert');
+
+            updateButtons();
+            initializeCards();
+        }
+
+        function updateButtons() {
+            const selectBtn = document.getElementById('select-btn');
+            const compareBtn = document.getElementById('compare-btn');
+            const shiftBtn = document.getElementById('shift-btn');
+            const insertBtn = document.getElementById('insert-btn');
+
+            // Disable all buttons first
+            selectBtn.disabled = true;
+            compareBtn.disabled = true;
+            shiftBtn.disabled = true;
+            insertBtn.disabled = true;
+
+            // Enable appropriate button based on state
+            if (state === 'select') {
+                selectBtn.disabled = false;
+            } else if (state === 'compare') {
+                compareBtn.disabled = false;
+            } else if (state === 'shift') {
+                shiftBtn.disabled = false;
+            } else if (state === 'insert') {
+                insertBtn.disabled = false;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('current-position').textContent = currentIndex + 1;
+            document.getElementById('comparison-count').textContent = totalComparisons;
+            document.getElementById('shift-count').textContent = totalShifts;
+            document.getElementById('insertion-count').textContent = totalInsertions;
+        }
+
+        function addLogEntry(message, type) {
+            const logContainer = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function resetActivity() {
+            names = [...initialNames];
+            currentIndex = 1;
+            currentElement = null;
+            compareIndex = -1;
+            totalComparisons = 0;
+            totalShifts = 0;
+            totalInsertions = 0;
+            state = 'select';
+
+            initializeCards();
+            updateStats();
+            updateButtons();
+            
+            document.getElementById('log-container').innerHTML = '';
+            document.getElementById('task-description').innerHTML = 
+                'Click "Select Next" to pick the first element to insert';
+            
+            document.getElementById('completion-message').classList.remove('show');
+        }
+
+        // Initialize on load
+        initializeCards();
+        updateStats();
+        updateButtons();
+        addLogEntry('🚀 Insertion Sort started! The first element is already "sorted".', 'compare');
+    </script>
+</body>
+</html>
