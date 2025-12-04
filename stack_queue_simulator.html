@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack & Queue Simulator - Understanding the Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: #e8e8e8;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* Learn Basics Section */
+        .basics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .concept-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .concept-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .code-snippet {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .code-highlight {
+            background: #44475a;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #50fa7b;
+        }
+
+        .explanation {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #2196F3;
+        }
+
+        /* Watch Demo Section */
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .code-panel {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .code-panel h3 {
+            color: #50fa7b;
+            margin-bottom: 15px;
+        }
+
+        .code-line {
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            padding: 5px 10px;
+            margin: 2px 0;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .code-line.active {
+            background: #44475a;
+            border-left: 4px solid #50fa7b;
+        }
+
+        .visual-panel {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stack-visual {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            min-height: 300px;
+            justify-content: flex-start;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+
+        .stack-item {
+            width: 200px;
+            padding: 15px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stack-item.removing {
+            animation: slideOut 0.5s ease-out;
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .pointer-indicator {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .variables-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .variables-display h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .variable {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .variable-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .variable-value {
+            color: #e91e63;
+            font-weight: bold;
+        }
+
+        .explanation-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .explanation-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Try Yourself Section */
+        .sandbox-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .input-panel {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .operation-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .history-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #667eea;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-panel h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .queue-visual {
+            display: flex;
+            align-items: center;
+            min-height: 150px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            overflow-x: auto;
+        }
+
+        .queue-item {
+            min-width: 100px;
+            padding: 15px;
+            margin: 0 5px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: slideInQueue 0.5s ease-out;
+        }
+
+        @keyframes slideInQueue {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .structure-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .structure-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .structure-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        @media (max-width: 1024px) {
+            .demo-container,
+            .sandbox-container {
+                grid-template-columns: 1fr;
+            }
+
+            .basics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Stack & Queue Simulator</h1>
+            <p>Understanding How the Code Works</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('basics')">🎓 Learn Basics</button>
+            <button class="tab" onclick="switchTab('demo')">👀 Watch Demo</button>
+            <button class="tab" onclick="switchTab('sandbox')">✏️ Try Yourself</button>
+            <button class="tab" onclick="switchTab('faq')">❓ FAQ</button>
+        </div>
+
+        <!-- LEARN BASICS SECTION -->
+        <div id="basics" class="content active">
+            <div class="basics-grid">
+                <div class="concept-card">
+                    <h3>🤔 Why does top start at -1?</h3>
+                    <div class="code-snippet">top = -1  # Empty stack</div>
+                    <div class="explanation">
+                        <p><strong>Think of it like floors in a building:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>When the stack is empty, there's nothing there - like being below ground level (basement = -1)</li>
+                            <li>When we add the FIRST item, top becomes 0 (ground floor)</li>
+                            <li>Second item: top becomes 1 (first floor)</li>
+                            <li>This way, <code>top == -1</code> is a perfect way to check "is the stack empty?"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>📈 Why do we increase top by 1 when pushing?</h3>
+                    <div class="code-snippet">top = top + 1<br>stack.append(data)</div>
+                    <div class="explanation">
+                        <p><strong>The top pointer must always point to the last item:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Stack positions: [0, 1, 2, 3, 4...]</li>
+                            <li>If top is 2, the next empty position is 3</li>
+                            <li>So we do <code>top = top + 1</code> (2 + 1 = 3)</li>
+                            <li>Then we add the item to position 3</li>
+                            <li>Now top correctly points to the newest item!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>🔍 How do we check if stack is empty?</h3>
+                    <div class="code-snippet">if top == -1:<br>    return True</div>
+                    <div class="explanation">
+                        <p><strong>Simple logic check:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Remember: empty stack has top = -1</li>
+                            <li>If top is -1, nothing has been added yet</li>
+                            <li>So <code>top == -1</code> means "empty" → return True</li>
+                            <li>If top is 0 or higher, we have items → return False</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>🚫 How do we check if stack is full?</h3>
+                    <div class="code-snippet">if top == MAX_SIZE - 1:<br>    return True</div>
+                    <div class="explanation">
+                        <p><strong>Understanding the boundary:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>If MAX_SIZE = 5, positions are: [0, 1, 2, 3, 4]</li>
+                            <li>The last position is 4 (which is 5 - 1)</li>
+                            <li>So if top = 4, we're at the last position → full!</li>
+                            <li>We check <code>top == MAX_SIZE - 1</code> to see if we're at the end</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>📉 Why do we decrease top when popping?</h3>
+                    <div class="code-snippet">item = stack[top]<br>top = top - 1</div>
+                    <div class="explanation">
+                        <p><strong>Moving the pointer down:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>We get the item at the current top position</li>
+                            <li>Then we move top down by 1: <code>top = top - 1</code></li>
+                            <li>If top was 2, it becomes 1</li>
+                            <li>Now top points to the item below the one we just removed</li>
+                            <li>The item is still in the list, but we "ignore" it by moving the pointer</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>🔄 Why must we return the new top value?</h3>
+                    <div class="code-snippet">return top</div>
+                    <div class="explanation">
+                        <p><strong>Keeping track of changes:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>When we push or pop, top changes</li>
+                            <li>Python doesn't automatically update variables outside functions</li>
+                            <li>We must return the new value so we can save it:</li>
+                            <li><code>top = push(stack, top, "Hello")</code></li>
+                            <li>This updates our top variable with the new value</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>🚶 Queue: Why do front and rear start differently?</h3>
+                    <div class="code-snippet">front = 0<br>rear = -1</div>
+                    <div class="explanation">
+                        <p><strong>Two pointers, two purposes:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><code>front = 0</code> because we remove from the start (position 0)</li>
+                            <li><code>rear = -1</code> because no items have been added yet</li>
+                            <li>When we add first item: rear becomes 0, front stays 0</li>
+                            <li>Both point to the same first item!</li>
+                            <li>When <code>front > rear</code>, the queue is empty</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>📈 Queue: Why increment rear when enqueueing?</h3>
+                    <div class="code-snippet">rear = rear + 1<br>queue.append(data)</div>
+                    <div class="explanation">
+                        <p><strong>Rear points to the last item:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Items are added to the back of the queue</li>
+                            <li>If rear is 1, the next position is 2</li>
+                            <li>So we do <code>rear = rear + 1</code> (1 + 1 = 2)</li>
+                            <li>Then we add the item to position 2</li>
+                            <li>Rear now correctly points to the newest item at the back!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>📉 Queue: Why increment front when dequeueing?</h3>
+                    <div class="code-snippet">item = queue[front]<br>front = front + 1</div>
+                    <div class="explanation">
+                        <p><strong>Moving front forward, not rear back:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>We get the item at the front position</li>
+                            <li>Then we move front forward by 1: <code>front = front + 1</code></li>
+                            <li>If front was 0, it becomes 1</li>
+                            <li>Now front points to the next person in the queue</li>
+                            <li>The old item is still in the list, but we "skip over" it</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>🤔 Queue: How do we check if it's empty?</h3>
+                    <div class="code-snippet">if front > rear:<br>    return True</div>
+                    <div class="explanation">
+                        <p><strong>When front overtakes rear:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Example: front = 3, rear = 2</li>
+                            <li>Front has moved past rear → no items left!</li>
+                            <li>Initial empty state: front = 0, rear = -1 (0 > -1 = True)</li>
+                            <li>After adding one item: front = 0, rear = 0 (0 > 0 = False)</li>
+                            <li>So <code>front > rear</code> always means empty</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>⚠️ Queue: What's the problem with linear queues?</h3>
+                    <div class="code-snippet">if rear + 1 == MAX_SIZE:<br>    return True  # Full!</div>
+                    <div class="explanation">
+                        <p><strong>Wasted space at the front:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>As we dequeue, front moves forward</li>
+                            <li>Space at the start becomes unused</li>
+                            <li>Queue says "full" even with empty spaces!</li>
+                            <li>Example: front = 3, rear = 4 in size 5 queue</li>
+                            <li>Positions 0, 1, 2 are wasted, but we can't use them</li>
+                            <li>Solution: Circular queues (not covered here)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WATCH DEMO SECTION -->
+        <div id="demo" class="content">
+            <div class="demo-container">
+                <div class="code-panel">
+                    <div class="structure-selector" style="margin-bottom: 20px;">
+                        <button class="structure-btn active" id="demoStackBtn" onclick="selectDemoStructure('stack')">
+                            📚 Stack Demo
+                        </button>
+                        <button class="structure-btn" id="demoQueueBtn" onclick="selectDemoStructure('queue')">
+                            🚶 Queue Demo
+                        </button>
+                    </div>
+                    <h3>📝 Current Code</h3>
+                    <div id="codeDisplay"></div>
+                </div>
+                <div class="visual-panel">
+                    <div class="variables-display">
+                        <h4>Variables</h4>
+                        <div class="variable">
+                            <span class="variable-name">MAX_SIZE:</span>
+                            <span class="variable-value" id="maxSizeDemo">5</span>
+                        </div>
+                        <div class="variable" id="demoTopVar">
+                            <span class="variable-name">top:</span>
+                            <span class="variable-value" id="topValueDemo">-1</span>
+                        </div>
+                        <div class="variable" id="demoFrontVar" style="display: none;">
+                            <span class="variable-name">front:</span>
+                            <span class="variable-value" id="frontValueDemo">0</span>
+                        </div>
+                        <div class="variable" id="demoRearVar" style="display: none;">
+                            <span class="variable-name">rear:</span>
+                            <span class="variable-value" id="rearValueDemo">-1</span>
+                        </div>
+                        <div class="variable">
+                            <span class="variable-name" id="demoArrayName">stack:</span>
+                            <span class="variable-value" id="stackArrayDemo">[]</span>
+                        </div>
+                    </div>
+                    <div class="stack-visual" id="stackVisualDemo"></div>
+                    <div class="queue-visual" id="queueVisualDemo" style="display: none;"></div>
+                    <div class="explanation-box">
+                        <h4>💡 What's Happening?</h4>
+                        <p id="explanationText">Select an operation below, then use the step controls.</p>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-success" onclick="startDemo('push')" id="demoPushBtn">Demo: Push</button>
+                        <button class="btn btn-danger" onclick="startDemo('pop')" id="demoPopBtn">Demo: Pop</button>
+                        <button class="btn btn-primary" onclick="startDemo('peek')" id="demoPeekBtn">Demo: Peek</button>
+                    </div>
+                    <div class="controls" style="margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextStepBtn" disabled>
+                            ▶️ Next Step
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetDemo()">🔄 Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRY YOURSELF SECTION -->
+        <div id="sandbox" class="content">
+            <div class="sandbox-container">
+                <div class="input-panel">
+                    <div class="structure-selector">
+                        <button class="structure-btn active" id="stackBtn" onclick="selectStructure('stack')">
+                            📚 Stack (LIFO)
+                        </button>
+                        <button class="structure-btn" id="queueBtn" onclick="selectStructure('queue')">
+                            🚶 Queue (FIFO)
+                        </button>
+                    </div>
+
+                    <div id="alertBox"></div>
+
+                    <div class="input-group">
+                        <label for="itemInput">Enter item to add:</label>
+                        <input type="text" id="itemInput" placeholder="e.g., Apple" onkeypress="handleEnter(event)">
+                    </div>
+
+                    <div class="operation-buttons">
+                        <button class="btn btn-success" onclick="sandboxPush()">
+                            <span id="addBtnText">Push</span>
+                        </button>
+                        <button class="btn btn-danger" onclick="sandboxPop()">
+                            <span id="removeBtnText">Pop</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="sandboxPeek()">Peek</button>
+                        <button class="btn btn-secondary" onclick="resetSandbox()">Clear All</button>
+                    </div>
+
+                    <div class="variables-display" style="margin-top: 20px;">
+                        <h4>Variables</h4>
+                        <div class="variable">
+                            <span class="variable-name">MAX_SIZE:</span>
+                            <span class="variable-value">5</span>
+                        </div>
+                        <div class="variable">
+                            <span class="variable-name" id="pointerName">top:</span>
+                            <span class="variable-value" id="pointerValue">-1</span>
+                        </div>
+                        <div class="variable" id="queueFrontVar" style="display: none;">
+                            <span class="variable-name">front:</span>
+                            <span class="variable-value" id="frontValue">0</span>
+                        </div>
+                    </div>
+
+                    <div class="history-panel">
+                        <h4>📜 Operation History</h4>
+                        <div id="historyLog"></div>
+                    </div>
+                </div>
+
+                <div class="visual-panel">
+                    <h3 style="color: #667eea; text-align: center;" id="structureTitle">Stack Visualization</h3>
+                    <div class="stack-visual" id="stackVisualSandbox"></div>
+                    <div class="queue-visual" id="queueVisualSandbox" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- FAQ SECTION -->
+        <div id="faq" class="content">
+            <div style="padding: 30px; max-width: 1000px; margin: 0 auto;">
+                <h2 style="color: #667eea; text-align: center; margin-bottom: 30px;">❓ Frequently Asked Questions</h2>
+                <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1em;">
+                    Common questions students ask when learning stacks and queues for the first time
+                </p>
+
+                <div class="concept-card">
+                    <h3>Why can't we just use top = 0 for an empty stack?</h3>
+                    <div class="explanation">
+                        <p><strong>The problem with starting at 0:</strong></p>
+                        <p>If we started with <code>top = 0</code>, we'd have a problem. When we add the first item, where does it go? Position 0 is already "taken" by the top pointer. We'd have to put it at position 1, then position 2, etc.</p>
+                        <p>But arrays/lists start at position 0! We'd be wasting the first position.</p>
+                        <p><strong>The solution with -1:</strong></p>
+                        <p>Starting at <code>top = -1</code> means "below position 0" or "nothing here yet". When we add the first item, we do <code>top = top + 1</code> which makes top = 0, and we put the item at position 0. Perfect!</p>
+                        <p>It also gives us a clear way to check: if <code>top == -1</code>, the stack is definitely empty.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why do we check top == MAX_SIZE - 1 instead of top == MAX_SIZE?</h3>
+                    <div class="explanation">
+                        <p><strong>It's about how arrays work:</strong></p>
+                        <p>Arrays and lists in Python use "zero-based indexing", which means positions start at 0, not 1.</p>
+                        <p>If MAX_SIZE = 5, the positions are: <code>[0, 1, 2, 3, 4]</code></p>
+                        <p>That's 5 positions total, but the last position is 4 (not 5!).</p>
+                        <p>If we checked <code>top == MAX_SIZE</code> (which is 5), we'd be trying to access position 5, which doesn't exist! This would cause an error.</p>
+                        <p>So we check <code>top == MAX_SIZE - 1</code> (which is 4) to see if we're at the last available position.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why don't we actually delete items when we pop?</h3>
+                    <div class="explanation">
+                        <p><strong>It's more efficient not to!</strong></p>
+                        <p>When we pop, we could remove the item from the list using <code>stack.remove()</code>, but that's slower and unnecessary.</p>
+                        <p>Instead, we just move the <code>top</code> pointer down by 1. The item is still in the list, but we treat it as "not there" because top doesn't point to it anymore.</p>
+                        <p><strong>Why this works:</strong></p>
+                        <p>When we push a new item, it will overwrite that old data anyway! So there's no need to delete it - we're just going to replace it later.</p>
+                        <p>This is much faster and is how stacks work in most programming languages.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>What's the difference between pop() and peek()? When do I use each?</h3>
+                    <div class="explanation">
+                        <p><strong>Pop:</strong> Gets the item AND removes it from the stack</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Returns the top item</li>
+                            <li>Decrements top by 1</li>
+                            <li>The item is effectively removed</li>
+                            <li>Use when: You want to process and remove the item (e.g., undo last action)</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Peek:</strong> Gets the item but DOESN'T remove it</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Returns the top item</li>
+                            <li>Top stays the same</li>
+                            <li>The item is still on the stack</li>
+                            <li>Use when: You want to check what's on top without removing it (e.g., checking next task)</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Example:</strong> In a web browser's back button, you might peek to show the previous page title, but only pop when the user actually clicks back.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why do queues need TWO pointers (front and rear) but stacks only need ONE (top)?</h3>
+                    <div class="explanation">
+                        <p><strong>It's about where we add and remove from:</strong></p>
+                        <p><strong>Stack (one pointer):</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Add to the top ✓</li>
+                            <li>Remove from the top ✓</li>
+                            <li>Both operations happen at the same end!</li>
+                            <li>We only need to track one location: the top</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Queue (two pointers):</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Add to the back (rear) ✓</li>
+                            <li>Remove from the front ✓</li>
+                            <li>Operations happen at different ends!</li>
+                            <li>We need to track both locations: front AND rear</li>
+                        </ul>
+                        <p style="margin-top: 15px;">Think of a queue at a shop: people join at the back (rear) and leave from the front. We need to know where both ends are!</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>In a queue, why does front start at 0 but rear starts at -1?</h3>
+                    <div class="explanation">
+                        <p><strong>They have different jobs:</strong></p>
+                        <p><strong>Front = 0:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Front points to where we'll remove from</li>
+                            <li>We'll always remove from position 0 first</li>
+                            <li>So it makes sense to start front at 0</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Rear = -1:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Rear points to the last item added</li>
+                            <li>But no items have been added yet!</li>
+                            <li>So rear = -1 means "no last item yet"</li>
+                            <li>When we add the first item: rear becomes 0 (rear + 1)</li>
+                        </ul>
+                        <p style="margin-top: 15px;">After adding one item: both front and rear equal 0 (they both point to the same single item). This is correct!</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why do we check front > rear to see if a queue is empty?</h3>
+                    <div class="explanation">
+                        <p><strong>It's about the pointers passing each other:</strong></p>
+                        <p><strong>When the queue has items:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>front ≤ rear</li>
+                            <li>Example: front = 2, rear = 4</li>
+                            <li>Items exist at positions 2, 3, 4</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>When we remove items:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>front keeps moving forward (increasing)</li>
+                            <li>rear stays the same</li>
+                            <li>Eventually front catches up to rear</li>
+                            <li>Example: front = 4, rear = 4 (one item left)</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>When the queue becomes empty:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>We remove the last item</li>
+                            <li>front moves forward one more time</li>
+                            <li>Now: front = 5, rear = 4</li>
+                            <li>front > rear → empty!</li>
+                        </ul>
+                        <p style="margin-top: 15px;">Initial state: front = 0, rear = -1 (0 > -1 is True, so empty) ✓</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>What's the problem with linear queues? Why do they waste space?</h3>
+                    <div class="explanation">
+                        <p><strong>The wasted space issue:</strong></p>
+                        <p>Imagine a queue with MAX_SIZE = 5. Let's see what happens:</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>Add 5 items: positions [0,1,2,3,4] all full</li>
+                            <li>Remove 3 items: front moves to position 3</li>
+                            <li>Now: front=3, rear=4</li>
+                            <li>Positions [0,1,2] are empty but unusable!</li>
+                            <li>Try to add a new item: rear would become 5</li>
+                            <li>But position 5 doesn't exist → "Queue is full!"</li>
+                        </ol>
+                        <p style="margin-top: 15px;"><strong>The problem:</strong> We have space (positions 0,1,2 are empty) but we can't use it because rear can only move forward, never backwards.</p>
+                        <p style="margin-top: 15px;"><strong>The solution:</strong> Circular queues (where rear wraps around to the beginning) - but that's more advanced!</p>
+                        <p style="margin-top: 15px;">For now, understand that linear queues are simple but not space-efficient once items start being removed.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why do we return values from our functions?</h3>
+                    <div class="explanation">
+                        <p><strong>Python variables and scope:</strong></p>
+                        <p>When we change a variable inside a function, Python doesn't automatically change the original variable outside the function.</p>
+                        <p><strong>Example without return:</strong></p>
+                        <div class="code-snippet" style="margin: 10px 0;">top = 2<br>push(stack, top, "Hello")  # top changes inside function<br>print(top)  # Still prints 2! Not changed!</div>
+                        <p><strong>Example with return:</strong></p>
+                        <div class="code-snippet" style="margin: 10px 0;">top = 2<br>top = push(stack, top, "Hello")  # Save returned value<br>print(top)  # Prints 3! Updated!</div>
+                        <p style="margin-top: 15px;"><strong>Why this matters:</strong></p>
+                        <p>Without returning and saving the value, top would never update. Our stack would break because top would always be wrong!</p>
+                        <p>This is why we see patterns like: <code>top = push(stack, top, data)</code></p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>When do I use a stack vs a queue in real programmes?</h3>
+                    <div class="explanation">
+                        <p><strong>Use a STACK when:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>✓ Order needs to be reversed (LIFO)</li>
+                            <li>✓ Most recent item is most important</li>
+                            <li>✓ You need undo/redo functionality</li>
+                            <li>✓ Browser back/forward buttons</li>
+                            <li>✓ Function call stack (how Python runs your code!)</li>
+                            <li>✓ Checking for balanced brackets in code</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Use a QUEUE when:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>✓ Order must be preserved (FIFO)</li>
+                            <li>✓ First come, first served</li>
+                            <li>✓ Fairness is important</li>
+                            <li>✓ Print job queue</li>
+                            <li>✓ Customer service waiting line</li>
+                            <li>✓ Processing tasks in order they arrived</li>
+                            <li>✓ Breadth-first search in graphs</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Key question:</strong> Does the most recent item need to be processed first (stack) or should items be processed in the order they arrived (queue)?</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Why is it called LIFO and FIFO? What do they mean?</h3>
+                    <div class="explanation">
+                        <p><strong>LIFO = Last In, First Out</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>The LAST item you put in</li>
+                            <li>Is the FIRST item you take out</li>
+                            <li>Like a stack of plates: last plate on top is first one taken</li>
+                            <li>Used by: Stacks</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>FIFO = First In, First Out</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>The FIRST item you put in</li>
+                            <li>Is the FIRST item you take out</li>
+                            <li>Like a queue at a shop: first person in line is served first</li>
+                            <li>Used by: Queues</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Memory trick:</strong></p>
+                        <p>Stack = LIFO = Like a stack of books (last one on is first one off)</p>
+                        <p>Queue = FIFO = Like a queue of people (first in line gets served first)</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Do I need to memorise all this code?</h3>
+                    <div class="explanation">
+                        <p><strong>For exams:</strong> You need to understand the logic, not memorise exact code.</p>
+                        <p><strong>What you MUST know:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>✓ Why top = -1 for empty stack</li>
+                            <li>✓ How to check if empty/full</li>
+                            <li>✓ That push increments, pop decrements</li>
+                            <li>✓ Difference between LIFO and FIFO</li>
+                            <li>✓ When to use stack vs queue</li>
+                            <li>✓ How front and rear work in queues</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>What helps in exams:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>✓ Being able to trace through code (dry running)</li>
+                            <li>✓ Drawing diagrams to show stack/queue states</li>
+                            <li>✓ Understanding WHY code works, not just HOW</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Tip:</strong> Practise writing the functions yourself. After writing them 5-10 times, you'll naturally remember the patterns!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Global state
+        let currentTab = 'basics';
+        let demoStack = [];
+        let demoTop = -1;
+        let demoQueue = [];
+        let demoFront = 0;
+        let demoRear = -1;
+        const MAX_SIZE = 5;
+        let demoStructure = 'stack';
+        let currentDemoOperation = null;
+        let demoSteps = [];
+        let currentStepIndex = -1;
+
+        // Sandbox state
+        let sandboxStack = [];
+        let sandboxTop = -1;
+        let sandboxQueue = [];
+        let sandboxFront = 0;
+        let sandboxRear = -1;
+        let currentStructure = 'stack';
+        let operationHistory = [];
+
+        // Tab switching
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Demo structure selection
+        function selectDemoStructure(structure) {
+            demoStructure = structure;
+            
+            // Update buttons
+            document.getElementById('demoStackBtn').classList.toggle('active', structure === 'stack');
+            document.getElementById('demoQueueBtn').classList.toggle('active', structure === 'queue');
+            
+            // Update UI
+            if (structure === 'stack') {
+                document.getElementById('demoTopVar').style.display = 'flex';
+                document.getElementById('demoFrontVar').style.display = 'none';
+                document.getElementById('demoRearVar').style.display = 'none';
+                document.getElementById('stackVisualDemo').style.display = 'flex';
+                document.getElementById('queueVisualDemo').style.display = 'none';
+                document.getElementById('demoArrayName').textContent = 'stack:';
+                document.getElementById('demoPushBtn').textContent = 'Demo: Push';
+                document.getElementById('demoPopBtn').textContent = 'Demo: Pop';
+            } else {
+                document.getElementById('demoTopVar').style.display = 'none';
+                document.getElementById('demoFrontVar').style.display = 'flex';
+                document.getElementById('demoRearVar').style.display = 'flex';
+                document.getElementById('stackVisualDemo').style.display = 'none';
+                document.getElementById('queueVisualDemo').style.display = 'flex';
+                document.getElementById('demoArrayName').textContent = 'queue:';
+                document.getElementById('demoPushBtn').textContent = 'Demo: Enqueue';
+                document.getElementById('demoPopBtn').textContent = 'Demo: Dequeue';
+            }
+            
+            resetDemo();
+        }
+
+        // Demo code definitions
+        const demoCode = {
+            stackPush: `def push(stack, top, data):
+    if top == MAX_SIZE - 1:
+        print("Stack is full")
+    else:
+        top = top + 1
+        stack.append(data)
+    return top`,
+            stackPop: `def pop(stack, top):
+    if top == -1:
+        print("Stack is empty")
+        item = None
+    else:
+        item = stack[top]
+        top = top - 1
+    return item, top`,
+            stackPeek: `def peek(stack, top):
+    if top == -1:
+        print("Stack is empty")
+        item = None
+    else:
+        item = stack[top]
+    return item`,
+            queueEnqueue: `def enqueue(queue, rear, data):
+    if rear + 1 == MAX_SIZE:
+        print("Queue is full")
+    else:
+        rear = rear + 1
+        queue.append(data)
+    return rear`,
+            queueDequeue: `def dequeue(queue, front, rear):
+    if front > rear:
+        print("Queue is empty")
+        item = None
+    else:
+        item = queue[front]
+        front = front + 1
+    return item, front`,
+            queuePeek: `def peek(queue, front, rear):
+    if front > rear:
+        print("Queue is empty")
+        item = None
+    else:
+        item = queue[front]
+    return item`
+        };
+
+        function updateDemoCode(operation) {
+            const codeDisplay = document.getElementById('codeDisplay');
+            const codeKey = demoStructure === 'stack' ? 
+                `stack${operation.charAt(0).toUpperCase() + operation.slice(1)}` :
+                `queue${operation.charAt(0).toUpperCase() + operation.slice(1)}`;
+            const code = demoCode[codeKey];
+            const lines = code.split('\n');
+            
+            codeDisplay.innerHTML = lines.map((line, index) => 
+                `<div class="code-line" id="demo-line-${index}">${line}</div>`
+            ).join('');
+        }
+
+        function highlightLine(lineNum) {
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active'));
+            const line = document.getElementById(`demo-line-${lineNum}`);
+            if (line) line.classList.add('active');
+        }
+
+        function updateDemoVisual() {
+            if (demoStructure === 'stack') {
+                const visual = document.getElementById('stackVisualDemo');
+                visual.innerHTML = '';
+                
+                demoStack.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.textContent = item;
+                    
+                    if (index === demoTop) {
+                        div.innerHTML += '<span class="pointer-indicator">← top</span>';
+                    }
+                    
+                    visual.appendChild(div);
+                });
+                
+                document.getElementById('topValueDemo').textContent = demoTop;
+                document.getElementById('stackArrayDemo').textContent = JSON.stringify(demoStack);
+            } else {
+                const visual = document.getElementById('queueVisualDemo');
+                visual.innerHTML = '';
+                
+                demoQueue.forEach((item, index) => {
+                    if (index >= demoFront && index <= demoRear) {
+                        const div = document.createElement('div');
+                        div.className = 'queue-item';
+                        div.textContent = item;
+                        
+                        if (index === demoFront) {
+                            div.innerHTML += '<br><small style="font-size: 0.8em;">↑ front</small>';
+                        }
+                        if (index === demoRear) {
+                            div.innerHTML += '<br><small style="font-size: 0.8em;">↑ rear</small>';
+                        }
+                        
+                        visual.appendChild(div);
+                    }
+                });
+                
+                document.getElementById('frontValueDemo').textContent = demoFront;
+                document.getElementById('rearValueDemo').textContent = demoRear;
+                document.getElementById('stackArrayDemo').textContent = JSON.stringify(demoQueue);
+            }
+        }
+
+        function setExplanation(text) {
+            document.getElementById('explanationText').textContent = text;
+        }
+
+        // Step-by-step demo system
+        function startDemo(operation) {
+            currentDemoOperation = operation;
+            currentStepIndex = -1;
+            
+            if (demoStructure === 'stack') {
+                if (operation === 'push') {
+                    demoSteps = createStackPushSteps();
+                } else if (operation === 'pop') {
+                    demoSteps = createStackPopSteps();
+                } else if (operation === 'peek') {
+                    demoSteps = createStackPeekSteps();
+                }
+            } else {
+                if (operation === 'push') {
+                    demoSteps = createQueueEnqueueSteps();
+                } else if (operation === 'pop') {
+                    demoSteps = createQueueDequeueSteps();
+                } else if (operation === 'peek') {
+                    demoSteps = createQueuePeekSteps();
+                }
+            }
+            
+            updateDemoCode(operation);
+            document.getElementById('nextStepBtn').disabled = false;
+            setExplanation('Click "Next Step" to begin the demonstration step by step.');
+        }
+
+        function nextStep() {
+            currentStepIndex++;
+            
+            if (currentStepIndex >= demoSteps.length) {
+                document.getElementById('nextStepBtn').disabled = true;
+                setExplanation('Demo complete! Click another operation or reset to try again.');
+                return;
+            }
+            
+            const step = demoSteps[currentStepIndex];
+            highlightLine(step.line);
+            setExplanation(step.explanation);
+            
+            if (step.action) {
+                step.action();
+            }
+        }
+
+        // Stack demo step creators
+        function createStackPushSteps() {
+            const newItem = `Item${demoTop + 1}`;
+            const steps = [
+                { line: 0, explanation: 'Starting push operation. We want to add a new item to the stack.' },
+                { line: 1, explanation: `Checking if stack is full: Is top (${demoTop}) == MAX_SIZE - 1 (${MAX_SIZE - 1})?` }
+            ];
+            
+            if (demoTop === MAX_SIZE - 1) {
+                steps.push({ line: 2, explanation: `Yes! ${demoTop} == ${MAX_SIZE - 1}. Stack is full! Cannot push. Operation ends here.` });
+                return steps;
+            }
+            
+            steps.push(
+                { line: 4, explanation: `No! ${demoTop} != ${MAX_SIZE - 1}. Stack is not full. Moving to line 4...` },
+                { 
+                    line: 4, 
+                    explanation: `Incrementing top: ${demoTop} + 1 = ${demoTop + 1}. The new top value is ${demoTop + 1}.`,
+                    action: () => {
+                        demoTop = demoTop + 1;
+                        document.getElementById('topValueDemo').textContent = demoTop;
+                    }
+                },
+                { 
+                    line: 5, 
+                    explanation: `Appending "${newItem}" to the stack at position ${demoTop}. The item is now on the stack!`,
+                    action: () => {
+                        demoStack.push(newItem);
+                        updateDemoVisual();
+                    }
+                },
+                { line: 6, explanation: `Returning the new top value: ${demoTop}. This is important so the caller can save the updated top. Push complete!` }
+            );
+            
+            return steps;
+        }
+
+        function createStackPopSteps() {
+            const steps = [
+                { line: 0, explanation: 'Starting pop operation. We want to remove the top item from the stack.' },
+                { line: 1, explanation: `Checking if stack is empty: Is top (${demoTop}) == -1?` }
+            ];
+            
+            if (demoTop === -1) {
+                steps.push({ line: 2, explanation: 'Yes! top == -1. Stack is empty! Nothing to pop. Operation ends here.' });
+                return steps;
+            }
+            
+            const item = demoStack[demoTop];
+            steps.push(
+                { line: 5, explanation: `No! top (${demoTop}) != -1. Stack has items. Moving to line 5...` },
+                { 
+                    line: 5, 
+                    explanation: `Getting the item at position top (${demoTop}): "${item}". This is the item we'll return.`,
+                },
+                { 
+                    line: 6, 
+                    explanation: `Decrementing top: ${demoTop} - 1 = ${demoTop - 1}. Moving the pointer down.`,
+                    action: () => {
+                        demoStack.pop();
+                        demoTop = demoTop - 1;
+                        updateDemoVisual();
+                    }
+                },
+                { line: 7, explanation: `Returning item "${item}" and new top value ${demoTop}. The caller receives both values. Pop complete!` }
+            );
+            
+            return steps;
+        }
+
+        function createStackPeekSteps() {
+            const steps = [
+                { line: 0, explanation: 'Starting peek operation. We want to look at the top item WITHOUT removing it.' },
+                { line: 1, explanation: `Checking if stack is empty: Is top (${demoTop}) == -1?` }
+            ];
+            
+            if (demoTop === -1) {
+                steps.push({ line: 2, explanation: 'Yes! top == -1. Stack is empty! Nothing to peek at. Operation ends here.' });
+                return steps;
+            }
+            
+            const item = demoStack[demoTop];
+            steps.push(
+                { line: 5, explanation: `No! top (${demoTop}) != -1. Stack has items. Moving to line 5...` },
+                { line: 5, explanation: `Getting the item at position top (${demoTop}): "${item}". Notice: we do NOT change top!` },
+                { line: 6, explanation: `Returning item "${item}". Top stays at ${demoTop}. This is the key difference from pop! Peek complete!` }
+            );
+            
+            return steps;
+        }
+
+        // Queue demo step creators
+        function createQueueEnqueueSteps() {
+            const newItem = `Item${demoRear + 1}`;
+            const steps = [
+                { line: 0, explanation: 'Starting enqueue operation. We want to add a new item to the rear of the queue.' },
+                { line: 1, explanation: `Checking if queue is full: Is rear + 1 (${demoRear + 1}) == MAX_SIZE (${MAX_SIZE})?` }
+            ];
+            
+            if (demoRear + 1 === MAX_SIZE) {
+                steps.push({ line: 2, explanation: `Yes! ${demoRear + 1} == ${MAX_SIZE}. Queue is full! Cannot enqueue. Operation ends here.` });
+                return steps;
+            }
+            
+            steps.push(
+                { line: 4, explanation: `No! ${demoRear + 1} != ${MAX_SIZE}. Queue is not full. Moving to line 4...` },
+                { 
+                    line: 4, 
+                    explanation: `Incrementing rear: ${demoRear} + 1 = ${demoRear + 1}. The new rear value is ${demoRear + 1}.`,
+                    action: () => {
+                        demoRear = demoRear + 1;
+                        document.getElementById('rearValueDemo').textContent = demoRear;
+                    }
+                },
+                { 
+                    line: 5, 
+                    explanation: `Appending "${newItem}" to the queue at position ${demoRear}. The item is now at the rear!`,
+                    action: () => {
+                        demoQueue.push(newItem);
+                        updateDemoVisual();
+                    }
+                },
+                { line: 6, explanation: `Returning the new rear value: ${demoRear}. The caller saves this updated rear. Enqueue complete!` }
+            );
+            
+            return steps;
+        }
+
+        function createQueueDequeueSteps() {
+            const steps = [
+                { line: 0, explanation: 'Starting dequeue operation. We want to remove the front item from the queue.' },
+                { line: 1, explanation: `Checking if queue is empty: Is front (${demoFront}) > rear (${demoRear})?` }
+            ];
+            
+            if (demoFront > demoRear) {
+                steps.push({ line: 2, explanation: `Yes! ${demoFront} > ${demoRear}. Queue is empty! Nothing to dequeue. Operation ends here.` });
+                return steps;
+            }
+            
+            const item = demoQueue[demoFront];
+            steps.push(
+                { line: 5, explanation: `No! front (${demoFront}) <= rear (${demoRear}). Queue has items. Moving to line 5...` },
+                { 
+                    line: 5, 
+                    explanation: `Getting the item at position front (${demoFront}): "${item}". This is the item we'll return.`,
+                },
+                { 
+                    line: 6, 
+                    explanation: `Incrementing front: ${demoFront} + 1 = ${demoFront + 1}. Moving the front pointer forward.`,
+                    action: () => {
+                        demoFront = demoFront + 1;
+                        updateDemoVisual();
+                    }
+                },
+                { line: 7, explanation: `Returning item "${item}" and new front value ${demoFront}. Note: rear (${demoRear}) didn't change! Dequeue complete!` }
+            );
+            
+            return steps;
+        }
+
+        function createQueuePeekSteps() {
+            const steps = [
+                { line: 0, explanation: 'Starting peek operation. We want to look at the front item WITHOUT removing it.' },
+                { line: 1, explanation: `Checking if queue is empty: Is front (${demoFront}) > rear (${demoRear})?` }
+            ];
+            
+            if (demoFront > demoRear) {
+                steps.push({ line: 2, explanation: `Yes! ${demoFront} > ${demoRear}. Queue is empty! Nothing to peek at. Operation ends here.` });
+                return steps;
+            }
+            
+            const item = demoQueue[demoFront];
+            steps.push(
+                { line: 5, explanation: `No! front (${demoFront}) <= rear (${demoRear}). Queue has items. Moving to line 5...` },
+                { line: 5, explanation: `Getting the item at position front (${demoFront}): "${item}". Notice: we do NOT change front!` },
+                { line: 6, explanation: `Returning item "${item}". Front stays at ${demoFront}. This is the key difference from dequeue! Peek complete!` }
+            );
+            
+            return steps;
+        }
+
+        function resetDemo() {
+            if (demoStructure === 'stack') {
+                demoStack = [];
+                demoTop = -1;
+            } else {
+                demoQueue = [];
+                demoFront = 0;
+                demoRear = -1;
+            }
+            
+            currentDemoOperation = null;
+            demoSteps = [];
+            currentStepIndex = -1;
+            
+            updateDemoVisual();
+            document.getElementById('codeDisplay').innerHTML = '<p style="color: #f8f8f2;">Select an operation above to see a step-by-step demonstration.</p>';
+            setExplanation('Demo reset. Select an operation and click "Next Step" to see how the code works!');
+            document.getElementById('nextStepBtn').disabled = true;
+        }
+
+        // Sandbox functions
+        function selectStructure(structure) {
+            currentStructure = structure;
+            
+            // Update buttons
+            document.getElementById('stackBtn').classList.toggle('active', structure === 'stack');
+            document.getElementById('queueBtn').classList.toggle('active', structure === 'queue');
+            
+            // Update UI
+            if (structure === 'stack') {
+                document.getElementById('structureTitle').textContent = 'Stack Visualisation (LIFO)';
+                document.getElementById('stackVisualSandbox').style.display = 'flex';
+                document.getElementById('queueVisualSandbox').style.display = 'none';
+                document.getElementById('addBtnText').textContent = 'Push';
+                document.getElementById('removeBtnText').textContent = 'Pop';
+                document.getElementById('pointerName').textContent = 'top:';
+                document.getElementById('queueFrontVar').style.display = 'none';
+            } else {
+                document.getElementById('structureTitle').textContent = 'Queue Visualisation (FIFO)';
+                document.getElementById('stackVisualSandbox').style.display = 'none';
+                document.getElementById('queueVisualSandbox').style.display = 'flex';
+                document.getElementById('addBtnText').textContent = 'Enqueue';
+                document.getElementById('removeBtnText').textContent = 'Dequeue';
+                document.getElementById('pointerName').textContent = 'rear:';
+                document.getElementById('queueFrontVar').style.display = 'flex';
+            }
+            
+            updateSandboxVisual();
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertBox.innerHTML = '', 3000);
+        }
+
+        function addToHistory(message) {
+            operationHistory.unshift(message);
+            if (operationHistory.length > 10) operationHistory.pop();
+            
+            const historyLog = document.getElementById('historyLog');
+            historyLog.innerHTML = operationHistory.map(msg => 
+                `<div class="history-item">${msg}</div>`
+            ).join('');
+        }
+
+        function sandboxPush() {
+            const input = document.getElementById('itemInput');
+            const item = input.value.trim();
+            
+            if (!item) {
+                showAlert('Please enter an item!', 'danger');
+                return;
+            }
+            
+            if (currentStructure === 'stack') {
+                // Stack push
+                if (sandboxTop === MAX_SIZE - 1) {
+                    showAlert('Stack is full! Cannot push.', 'danger');
+                    addToHistory(`❌ Push failed: Stack is full`);
+                    return;
+                }
+                
+                sandboxTop = sandboxTop + 1;
+                sandboxStack.push(item);
+                document.getElementById('pointerValue').textContent = sandboxTop;
+                showAlert(`Pushed "${item}" to stack. top is now ${sandboxTop}`, 'success');
+                addToHistory(`✅ Pushed "${item}" → top = ${sandboxTop}`);
+            } else {
+                // Queue enqueue
+                if (sandboxRear + 1 === MAX_SIZE) {
+                    showAlert('Queue is full! Cannot enqueue.', 'danger');
+                    addToHistory(`❌ Enqueue failed: Queue is full`);
+                    return;
+                }
+                
+                sandboxRear = sandboxRear + 1;
+                sandboxQueue.push(item);
+                document.getElementById('pointerValue').textContent = sandboxRear;
+                showAlert(`Enqueued "${item}" to queue. rear is now ${sandboxRear}`, 'success');
+                addToHistory(`✅ Enqueued "${item}" → rear = ${sandboxRear}`);
+            }
+            
+            input.value = '';
+            updateSandboxVisual();
+        }
+
+        function sandboxPop() {
+            if (currentStructure === 'stack') {
+                // Stack pop
+                if (sandboxTop === -1) {
+                    showAlert('Stack is empty! Nothing to pop.', 'danger');
+                    addToHistory(`❌ Pop failed: Stack is empty`);
+                    return;
+                }
+                
+                const item = sandboxStack[sandboxTop];
+                sandboxStack.pop();
+                sandboxTop = sandboxTop - 1;
+                document.getElementById('pointerValue').textContent = sandboxTop;
+                showAlert(`Popped "${item}" from stack. top is now ${sandboxTop}`, 'success');
+                addToHistory(`✅ Popped "${item}" → top = ${sandboxTop}`);
+            } else {
+                // Queue dequeue
+                if (sandboxFront > sandboxRear) {
+                    showAlert('Queue is empty! Nothing to dequeue.', 'danger');
+                    addToHistory(`❌ Dequeue failed: Queue is empty`);
+                    return;
+                }
+                
+                const item = sandboxQueue[sandboxFront];
+                sandboxFront = sandboxFront + 1;
+                document.getElementById('frontValue').textContent = sandboxFront;
+                showAlert(`Dequeued "${item}" from queue. front is now ${sandboxFront}`, 'success');
+                addToHistory(`✅ Dequeued "${item}" → front = ${sandboxFront}`);
+            }
+            
+            updateSandboxVisual();
+        }
+
+        function sandboxPeek() {
+            if (currentStructure === 'stack') {
+                if (sandboxTop === -1) {
+                    showAlert('Stack is empty! Nothing to peek.', 'info');
+                    addToHistory(`ℹ️ Peek: Stack is empty`);
+                    return;
+                }
+                
+                const item = sandboxStack[sandboxTop];
+                showAlert(`Peeked: "${item}" (top = ${sandboxTop}, not changed)`, 'info');
+                addToHistory(`👀 Peeked: "${item}" → top stays ${sandboxTop}`);
+            } else {
+                if (sandboxFront > sandboxRear) {
+                    showAlert('Queue is empty! Nothing to peek.', 'info');
+                    addToHistory(`ℹ️ Peek: Queue is empty`);
+                    return;
+                }
+                
+                const item = sandboxQueue[sandboxFront];
+                showAlert(`Peeked: "${item}" (front = ${sandboxFront}, not changed)`, 'info');
+                addToHistory(`👀 Peeked: "${item}" → front stays ${sandboxFront}`);
+            }
+        }
+
+        function updateSandboxVisual() {
+            if (currentStructure === 'stack') {
+                const visual = document.getElementById('stackVisualSandbox');
+                visual.innerHTML = '';
+                
+                sandboxStack.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.textContent = item;
+                    
+                    if (index === sandboxTop) {
+                        div.innerHTML += '<span class="pointer-indicator">← top</span>';
+                    }
+                    
+                    visual.appendChild(div);
+                });
+            } else {
+                const visual = document.getElementById('queueVisualSandbox');
+                visual.innerHTML = '';
+                
+                sandboxQueue.forEach((item, index) => {
+                    if (index >= sandboxFront && index <= sandboxRear) {
+                        const div = document.createElement('div');
+                        div.className = 'queue-item';
+                        div.textContent = item;
+                        
+                        if (index === sandboxFront) {
+                            div.innerHTML += '<br><small style="font-size: 0.8em;">↑ front</small>';
+                        }
+                        if (index === sandboxRear) {
+                            div.innerHTML += '<br><small style="font-size: 0.8em;">↑ rear</small>';
+                        }
+                        
+                        visual.appendChild(div);
+                    }
+                });
+            }
+        }
+
+        function resetSandbox() {
+            sandboxStack = [];
+            sandboxTop = -1;
+            sandboxQueue = [];
+            sandboxFront = 0;
+            sandboxRear = -1;
+            operationHistory = [];
+            
+            document.getElementById('pointerValue').textContent = currentStructure === 'stack' ? -1 : -1;
+            document.getElementById('frontValue').textContent = 0;
+            document.getElementById('historyLog').innerHTML = '';
+            document.getElementById('alertBox').innerHTML = '';
+            
+            updateSandboxVisual();
+            showAlert('All cleared! Start fresh.', 'success');
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sandboxPush();
+            }
+        }
+
+        // Initialize
+        resetDemo();
+        updateSandboxVisual();
+    </script>
+</body>
+</html>
