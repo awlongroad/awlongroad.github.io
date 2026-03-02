@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F160 Revision Tool — Application Development</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F7F5;--surface:#FFFFFF;--surface2:#EFEFEB;--border:rgba(0,0,0,0.09);--border-strong:rgba(0,0,0,0.18);
+  --text:#111111;--text2:#2D2D2D;--text3:#6B7280;
+  --primary:#3B82F6;--primary-bg:#EFF6FF;--primary-dark:#2563EB;
+  --po1:#5856D6;--po1-bg:#F0EFFF;
+  --po2:#D97706;--po2-bg:#FFFBEB;
+  --po3:#DC2626;--po3-bg:#FEF2F2;
+  --green:#16A34A;--green-bg:#F0FDF4;--green-light:#22C55E;
+  --amber:#D97706;--amber-bg:#FFFBEB;
+  --red:#DC2626;--red-bg:#FEF2F2;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+  --t:200ms cubic-bezier(0.4,0,0.2,1);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* HEADER */
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:24px;height:58px;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 var(--border)}
+.brand{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.brand-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+.brand-sub{font-size:12px;color:var(--text3);letter-spacing:0.01em}
+.tab-nav{display:flex;gap:3px;background:var(--surface2);padding:3px;border-radius:10px;margin-left:auto}
+.tab-btn{padding:7px 18px;border:none;background:transparent;border-radius:7px;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;transition:var(--t);font-family:var(--font);white-space:nowrap}
+.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+
+/* LAYOUT */
+.app-main{flex:1;display:flex;overflow:hidden;height:calc(100vh - 58px)}
+.view{display:none;width:100%;flex:1}
+.view.active{display:flex}
+#generator-view.active{flex-direction:row}
+#support-view.active{flex-direction:column;overflow-y:auto;padding:32px}
+
+/* SIDEBAR */
+.sidebar{width:280px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;height:100%;overflow:hidden}
+.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3)}
+.sidebar-count{font-size:12px;color:var(--text3);margin-top:2px}
+.question-list{flex:1;overflow-y:auto;padding:6px}
+.q-empty{text-align:center;padding:48px 20px;color:var(--text3);font-size:14px;line-height:1.7}
+.q-empty-icon{font-size:28px;margin-bottom:10px;opacity:0.25}
+.q-item{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:var(--radius-sm);transition:var(--t);border:1.5px solid transparent;cursor:grab;user-select:none}
+.q-item:hover{background:var(--surface2)}
+.q-item.dragging{opacity:0.4;cursor:grabbing}
+.q-item.drag-over{border-color:var(--primary);background:var(--primary-bg)}
+.q-handle{color:var(--text3);font-size:11px;padding-top:3px;flex-shrink:0;line-height:1.2;letter-spacing:-1px;cursor:grab}
+.q-body{flex:1;min-width:0}
+.q-badges{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.q-num{font-size:11px;color:var(--text3);font-weight:700;min-width:16px}
+.po-badge{font-size:10px;font-weight:800;padding:2px 6px;border-radius:20px;letter-spacing:0.04em;flex-shrink:0}
+.po-badge.po1{background:var(--po1-bg);color:var(--po1)}
+.po-badge.po2{background:var(--po2-bg);color:var(--po2)}
+.po-badge.po3{background:var(--po3-bg);color:var(--po3)}
+.mark-chip{font-size:10px;color:var(--text3);background:var(--surface2);padding:2px 6px;border-radius:4px;font-weight:600}
+.q-text{font-size:13px;line-height:1.5;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.q-del{flex-shrink:0;background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 5px;border-radius:4px;font-size:13px;line-height:1;transition:var(--t);font-family:var(--font)}
+.q-del:hover{color:var(--red);background:var(--red-bg)}
+.sidebar-footer{padding:10px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+
+/* GENERATOR MAIN */
+.gen-content{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.breadcrumb{padding:14px 28px 0;display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.crumb{font-size:13px;color:var(--text3)}
+.crumb.link{color:var(--primary);cursor:pointer;font-weight:500}
+.crumb.link:hover{text-decoration:underline}
+.crumb.active{color:var(--text);font-weight:600}
+.crumb-sep{color:var(--border-strong);font-size:13px}
+.step-wrapper{flex:1;padding:22px 32px 36px;max-width:1000px;width:100%;margin:0 auto;animation:slideUp 220ms ease forwards}
+.step-heading{font-size:26px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px}
+.step-sub{font-size:15px;color:var(--text3);margin-bottom:24px;line-height:1.55}
+.step-actions{padding:12px 28px;border-top:1px solid var(--border);background:rgba(247,247,245,0.95);backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;flex-shrink:0;position:sticky;bottom:0}
+
+/* TOPIC AREA CARDS */
+.ta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.ta-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:var(--t);box-shadow:var(--shadow)}
+.ta-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.ta-card-id{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:6px}
+.ta-card-label{font-size:15px;font-weight:500;color:var(--text);line-height:1.4}
+
+/* SUBTOPIC LIST */
+.sub-list{display:flex;flex-direction:column;gap:7px}
+.sub-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;cursor:pointer;transition:var(--t);display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+.sub-item:hover{border-color:var(--primary);background:var(--primary-bg);transform:translateX(2px)}
+.sub-id{font-size:11px;font-weight:800;color:var(--text3);letter-spacing:0.04em;flex-shrink:0;min-width:36px}
+.sub-label{font-size:15px;color:var(--text);font-weight:500;flex:1}
+.sub-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
+
+/* PO PILLS */
+.po-pills{display:flex;gap:12px;flex-wrap:wrap}
+.po-pill{padding:14px 24px;border-radius:100px;border:2.5px solid var(--border);background:var(--surface);cursor:pointer;transition:var(--t);font-family:var(--font);box-shadow:var(--shadow);text-align:left;min-width:200px}
+.po-pill:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.po-pill.p1{border-color:var(--po1)}
+.po-pill.p2{border-color:var(--po2)}
+.po-pill.p3{border-color:var(--po3)}
+.po-pill.p1.sel{background:var(--po1);box-shadow:0 4px 14px rgba(88,86,214,0.35)}
+.po-pill.p2.sel{background:var(--po2);box-shadow:0 4px 14px rgba(217,119,6,0.35)}
+.po-pill.p3.sel{background:var(--po3);box-shadow:0 4px 14px rgba(220,38,38,0.35)}
+.po-pill-label{font-size:17px;font-weight:800;letter-spacing:-0.01em}
+.po-pill.p1 .po-pill-label{color:var(--po1)}
+.po-pill.p2 .po-pill-label{color:var(--po2)}
+.po-pill.p3 .po-pill-label{color:var(--po3)}
+.po-pill.sel .po-pill-label,.po-pill.sel .po-pill-desc{color:#fff}
+.po-pill-desc{font-size:13px;color:var(--text3);margin-top:3px;line-height:1.4}
+.po-pill-verbs{font-size:11px;font-weight:600;letter-spacing:0.02em;margin-top:6px;opacity:0.7}
+.po-pill.sel .po-pill-verbs{opacity:0.85;color:#fff}
+.po-pill.p1 .po-pill-verbs{color:var(--po1)}
+.po-pill.p2 .po-pill-verbs{color:var(--po2)}
+.po-pill.p3 .po-pill-verbs{color:var(--po3)}
+
+/* TEMPLATE CARDS */
+.tmpl-list{display:flex;flex-direction:column;gap:8px}
+.tmpl-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 18px;cursor:pointer;transition:var(--t);box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.tmpl-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.tmpl-card.sel{border-color:var(--primary);background:var(--primary-bg)}
+.tmpl-verb{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);flex-shrink:0;min-width:56px}
+.tmpl-pattern{font-size:15px;color:var(--text);font-weight:500;flex:1;line-height:1.4}
+.tmpl-marks{font-size:12px;font-weight:700;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+
+/* CONFIG */
+.config-section{display:flex;flex-direction:column;gap:18px}
+.cfg-field{display:flex;flex-direction:column;gap:7px}
+.cfg-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3)}
+.cfg-select{appearance:none;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 40px 12px 15px;font-size:15px;font-family:var(--font);color:var(--text);cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:var(--t);box-shadow:var(--shadow);max-width:480px}
+.cfg-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-bg)}
+.num-pills{display:flex;gap:8px;flex-wrap:wrap}
+.num-pill{padding:12px 20px;border:1.5px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;font-size:14px;font-weight:700;color:var(--text);transition:var(--t);font-family:var(--font);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:2px}
+.num-pill:hover{border-color:var(--primary)}
+.num-pill.sel{background:var(--primary);border-color:var(--primary);color:#fff}
+.num-pill-sub{font-size:11px;font-weight:500;opacity:0.7}
+.marks-pills{display:flex;gap:8px}
+.marks-pill{padding:11px 22px;border:1.5px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;font-size:14px;font-weight:600;color:var(--text);transition:var(--t);font-family:var(--font);box-shadow:var(--shadow)}
+.marks-pill:hover{border-color:var(--primary)}
+.marks-pill.sel{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* PREVIEW */
+.preview-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow-md);margin-bottom:16px}
+.preview-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:12px}
+.preview-question{font-size:19px;line-height:1.6;color:var(--text);font-weight:400}
+.preview-question strong{font-weight:800}
+.preview-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
+.preview-meta-item{font-size:13px;color:var(--text3)}
+.preview-meta-item b{color:var(--text2);font-weight:600}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:var(--radius-sm);border:none;font-size:14px;font-weight:600;cursor:pointer;transition:var(--t);font-family:var(--font);line-height:1;white-space:nowrap}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:#15803d;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border-strong);background:var(--surface2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:8px 14px;font-size:13px}
+.btn-full{width:100%}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* ANIMATIONS */
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes addPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,0.5)}70%{box-shadow:0 0 0 8px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+.pulse-green{animation:addPulse 600ms ease}
+
+/* QEC TIP */
+.qec-tip{display:flex;align-items:flex-start;gap:12px;background:var(--primary-bg);border:1.5px solid rgba(59,130,246,0.35);border-radius:var(--radius-sm);padding:14px 18px;margin-top:20px}
+.qec-tip-icon{font-size:16px;color:var(--primary);flex-shrink:0;font-weight:700;margin-top:1px}
+.qec-tip-text{font-size:14px;color:var(--text2);line-height:1.65}
+.qec-link{color:var(--primary);cursor:pointer;font-weight:600}
+.qec-link:hover{text-decoration:underline}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px)}
+.modal.hidden{display:none}
+.modal-bg{position:absolute;inset:0;cursor:pointer}
+.modal-box{background:var(--surface);border-radius:var(--radius);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;z-index:1}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;background:var(--surface);z-index:2}
+.modal-title{font-size:18px;font-weight:700;color:var(--text)}
+.modal-sub{font-size:13px;color:var(--text3);margin-top:2px}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:2px 6px;border-radius:4px;font-family:var(--font);flex-shrink:0}
+.modal-close:hover{color:var(--text);background:var(--surface2)}
+.modal-body{padding:24px}
+
+/* PAPER SORTER — sorting state */
+.qs-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:20px}
+.qs-card-po{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.qs-card-q{font-size:16px;line-height:1.6;color:var(--text);font-weight:500}
+.qs-card-q strong{font-weight:800}
+.qs-sort-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.qs-sort-btn{padding:12px 22px;border-radius:var(--radius);border:2px solid transparent;font-size:13px;font-weight:700;cursor:pointer;transition:var(--t);font-family:var(--font);min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.qs-sort-btn.box1{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.qs-sort-btn.box1:hover{background:var(--red);color:#fff;transform:translateY(-2px)}
+.qs-sort-btn.box2{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.qs-sort-btn.box2:hover{background:var(--amber);color:#fff;transform:translateY(-2px)}
+.qs-sort-btn.box3{background:var(--green-bg);border-color:var(--green-light);color:var(--green)}
+.qs-sort-btn.box3:hover{background:var(--green);color:#fff;transform:translateY(-2px)}
+.qs-sort-btn-sub{font-size:10px;font-weight:500;opacity:0.8}
+
+/* PAPER SORTER — results state */
+.leitner-tip{background:var(--primary-bg);border:1.5px solid rgba(59,130,246,0.3);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;font-size:14px;color:var(--text2);line-height:1.65}
+.leitner-tip strong{color:var(--primary)}
+.qs-boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qs-box{border-radius:var(--radius);border:1.5px solid var(--border);overflow:hidden;background:var(--surface)}
+.qs-box-hdr{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qs-box.box1 .qs-box-hdr{background:var(--red-bg);border-bottom:1.5px solid rgba(220,38,38,0.15)}
+.qs-box.box2 .qs-box-hdr{background:var(--amber-bg);border-bottom:1.5px solid rgba(217,119,6,0.15)}
+.qs-box.box3 .qs-box-hdr{background:var(--green-bg);border-bottom:1.5px solid rgba(22,163,74,0.15)}
+.qs-box-label{font-size:11px;font-weight:800;letter-spacing:0.03em}
+.qs-box.box1 .qs-box-label{color:var(--red)}
+.qs-box.box2 .qs-box-label{color:var(--amber)}
+.qs-box.box3 .qs-box-label{color:var(--green)}
+.qs-box-cnt{font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px}
+.qs-box.box1 .qs-box-cnt{background:rgba(220,38,38,0.12);color:var(--red)}
+.qs-box.box2 .qs-box-cnt{background:rgba(217,119,6,0.12);color:var(--amber)}
+.qs-box.box3 .qs-box-cnt{background:rgba(22,163,74,0.12);color:var(--green)}
+.qs-box-body{padding:10px;max-height:260px;overflow-y:auto}
+.qs-box-item{font-size:12px;line-height:1.5;color:var(--text2);padding:7px 8px;border-radius:6px;margin-bottom:4px;background:var(--surface2)}
+
+/* EXAM SUPPORT PAGE */
+.support-content{max-width:960px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:52px;padding-bottom:48px}
+.sup-section{}
+.sup-h{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;color:var(--text)}
+.sup-sub{font-size:15px;color:var(--text3);margin-bottom:20px;line-height:1.5}
+.po-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.po-card{border-radius:var(--radius);padding:22px;border:2px solid}
+.po-card.p1{border-color:var(--po1);background:var(--po1-bg)}
+.po-card.p2{border-color:var(--po2);background:var(--po2-bg)}
+.po-card.p3{border-color:var(--po3);background:var(--po3-bg)}
+.po-card-badge{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;padding:3px 8px;border-radius:20px;display:inline-block}
+.po-card.p1 .po-card-badge{background:rgba(88,86,214,0.15);color:var(--po1)}
+.po-card.p2 .po-card-badge{background:rgba(217,119,6,0.15);color:var(--po2)}
+.po-card.p3 .po-card-badge{background:rgba(220,38,38,0.15);color:var(--po3)}
+.po-card-title{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.po-card-row{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:4px}
+.po-card-row b{color:var(--text);font-weight:600}
+.cw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.cw-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow)}
+.cw-word{font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px}
+.cw-po{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;padding:2px 7px;border-radius:20px;display:inline-block}
+.cw-po.p1{background:var(--po1-bg);color:var(--po1)}
+.cw-po.p12{background:var(--po1-bg);color:var(--po1)}
+.cw-po.p2{background:var(--po2-bg);color:var(--po2)}
+.cw-po.p3{background:var(--po3-bg);color:var(--po3)}
+.cw-def{font-size:13px;color:var(--text2);line-height:1.6}
+.rules-list{display:flex;flex-direction:column;gap:10px}
+.rule-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow)}
+.rule-num{font-size:14px;font-weight:800;color:var(--primary);flex-shrink:0;min-width:22px}
+.rule-text{font-size:14px;color:var(--text2);line-height:1.65}
+.rule-text b{color:var(--text)}
+.qec-big-card{background:var(--surface);border:2px solid var(--primary);border-radius:var(--radius);padding:30px 34px;box-shadow:var(--shadow-md)}
+.qec-big-title{font-size:19px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:-0.01em}
+.qec-big-sub{font-size:14px;color:var(--text3);margin-bottom:28px;line-height:1.5}
+.qec-step{display:flex;gap:18px;margin-bottom:22px;align-items:flex-start}
+.qec-step:last-of-type{margin-bottom:0}
+.qec-letter{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
+.qec-letter.q{background:var(--po1-bg);color:var(--po1)}
+.qec-letter.e{background:var(--po2-bg);color:var(--po2)}
+.qec-letter.c{background:var(--green-bg);color:var(--green)}
+.qec-step-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.qec-step-body{font-size:14px;color:var(--text2);line-height:1.65}
+.qec-ol{margin:10px 0 0 18px;display:flex;flex-direction:column;gap:6px}
+.qec-ol li{font-size:14px;color:var(--text2);line-height:1.6}
+.qec-divider{border:none;border-top:1.5px solid var(--border);margin:24px 0}
+.qec-why{background:var(--surface2);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px}
+.qec-why-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.qec-why-body{font-size:14px;color:var(--text2);line-height:1.65}
+.recall-rules{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.recall-rule{display:flex;gap:10px;font-size:14px;color:var(--text2);line-height:1.5;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)}
+.recall-rule-dot{color:var(--primary);font-weight:800;flex-shrink:0}
+.leitner-boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.lbox{border-radius:var(--radius);padding:22px;border:2px solid}
+.lbox.b1{border-color:var(--red);background:var(--red-bg)}
+.lbox.b2{border-color:var(--amber);background:var(--amber-bg)}
+.lbox.b3{border-color:var(--green);background:var(--green-bg)}
+.lbox-num{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.lbox.b1 .lbox-num{color:var(--red)}
+.lbox.b2 .lbox-num{color:var(--amber)}
+.lbox.b3 .lbox-num{color:var(--green)}
+.lbox-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.lbox-freq{font-size:13px;font-weight:600;margin-bottom:6px}
+.lbox.b1 .lbox-freq{color:var(--red)}
+.lbox.b2 .lbox-freq{color:var(--amber)}
+.lbox.b3 .lbox-freq{color:var(--green)}
+.lbox-desc{font-size:13px;color:var(--text2);line-height:1.5}
+.leitner-rules-list{display:flex;flex-direction:column;gap:8px}
+.l-rule{display:flex;gap:12px;font-size:14px;color:var(--text2);line-height:1.55;padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm);border:1.5px solid var(--border)}
+.l-rule-arrow{color:var(--primary);font-weight:700;flex-shrink:0;font-size:16px}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:10px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .po-pills{flex-direction:column}
+  .po-pill{min-width:auto}
+  .ta-grid{grid-template-columns:1fr 1fr}
+  .po-grid{grid-template-columns:1fr}
+  .leitner-boxes{grid-template-columns:1fr}
+  .qs-boxes{grid-template-columns:1fr}
+  .step-wrapper{padding:16px}
+  .breadcrumb{padding:12px 16px 0}
+  .step-actions{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-name">F160 Revision Tool</div>
+    <div class="brand-sub">Unit F160: Fundamentals of Application Development</div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="generator">Question Generator</button>
+    <button class="tab-btn" data-tab="support">Exam Support</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- GENERATOR VIEW -->
+  <section id="generator-view" class="view active">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Question Paper</div>
+        <div class="sidebar-count" id="sidebar-count">0 questions</div>
+      </div>
+      <div class="question-list" id="question-list">
+        <div class="q-empty">
+          <div class="q-empty-icon">&#9998;</div>
+          <div>Questions you build will<br>appear here.</div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn btn-primary btn-sm btn-full" id="copy-all-btn" disabled onclick="copyAll()">Copy All Questions</button>
+        <button class="btn btn-ghost btn-sm btn-full" id="qs-btn" disabled onclick="openQSorter()">Sort by Confidence (Leitner)</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="clearAll()">Clear List</button>
+      </div>
+    </aside>
+
+    <div class="gen-content">
+      <nav class="breadcrumb" id="breadcrumb"></nav>
+      <div id="step-content"></div>
+    </div>
+  </section>
+
+  <!-- EXAM SUPPORT VIEW -->
+  <section id="support-view" class="view">
+    <div id="support-content" class="support-content"></div>
+  </section>
+
+</main>
+
+<!-- PAPER SORTER MODAL -->
+<div id="qs-modal" class="modal hidden">
+  <div class="modal-bg" onclick="closeQSorter()"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Sort Questions by Confidence</div>
+        <div class="modal-sub">Go through your question paper and sort each question using the Leitner system.</div>
+      </div>
+      <button class="modal-close" onclick="closeQSorter()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="qs-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// =============================================================
+// DATA LAYER
+// =============================================================
+
+const NUM_WORDS = ['','ONE','TWO','THREE','FOUR'];
+
+const CT = {
+  characteristics:{s:'characteristic',p:'characteristics',pre:'of'},
+  purpose:{s:'purpose',p:'purposes',pre:'of'},
+  examples:{s:'example',p:'examples',pre:'of'},
+  advantages:{s:'advantage',p:'advantages',pre:'of'},
+  disadvantages:{s:'disadvantage',p:'disadvantages',pre:'of'},
+  importance:{s:'importance',p:'importance',pre:'of the'},
+  tasks:{s:'task',p:'tasks',pre:'involved in'},
+  components:{s:'component',p:'components',pre:'of'},
+  elements:{s:'element',p:'elements',pre:'of'},
+  responsibilities:{s:'responsibility',p:'responsibilities',pre:'of'},
+  features:{s:'feature',p:'features',pre:'of'},
+  requirements:{s:'requirement',p:'requirements',pre:'for'},
+  factors:{s:'factor',p:'factors',pre:'of'},
+  considerations:{s:'consideration',p:'considerations',pre:'when planning'},
+  consequences:{s:'consequence',p:'consequences',pre:'of not planning'},
+  use:{s:'use',p:'uses',pre:'of'},
+  effectiveness:{s:'effectiveness',p:'effectiveness',pre:'of'},
+  'appropriate use':{s:'appropriate use',p:'appropriate uses',pre:'of'},
+  phases:{s:'phase',p:'phases',pre:'of'},
+  methods:{s:'method',p:'methods',pre:'of'},
+};
+
+const SCENARIOS = [
+  'a small business creating an e-commerce mobile app',
+  'a school developing an online learning platform',
+  'a hospital creating a patient appointment system',
+  'a startup building a project management application',
+  'a charity developing a fundraising mobile application',
+  'a gaming company developing a new mobile game',
+  'a local council creating a public information website',
+  'a bank developing a secure online banking application',
+  'a retail chain building a stock management system',
+  'a music streaming company developing a new mobile app',
+  'a sports club creating a membership and booking app',
+  'a university developing a student portal',
+];
+
+// TEMPLATES
+const TEMPLATES = [
+  {id:'T1',po:1,verb:'State',label:'State [N] [content type] of [item]',
+   helpText:'Marks = number selected',
+   needsNumber:true,needsItem:true,needsCT:true,needsScenario:false,needsItemB:false,needsMarks:false,
+   ctCompat:['characteristics','purpose','examples','factors','tasks','components','elements','responsibilities','phases'],
+   marksCalc:(n)=>n,maxN:4},
+  {id:'T2',po:1,verb:'Outline',label:'Outline ONE [content type] of [item]',
+   helpText:'1 mark — short account of one aspect',
+   needsNumber:false,needsItem:true,needsCT:true,needsScenario:false,needsItemB:false,needsMarks:false,
+   ctCompat:['purpose','characteristics','tasks','elements','responsibilities'],
+   marksCalc:()=>1},
+  {id:'T3',po:1,verb:'Define',label:"Define the term '[item]'",
+   helpText:'1–2 marks — give the meaning of the term',
+   needsNumber:false,needsItem:true,needsCT:false,needsScenario:false,needsItemB:false,needsMarks:true,
+   marksOptions:[1,2],marksCalc:(_,m)=>m||1},
+  {id:'T4',po:1,verb:'Explain',label:'Explain [content type] of [item] (generic)',
+   helpText:'2–4 marks — give reasons / causes in general terms',
+   needsNumber:false,needsItem:true,needsCT:true,needsScenario:false,needsItemB:false,needsMarks:true,
+   ctCompat:['advantages','disadvantages','importance'],
+   marksOptions:[2,4],marksCalc:(_,m)=>m||4},
+  {id:'T5',po:2,verb:'Identify',label:'Identify [N] [content type] of [item] from the scenario',
+   helpText:'Marks = number — name features from the stimulus',
+   needsNumber:true,needsItem:true,needsCT:true,needsScenario:true,needsItemB:false,needsMarks:false,
+   ctCompat:['features','characteristics','requirements','factors','elements'],
+   marksCalc:(n)=>n,maxN:2},
+  {id:'T6',po:2,verb:'Explain',label:'Explain [N] [content type] of [item] for [scenario]',
+   helpText:'2 or 4 marks — must link to scenario (1 point = 2 marks)',
+   needsNumber:true,needsItem:true,needsCT:true,needsScenario:true,needsItemB:false,needsMarks:false,
+   ctCompat:['advantages','disadvantages','factors','importance'],
+   marksCalc:(n)=>n*2,maxN:2},
+  {id:'T7',po:2,verb:'Describe',label:'Describe [N] [content type] of [item] for [scenario]',
+   helpText:'2 or 4 marks — account of characteristics for the context',
+   needsNumber:true,needsItem:true,needsCT:true,needsScenario:true,needsItemB:false,needsMarks:false,
+   ctCompat:['characteristics','tasks','elements','responsibilities','methods','purpose','use','appropriate use'],
+   marksCalc:(n)=>n*2,maxN:2},
+  {id:'T8',po:2,verb:'Compare',label:'Compare [item A] and [item B] for [scenario]',
+   helpText:'2–4 marks — similarities and differences applied to context',
+   needsNumber:false,needsItem:true,needsCT:false,needsScenario:true,needsItemB:true,needsMarks:true,
+   marksOptions:[2,4],marksCalc:(_,m)=>m||4},
+  {id:'T9',po:3,verb:'Analyse',label:'Analyse the impact of [item] on [scenario]',
+   helpText:'6 marks (Level of Response) — logical chain of reasoning',
+   needsNumber:false,needsItem:true,needsCT:false,needsScenario:true,needsItemB:false,needsMarks:false,
+   marksCalc:()=>6},
+  {id:'T10',po:3,verb:'Discuss',label:'Discuss the suitability of [item] for [scenario]',
+   helpText:'9 marks (Level of Response) — evaluate for a reasoned judgement',
+   needsNumber:false,needsItem:true,needsCT:false,needsScenario:true,needsItemB:false,needsMarks:false,
+   marksCalc:()=>9},
+  {id:'T11',po:3,verb:'Justify',label:'Justify a recommendation of [item] for [scenario]',
+   helpText:'6 or 9 marks — recommend with reasons applied to the scenario',
+   needsNumber:false,needsItem:true,needsCT:false,needsScenario:true,needsItemB:false,needsMarks:true,
+   marksOptions:[6,9],marksCalc:(_,m)=>m||9},
+];
+
+// SUBTOPICS — items and allowed templates
+const SUBTOPICS = {
+  '1.1':{label:'Programs and applications',ta:'TA1',
+    allowed:['T1','T2','T3','T5','T7','T8'],
+    items:[
+      {id:'prog',label:'a Program',term:'Program',types:['characteristics','purpose','examples']},
+      {id:'app',label:'an Application',term:'Application',types:['characteristics','purpose','examples']},
+      {id:'desktop',label:'a Desktop or Laptop',term:'Desktop or Laptop',types:['purpose','characteristics']},
+      {id:'console',label:'a Game Console',term:'Game Console',types:['purpose','characteristics']},
+      {id:'speaker',label:'a Smart Speaker',term:'Smart Speaker',types:['purpose','characteristics']},
+      {id:'arvr',label:'an AR/VR/MR Device',term:'AR/VR/MR Device',types:['purpose','characteristics']},
+    ]},
+  '1.2':{label:'Operating Systems for application software',ta:'TA1',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'nos',label:'a Network Operating System (NOS)',term:'Network Operating System (NOS)',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'open',label:'an Open Operating System',term:'Open Operating System',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'prop',label:'a Proprietary Operating System',term:'Proprietary Operating System',types:['purpose','characteristics','advantages','disadvantages']},
+    ]},
+  '1.3.1':{label:'Application types',ta:'TA1',
+    allowed:['T1','T2','T3','T5','T7'],
+    items:[
+      {id:'comm',label:'a Communication application',term:'Communication application',types:['purpose','characteristics']},
+      {id:'edu',label:'an Education application',term:'Education application',types:['purpose','characteristics']},
+      {id:'ent',label:'an Entertainment application',term:'Entertainment application',types:['purpose','characteristics']},
+      {id:'games',label:'a Games application',term:'Games application',types:['purpose','characteristics']},
+      {id:'life',label:'a Lifestyle application',term:'Lifestyle application',types:['purpose','characteristics']},
+      {id:'prod',label:'a Productivity application',term:'Productivity application',types:['purpose','characteristics']},
+      {id:'prot',label:'a Protection and Utility application',term:'Protection and Utility application',types:['purpose','characteristics']},
+      {id:'web',label:'a Web Browser',term:'Web Browser',types:['purpose','characteristics']},
+    ]},
+  '1.3.2':{label:'Application software categories',ta:'TA1',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'open-sw',label:'Open software',term:'Open software',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'closed',label:'Closed (Proprietary) software',term:'Closed software',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'share',label:'Shareware',term:'Shareware',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'free',label:'Freeware',term:'Freeware',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'embed',label:'Embedded software',term:'Embedded software',types:['purpose','characteristics','advantages','disadvantages']},
+    ]},
+  '1.3.3':{label:'Application software types',ta:'TA1',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'ots',label:'Off-the-shelf software',term:'Off-the-shelf software',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'cots',label:'Custom off-the-shelf software',term:'Custom off-the-shelf (COTS) software',types:['purpose','characteristics','advantages','disadvantages']},
+      {id:'bespoke',label:'Bespoke software',term:'Bespoke software',types:['purpose','characteristics','advantages','disadvantages']},
+    ]},
+  '2.1':{label:'Software development models',ta:'TA2',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'wfall',label:'the Waterfall model',term:'Waterfall model',types:['characteristics','advantages','disadvantages']},
+      {id:'rtp',label:'the Rapid Throwaway Prototype model',term:'Rapid Throwaway Prototype model',types:['characteristics','advantages','disadvantages']},
+      {id:'inc',label:'the Incremental model',term:'Incremental model',types:['characteristics','advantages','disadvantages']},
+      {id:'evo',label:'the Evolutionary Prototype model',term:'Evolutionary Prototype model',types:['characteristics','advantages','disadvantages']},
+      {id:'rad',label:'the RAD model',term:'RAD (Rapid Application Development) model',types:['characteristics','advantages','disadvantages']},
+      {id:'spiral',label:'the Spiral model',term:'Spiral model',types:['characteristics','advantages','disadvantages']},
+      {id:'agile',label:'the Agile model',term:'Agile model',types:['characteristics','advantages','disadvantages']},
+    ]},
+  '2.2':{label:'Common phases of software development',ta:'TA2',
+    allowed:['T1','T2','T3','T5','T7'],
+    items:[
+      {id:'plan',label:'the Planning phase',term:'Planning phase',types:['purpose','tasks','characteristics']},
+      {id:'des',label:'the Design phase',term:'Design phase',types:['purpose','tasks','characteristics']},
+      {id:'con',label:'the Construction phase',term:'Construction phase',types:['purpose','tasks','characteristics']},
+      {id:'test',label:'the Testing phase',term:'Testing phase',types:['purpose','tasks','characteristics']},
+      {id:'impl',label:'the Implementation phase',term:'Implementation phase',types:['purpose','tasks','characteristics']},
+      {id:'doc',label:'the Documentation phase',term:'Documentation phase',types:['purpose','tasks','characteristics']},
+      {id:'maint',label:'the Maintenance phase',term:'Maintenance phase',types:['purpose','tasks','characteristics']},
+    ]},
+  '3.1':{label:'Planning projects',ta:'TA3',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'plan-gen',label:'project planning',term:'project planning',types:['advantages','disadvantages','importance','considerations','consequences']},
+      {id:'budget',label:'the budget',term:'budget',types:['importance','considerations']},
+      {id:'time',label:'time management',term:'time management',types:['importance','considerations']},
+      {id:'copyright',label:'copyright legislation',term:'copyright legislation',types:['importance','characteristics']},
+      {id:'dataprotect',label:'data protection legislation',term:'data protection legislation',types:['importance','characteristics']},
+      {id:'success',label:'success criteria',term:'success criteria',types:['importance','characteristics','purpose']},
+    ]},
+  '3.2':{label:'Project planning tools',ta:'TA3',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'gantt',label:'Gantt Charts',term:'Gantt Chart',types:['purpose','components','advantages','disadvantages']},
+      {id:'cpa',label:'Critical Path Analysis (CPA)',term:'Critical Path Analysis (CPA)',types:['purpose','components','advantages','disadvantages']},
+      {id:'swot',label:'SWOT Analysis',term:'SWOT Analysis',types:['purpose','components','advantages','disadvantages']},
+      {id:'pert',label:'PERT Charts',term:'PERT Chart',types:['purpose','components','advantages','disadvantages']},
+    ]},
+  '4.1':{label:'Methods of gathering client requirements',ta:'TA4',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'docana',label:'document analysis',term:'document analysis',types:['purpose','advantages','disadvantages']},
+      {id:'focus',label:'focus groups',term:'focus group',types:['purpose','advantages','disadvantages']},
+      {id:'interv',label:'interviews',term:'interview',types:['purpose','advantages','disadvantages']},
+      {id:'meet',label:'meetings',term:'meeting',types:['purpose','advantages','disadvantages']},
+      {id:'obs',label:'observation',term:'observation',types:['purpose','advantages','disadvantages']},
+      {id:'prob',label:'problem reports',term:'problem report',types:['purpose','advantages','disadvantages']},
+      {id:'quest',label:'questionnaires',term:'questionnaire',types:['purpose','advantages','disadvantages']},
+      {id:'shadow',label:'shadowing',term:'shadowing',types:['purpose','advantages','disadvantages']},
+      {id:'suggest',label:'suggestion analysis',term:'suggestion analysis',types:['purpose','advantages','disadvantages']},
+    ]},
+  '4.2':{label:'Client requirement specifications',ta:'TA4',
+    allowed:['T1','T2','T3','T5','T6','T7'],
+    items:[
+      {id:'crs',label:'a client requirement specification',term:'client requirement specification',types:['purpose','importance','elements']},
+      {id:'func',label:'functional requirements',term:'functional requirements',types:['purpose','characteristics','elements']},
+      {id:'nonfunc',label:'non-functional requirements',term:'non-functional requirements',types:['purpose','characteristics','elements']},
+      {id:'constraints',label:'client-defined constraints',term:'client-defined constraints',types:['purpose','characteristics','elements']},
+      {id:'datastorage',label:'data storage location',term:'data storage location',types:['purpose','characteristics','elements']},
+    ]},
+  '4.3':{label:'Decomposition methods',ta:'TA4',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'abs',label:'Abstraction',term:'Abstraction',types:['purpose','advantages','disadvantages']},
+      {id:'pat',label:'Pattern Recognition',term:'Pattern Recognition',types:['purpose','advantages','disadvantages']},
+      {id:'topdown',label:'Top-down Modularisation',term:'Top-down Modularisation',types:['purpose','advantages','disadvantages']},
+      {id:'botup',label:'Bottom-up Modularisation',term:'Bottom-up Modularisation',types:['purpose','advantages','disadvantages']},
+      {id:'parsing',label:'Parsing',term:'Parsing',types:['purpose','advantages','disadvantages']},
+    ]},
+  '5.1.1':{label:'Types of human computer interaction',ta:'TA5',
+    allowed:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11'],
+    items:[
+      {id:'audio',label:'Audio (voice) interaction',term:'Audio interaction',types:['purpose','advantages','disadvantages','characteristics']},
+      {id:'gesture',label:'Movement/Gesture interaction',term:'Gesture interaction',types:['purpose','advantages','disadvantages','characteristics']},
+      {id:'touch',label:'Touch interaction',term:'Touch interaction',types:['purpose','advantages','disadvantages','characteristics']},
+      {id:'cli',label:'a Command Line Interface (CLI)',term:'Command Line Interface (CLI)',types:['purpose','advantages','disadvantages','characteristics']},
+      {id:'gui',label:'a Graphical User Interface (GUI)',term:'Graphical User Interface (GUI)',types:['purpose','advantages','disadvantages','characteristics']},
+    ]},
+  '5.1.2':{label:'Types of device',ta:'TA5',
+    allowed:['T1','T2','T3','T5','T7'],
+    items:[
+      {id:'desk',label:'a Desktop computer',term:'Desktop computer',types:['characteristics','purpose']},
+      {id:'lap',label:'a Laptop',term:'Laptop',types:['characteristics','purpose']},
+      {id:'smart',label:'a Smartphone',term:'Smartphone',types:['characteristics','purpose']},
+      {id:'gconsole',label:'a Game Console',term:'Game Console',types:['characteristics','purpose']},
+      {id:'sspeaker',label:'a Smart Speaker',term:'Smart Speaker',types:['characteristics','purpose']},
+      {id:'ar',label:'an Augmented Reality (AR) device',term:'Augmented Reality (AR) device',types:['characteristics','purpose']},
+      {id:'vr',label:'a Virtual Reality (VR) device',term:'Virtual Reality (VR) device',types:['characteristics','purpose']},
+      {id:'mr',label:'a Mixed Reality (MR) device',term:'Mixed Reality (MR) device',types:['characteristics','purpose']},
+    ]},
+  '5.2':{label:'HCI visual design considerations',ta:'TA5',
+    allowed:['T1','T2','T4','T6','T7','T9'],
+    items:[
+      {id:'colour',label:'Colour',term:'colour in interface design',types:['use','effectiveness','importance']},
+      {id:'interact',label:'Interaction (input methods)',term:'interaction design',types:['use','effectiveness','importance']},
+      {id:'lochier',label:'Location hierarchy',term:'location hierarchy',types:['use','effectiveness','importance']},
+      {id:'messages',label:'Messages (help and error)',term:'interface messages',types:['use','effectiveness','importance']},
+      {id:'typo',label:'Typography',term:'typography in interface design',types:['use','effectiveness','importance']},
+    ]},
+  '5.3':{label:'HCI design documents and diagrams',ta:'TA5',
+    allowed:['T1','T2','T5','T7','T8','T9','T10'],
+    items:[
+      {id:'dfd0',label:'Data Flow Diagrams (Level 0)',term:'Data Flow Diagram (Level 0)',types:['purpose','components','effectiveness','characteristics']},
+      {id:'dfd1',label:'Data Flow Diagrams (Level 1)',term:'Data Flow Diagram (Level 1)',types:['purpose','components','effectiveness','characteristics']},
+      {id:'flow',label:'Flowcharts',term:'Flowchart',types:['purpose','components','effectiveness','characteristics']},
+      {id:'visdiag',label:'Visualisation diagrams',term:'Visualisation diagram',types:['purpose','components','effectiveness','characteristics']},
+      {id:'wire',label:'Wireframes',term:'Wireframe',types:['purpose','components','effectiveness','characteristics']},
+    ]},
+  '6.1':{label:'Job roles',ta:'TA6',
+    allowed:['T1','T2','T3','T6','T7'],
+    items:[
+      {id:'appdes',label:'an Application Designer',term:'Application Designer',types:['responsibilities','purpose']},
+      {id:'pm',label:'a Project Manager',term:'Project Manager',types:['responsibilities','purpose']},
+      {id:'sysana',label:'a Systems Analyst',term:'Systems Analyst',types:['responsibilities','purpose']},
+      {id:'uxd',label:'a UX Designer (UXD)',term:'User Experience Designer (UXD)',types:['responsibilities','purpose']},
+      {id:'uid',label:'a UI Designer (UID)',term:'User Interface Designer (UID)',types:['responsibilities','purpose']},
+    ]},
+  '6.2':{label:'Communication skills in application development',ta:'TA6',
+    allowed:['T1','T2','T3','T6','T7'],
+    items:[
+      {id:'verbal',label:'Verbal communication',term:'verbal communication',types:['characteristics','appropriate use']},
+      {id:'nonverb',label:'Non-verbal communication',term:'non-verbal communication',types:['characteristics','appropriate use']},
+      {id:'written',label:'Written communication',term:'written communication',types:['characteristics','appropriate use']},
+      {id:'probing',label:'Probing questions',term:'probing questions',types:['characteristics','appropriate use']},
+      {id:'clarify',label:'Clarifying questions',term:'clarifying questions',types:['characteristics','appropriate use']},
+      {id:'applang',label:'Appropriate language',term:'appropriate language',types:['characteristics','appropriate use']},
+    ]},
+};
+
+const TOPIC_AREAS = [
+  {id:'TA1',label:'Types of software used in application design',subtopics:['1.1','1.2','1.3.1','1.3.2','1.3.3']},
+  {id:'TA2',label:'Software development models',subtopics:['2.1','2.2']},
+  {id:'TA3',label:'Planning application development projects',subtopics:['3.1','3.2']},
+  {id:'TA4',label:'Application design scoping',subtopics:['4.1','4.2','4.3']},
+  {id:'TA5',label:'Human computer interface and interaction',subtopics:['5.1.1','5.1.2','5.2','5.3']},
+  {id:'TA6',label:'Job roles and skills',subtopics:['6.1','6.2']},
+];
+
+// =============================================================
+// APPLICATION STATE
+// =============================================================
+let S = {
+  view:'generator',
+  step:1,
+  ta:null, sub:null, po:null, tmpl:null,
+  item:null, itemB:null, ct:null,
+  number:null, marks:null, scenario:null,
+  questions:[],
+  dragSrc:null,
+  // Question Paper Sorter (Leitner)
+  qSorter:{open:false,queue:[],buckets:{box1:[],box2:[],box3:[]},done:false},
+};
+
+// =============================================================
+// LOGIC
+// =============================================================
+function getTemplates(){
+  if(!S.sub||S.po===null)return[];
+  const sub=SUBTOPICS[S.sub];
+  return TEMPLATES.filter(t=>{
+    if(t.po!==S.po)return false;
+    if(!sub.allowed.includes(t.id))return false;
+    if(t.needsCT){
+      return sub.items.some(it=>t.ctCompat.some(c=>it.types.includes(c)));
+    }
+    return true;
+  });
+}
+
+function getItems(tmpl){
+  if(!S.sub)return[];
+  const sub=SUBTOPICS[S.sub];
+  if(!tmpl||!tmpl.needsCT)return sub.items;
+  return sub.items.filter(it=>tmpl.ctCompat.some(c=>it.types.includes(c)));
+}
+
+function getContentTypes(tmpl,item){
+  if(!tmpl||!item||!tmpl.needsCT)return[];
+  return tmpl.ctCompat.filter(c=>item.types.includes(c));
+}
+
+function buildQuestion(){
+  const t=S.tmpl, it=S.item, itB=S.itemB, ct=S.ct, n=S.number, sc=S.scenario;
+  const marks=t.marksCalc(n,S.marks);
+  let html='',plain='';
+
+  const label=(itemObj,useTerm=false)=>useTerm?itemObj.term:itemObj.label;
+  const nw=n?NUM_WORDS[n]:'';
+  const ctMeta=ct?CT[ct]:null;
+  const typeS=ctMeta?ctMeta.s:'';
+  const typeP=ctMeta?ctMeta.p:'';
+  const typePre=ctMeta?ctMeta.pre:'of';
+  const typeLabel=n===1?typeS:typeP;
+
+  switch(t.id){
+    case 'T1':
+      html=`State <strong>${nw}</strong> ${typeLabel} ${typePre} ${label(it)}`;
+      plain=`State ${nw} ${typeLabel} ${typePre} ${label(it)}`;
+      break;
+    case 'T2':
+      html=`Outline <strong>ONE</strong> ${typeS} ${typePre} ${label(it)}`;
+      plain=`Outline ONE ${typeS} ${typePre} ${label(it)}`;
+      break;
+    case 'T3':
+      html=`Define the term '${label(it,true)}'`;
+      plain=`Define the term '${label(it,true)}'`;
+      break;
+    case 'T4':
+      if(ct==='importance'){
+        html=`Explain the importance of ${label(it)}`;
+        plain=`Explain the importance of ${label(it)}`;
+      } else {
+        html=`Explain the ${typeP} of ${label(it)}`;
+        plain=`Explain the ${typeP} of ${label(it)}`;
+      }
+      break;
+    case 'T5':
+      html=`Identify <strong>${nw}</strong> ${typeLabel} of ${label(it)} from the scenario`;
+      plain=`Identify ${nw} ${typeLabel} of ${label(it)} from the scenario`;
+      break;
+    case 'T6':
+      if(ct==='importance'){
+        html=`Explain the importance of ${label(it)} for ${sc}`;
+        plain=`Explain the importance of ${label(it)} for ${sc}`;
+      } else {
+        html=`Explain <strong>${nw}</strong> ${typeLabel} ${typePre} ${label(it)} for ${sc}`;
+        plain=`Explain ${nw} ${typeLabel} ${typePre} ${label(it)} for ${sc}`;
+      }
+      break;
+    case 'T7':
+      html=`Describe <strong>${nw}</strong> ${typeLabel} ${typePre} ${label(it)} for ${sc}`;
+      plain=`Describe ${nw} ${typeLabel} ${typePre} ${label(it)} for ${sc}`;
+      break;
+    case 'T8':
+      html=`Compare ${label(it)} and ${label(itB)} for ${sc}`;
+      plain=`Compare ${label(it)} and ${label(itB)} for ${sc}`;
+      break;
+    case 'T9':
+      html=`Analyse the impact of ${label(it)} on ${sc}`;
+      plain=`Analyse the impact of ${label(it)} on ${sc}`;
+      break;
+    case 'T10':
+      html=`Discuss the suitability of ${label(it)} for ${sc}`;
+      plain=`Discuss the suitability of ${label(it)} for ${sc}`;
+      break;
+    case 'T11':
+      html=`Justify a recommendation of ${label(it)} for ${sc}`;
+      plain=`Justify a recommendation of ${label(it)} for ${sc}`;
+      break;
+  }
+  return{html:`${html} [${marks}]`,plain:`${plain} [${marks}]`,marks,po:t.po,tmplId:t.id};
+}
+
+function isReadyToPreview(){
+  const t=S.tmpl;
+  if(!t)return false;
+  if(t.needsItem&&!S.item)return false;
+  if(t.needsItemB&&!S.itemB)return false;
+  if(t.needsCT&&!S.ct)return false;
+  if(t.needsNumber&&!S.number)return false;
+  if(t.needsScenario&&!S.scenario)return false;
+  if(t.needsMarks&&!S.marks)return false;
+  return true;
+}
+
+// =============================================================
+// RENDER ENGINE
+// =============================================================
+function render(){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===S.view));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(S.view+'-view').classList.add('active');
+  if(S.view==='generator'){renderBreadcrumb();renderStep();renderList();}
+  else if(S.view==='support'){renderSupport();}
+}
+
+function switchView(v){S.view=v;render();}
+
+function renderBreadcrumb(){
+  const bc=document.getElementById('breadcrumb');
+  const parts=[];
+  if(S.ta){
+    const ta=TOPIC_AREAS.find(t=>t.id===S.ta);
+    parts.push({label:S.ta,full:ta?.label,step:1});
+  }
+  if(S.sub){
+    parts.push({label:S.sub,full:SUBTOPICS[S.sub]?.label,step:2});
+  }
+  if(S.po){
+    parts.push({label:`PO${S.po}`,step:3});
+  }
+  if(S.tmpl){
+    parts.push({label:S.tmpl.verb,step:4});
+  }
+  if(parts.length===0){bc.innerHTML='';return;}
+  bc.innerHTML=parts.map((p,i)=>{
+    const isLast=i===parts.length-1;
+    const title=p.full?`title="${p.full}"`:'';
+    const cls=isLast?'crumb active':'crumb link';
+    const onclick=isLast?'':`onclick="goToStep(${p.step})"`;
+    return `${i>0?'<span class="crumb-sep">›</span>':''}<span class="${cls}" ${title} ${onclick}>${p.label}</span>`;
+  }).join('');
+}
+
+function goToStep(n){
+  if(n<=1){S.ta=null;S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
+  else if(n<=2){S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
+  else if(n<=3){S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
+  else if(n<=4){S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
+  S.step=n;
+  render();
+}
+
+function renderStep(){
+  const sc=document.getElementById('step-content');
+  sc.innerHTML='';
+  const wrap=document.createElement('div');
+  wrap.className='step-wrapper';
+  sc.appendChild(wrap);
+
+  switch(S.step){
+    case 1: renderStep1(wrap);break;
+    case 2: renderStep2(wrap);break;
+    case 3: renderStep3(wrap);break;
+    case 4: renderStep4(wrap);break;
+    case 5: renderStep5(wrap);break;
+    case 6: renderStep6(wrap);break;
+  }
+}
+
+function renderStep1(w){
+  w.innerHTML=`<h1 class="step-heading">Choose a Topic Area</h1>
+  <p class="step-sub">Select the topic you want to generate questions for.</p>
+  <div class="ta-grid">
+  ${TOPIC_AREAS.map(ta=>`
+    <div class="ta-card" onclick="selectTA('${ta.id}')">
+      <div class="ta-card-id">${ta.id}</div>
+      <div class="ta-card-label">${ta.label}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderStep2(w){
+  const ta=TOPIC_AREAS.find(t=>t.id===S.ta);
+  w.innerHTML=`<h1 class="step-heading">Choose a Subtopic</h1>
+  <p class="step-sub">${ta.label}</p>
+  <div class="sub-list">
+  ${ta.subtopics.map(sid=>{
+    const sub=SUBTOPICS[sid];
+    return`<div class="sub-item" onclick="selectSub('${sid}')">
+      <span class="sub-id">${sid}</span>
+      <span class="sub-label">${sub.label}</span>
+      <span class="sub-arrow">›</span>
+    </div>`;
+  }).join('')}
+  </div>`;
+}
+
+function renderStep3(w){
+  const sub=SUBTOPICS[S.sub];
+  w.innerHTML=`<h1 class="step-heading">Choose a Performance Objective</h1>
+  <p class="step-sub">${S.sub} — ${sub.label}</p>
+  <div class="po-pills">
+    <button class="po-pill p1${S.po===1?' sel':''}" onclick="selectPO(1)">
+      <div class="po-pill-label">PO1</div>
+      <div class="po-pill-desc">Show knowledge and understanding</div>
+      <div class="po-pill-verbs">State · Outline · Define · Explain (generic)</div>
+    </button>
+    <button class="po-pill p2${S.po===2?' sel':''}" onclick="selectPO(2)">
+      <div class="po-pill-label">PO2</div>
+      <div class="po-pill-desc">Apply knowledge and understanding</div>
+      <div class="po-pill-verbs">Identify · Explain · Describe · Compare</div>
+    </button>
+    <button class="po-pill p3${S.po===3?' sel':''}" onclick="selectPO(3)">
+      <div class="po-pill-label">PO3</div>
+      <div class="po-pill-desc">Analyse and evaluate</div>
+      <div class="po-pill-verbs">Analyse · Discuss · Justify</div>
+    </button>
+  </div>`;
+}
+
+function renderStep4(w){
+  const templates=getTemplates();
+  if(templates.length===0){
+    w.innerHTML=`<h1 class="step-heading">No Templates Available</h1>
+    <p class="step-sub">No valid templates exist for this combination. Please go back and choose a different PO level or subtopic.</p>`;
+    return;
+  }
+  w.innerHTML=`<h1 class="step-heading">Choose a Question Template</h1>
+  <p class="step-sub">PO${S.po} templates valid for ${S.sub} — ${SUBTOPICS[S.sub].label}</p>
+  <div class="tmpl-list">
+  ${templates.map(t=>`
+    <div class="tmpl-card${S.tmpl?.id===t.id?' sel':''}" onclick="selectTemplate('${t.id}')">
+      <div class="tmpl-verb">${t.verb}</div>
+      <div style="flex:1">
+        <div class="tmpl-pattern">${t.label}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">${t.helpText}</div>
+      </div>
+      <div class="tmpl-marks">[${getMarksLabel(t)}]</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function getMarksLabel(t){
+  if(t.marksOptions)return t.marksOptions.join(' or ');
+  if(t.id==='T1')return'1–4';
+  if(t.id==='T5')return'1–2';
+  if(t.id==='T6'||t.id==='T7')return'2 or 4';
+  return t.marksCalc(0)||'?';
+}
+
+function renderStep5(w){
+  const t=S.tmpl;
+  const items=getItems(t);
+  w.innerHTML=`<h1 class="step-heading">Configure Your Question</h1>
+  <p class="step-sub">${t.verb} — ${t.label}</p>
+  <div class="config-section" id="cfg-section"></div>`;
+
+  const cfg=document.getElementById('cfg-section');
+
+  // Number selector (if needed)
+  if(t.needsNumber){
+    const max=t.maxN||4;
+    const nums=Array.from({length:max},(_,i)=>i+1);
+    const marksHint=t.id==='T6'||t.id==='T7'?n=>`${n*2} marks`:n=>`${n} mark${n>1?'s':''}`;
+    const f=document.createElement('div');f.className='cfg-field';
+    f.innerHTML=`<div class="cfg-label">How many?</div>
+    <div class="num-pills">
+      ${nums.map(n=>`<button class="num-pill${S.number===n?' sel':''}" onclick="selectNumber(${n})">
+        <span>${NUM_WORDS[n]}</span>
+        <span class="num-pill-sub">${marksHint(n)}</span>
+      </button>`).join('')}
+    </div>`;
+    cfg.appendChild(f);
+  }
+
+  // Item selector
+  if(t.needsItem){
+    const f=document.createElement('div');f.className='cfg-field';
+    f.innerHTML=`<div class="cfg-label">${t.id==='T3'?'Term to define':'Select item'}</div>
+    <select class="cfg-select" id="sel-item" onchange="selectItem(this.value)">
+      <option value="">— Choose ${t.id==='T3'?'a term':'an item'} —</option>
+      ${items.map(it=>`<option value="${it.id}"${S.item?.id===it.id?' selected':''}>${t.id==='T3'?it.term:it.label}</option>`).join('')}
+    </select>`;
+    cfg.appendChild(f);
+  }
+
+  // Content type (if needed)
+  if(t.needsCT&&S.item){
+    const cts=getContentTypes(t,S.item);
+    if(cts.length>0){
+      const f=document.createElement('div');f.className='cfg-field';
+      f.innerHTML=`<div class="cfg-label">What to ask about</div>
+      <select class="cfg-select" id="sel-ct" onchange="selectCT(this.value)">
+        <option value="">— Choose content type —</option>
+        ${cts.map(c=>`<option value="${c}"${S.ct===c?' selected':''}>${CT[c]?CT[c].p:c}</option>`).join('')}
+      </select>`;
+      cfg.appendChild(f);
+    }
+  }
+
+  // Item B (for Compare)
+  if(t.needsItemB&&S.item){
+    const itemsB=items.filter(it=>it.id!==S.item?.id);
+    const f=document.createElement('div');f.className='cfg-field';
+    f.innerHTML=`<div class="cfg-label">Compare with (second item)</div>
+    <select class="cfg-select" id="sel-itemb" onchange="selectItemB(this.value)">
+      <option value="">— Choose second item —</option>
+      ${itemsB.map(it=>`<option value="${it.id}"${S.itemB?.id===it.id?' selected':''}>${it.label}</option>`).join('')}
+    </select>`;
+    cfg.appendChild(f);
+  }
+
+  // Scenario (if needed)
+  if(t.needsScenario){
+    const f=document.createElement('div');f.className='cfg-field';
+    f.innerHTML=`<div class="cfg-label">Exam scenario</div>
+    <select class="cfg-select" id="sel-scenario" onchange="selectScenario(this.value)">
+      <option value="">— Choose a scenario —</option>
+      ${SCENARIOS.map(sc=>`<option value="${sc}"${S.scenario===sc?' selected':''}>${sc}</option>`).join('')}
+    </select>`;
+    cfg.appendChild(f);
+  }
+
+  // Marks selector (if needed)
+  if(t.needsMarks&&t.marksOptions){
+    const f=document.createElement('div');f.className='cfg-field';
+    f.innerHTML=`<div class="cfg-label">Mark allocation</div>
+    <div class="marks-pills">
+      ${t.marksOptions.map(m=>`<button class="marks-pill${S.marks===m?' sel':''}" onclick="selectMarks(${m})">${m} marks</button>`).join('')}
+    </div>`;
+    cfg.appendChild(f);
+  }
+
+  // Preview button
+  const f=document.createElement('div');
+  f.innerHTML=`<button class="btn btn-primary" onclick="goPreview()" ${isReadyToPreview()?'':'disabled'}>Preview Question →</button>`;
+  cfg.appendChild(f);
+}
+
+function renderStep6(w){
+  if(!isReadyToPreview()){S.step=5;render();return;}
+  const q=buildQuestion();
+  w.innerHTML=`<h1 class="step-heading">Question Preview</h1>
+  <p class="step-sub">Review your generated question before adding it to the list.</p>
+  <div class="preview-card">
+    <div class="preview-label">Generated Question</div>
+    <div class="preview-question">${q.html}</div>
+    <div class="preview-meta">
+      <div class="preview-meta-item">Performance Objective: <b>PO${q.po}</b></div>
+      <div class="preview-meta-item">Marks: <b>[${q.marks}]</b></div>
+      <div class="preview-meta-item">Subtopic: <b>${S.sub} — ${SUBTOPICS[S.sub].label}</b></div>
+      <div class="preview-meta-item">Command word: <b>${S.tmpl.verb}</b></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+    <button class="btn btn-success" onclick="addQuestion()">+ Add to Question Paper</button>
+    <button class="btn btn-ghost" onclick="goToStep(5)">&#8592; Edit</button>
+    <button class="btn btn-ghost" onclick="goToStep(4)">Change Template</button>
+  </div>
+  <div class="qec-tip">
+    <div class="qec-tip-icon">&#9432;</div>
+    <div class="qec-tip-text">
+      <strong>Active Recall (QEC):</strong> This question is your <strong>Q</strong>.
+      Next — create your <strong>E</strong>vidence: write a mark scheme from your course materials.
+      Then close everything, write a full answer from memory, and check it against your evidence (<strong>C</strong>onclusion).
+      <span class="qec-link" onclick="switchView('support')">Full guide in Exam Support &#8594;</span>
+    </div>
+  </div>`;
+}
+
+function renderList(){
+  const ql=document.getElementById('question-list');
+  const cnt=document.getElementById('sidebar-count');
+  const copyBtn=document.getElementById('copy-all-btn');
+  const qsBtn=document.getElementById('qs-btn');
+  cnt.textContent=`${S.questions.length} question${S.questions.length!==1?'s':''}`;
+  copyBtn.disabled=S.questions.length===0;
+  qsBtn.disabled=S.questions.length===0;
+
+  if(S.questions.length===0){
+    ql.innerHTML=`<div class="q-empty"><div class="q-empty-icon">&#9998;</div><div>Questions you build will<br>appear here.</div></div>`;
+    return;
+  }
+  ql.innerHTML=S.questions.map((q,i)=>`
+    <div class="q-item" draggable="true" data-idx="${i}"
+      ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
+      ondrop="dragDrop(event,${i})" ondragend="dragEnd()">
+      <div class="q-handle">&#8942;&#8942;</div>
+      <div class="q-body">
+        <div class="q-badges">
+          <span class="q-num">${i+1}</span>
+          <span class="po-badge po${q.po}">PO${q.po}</span>
+          <span class="mark-chip">[${q.marks}]</span>
+        </div>
+        <div class="q-text">${q.plain}</div>
+      </div>
+      <button class="q-del" onclick="deleteQ(${i})" title="Delete">&#10005;</button>
+    </div>`).join('');
+}
+
+// =============================================================
+// EVENT HANDLERS
+// =============================================================
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>switchView(b.dataset.tab));
+});
+
+function selectTA(id){S.ta=id;S.step=2;render();}
+function selectSub(id){S.sub=id;S.step=3;render();}
+function selectPO(po){S.po=po;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;S.step=4;render();}
+function selectTemplate(id){
+  const t=TEMPLATES.find(x=>x.id===id);
+  S.tmpl=t;
+  // Reset config when template changes
+  S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;
+  S.step=5;render();
+}
+function selectItem(id){
+  const sub=SUBTOPICS[S.sub];
+  S.item=sub.items.find(it=>it.id===id)||null;
+  S.ct=null;S.itemB=null;
+  S.step=5;render();
+}
+function selectItemB(id){
+  const sub=SUBTOPICS[S.sub];
+  S.itemB=sub.items.find(it=>it.id===id)||null;
+  S.step=5;render();
+}
+function selectCT(ct){S.ct=ct||null;S.step=5;render();}
+function selectNumber(n){S.number=n;S.step=5;render();}
+function selectMarks(m){S.marks=m;S.step=5;render();}
+function selectScenario(sc){S.scenario=sc||null;S.step=5;render();}
+function goPreview(){if(isReadyToPreview()){S.step=6;render();}}
+
+function addQuestion(){
+  const q=buildQuestion();
+  S.questions.push(q);
+  // Go back to template step for quick next question
+  S.step=4;
+  S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;
+  render();
+  // Flash the last item in sidebar
+  setTimeout(()=>{
+    const items=document.querySelectorAll('.q-item');
+    const last=items[items.length-1];
+    if(last)last.classList.add('pulse-green');
+  },50);
+}
+
+function deleteQ(i){S.questions.splice(i,1);renderList();}
+
+function clearAll(){
+  if(S.questions.length===0)return;
+  if(confirm(`Remove all ${S.questions.length} question(s)?`)){
+    S.questions=[];renderList();
+  }
+}
+
+function copyAll(){
+  const text=S.questions.map((q,i)=>`${i+1}. ${q.plain}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copy-all-btn');
+    const orig=btn.textContent;
+    btn.textContent='Copied!';
+    btn.style.background='var(--green)';
+    setTimeout(()=>{btn.textContent=orig;btn.style.background='';},2000);
+  });
+}
+
+// DRAG AND DROP
+function dragStart(e,i){S.dragSrc=i;e.currentTarget.classList.add('dragging');}
+function dragOver(e,i){e.preventDefault();document.querySelectorAll('.q-item').forEach(el=>el.classList.remove('drag-over'));if(i!==S.dragSrc)e.currentTarget.classList.add('drag-over');}
+function dragDrop(e,i){
+  e.preventDefault();
+  if(S.dragSrc===null||S.dragSrc===i)return;
+  const items=[...S.questions];
+  const [moved]=items.splice(S.dragSrc,1);
+  items.splice(i,0,moved);
+  S.questions=items;
+  renderList();
+}
+function dragEnd(){S.dragSrc=null;document.querySelectorAll('.q-item').forEach(el=>{el.classList.remove('dragging');el.classList.remove('drag-over');});}
+
+// =============================================================
+// QUESTION PAPER SORTER (LEITNER)
+// =============================================================
+function openQSorter(){
+  if(!S.questions.length)return;
+  S.qSorter.queue=[...S.questions];
+  S.qSorter.buckets={box1:[],box2:[],box3:[]};
+  S.qSorter.done=false;
+  S.qSorter.open=true;
+  document.getElementById('qs-modal').classList.remove('hidden');
+  renderQSorter();
+}
+function closeQSorter(){
+  S.qSorter.open=false;
+  document.getElementById('qs-modal').classList.add('hidden');
+}
+function sortQCard(box){
+  if(!S.qSorter.queue.length)return;
+  const q=S.qSorter.queue.shift();
+  ['box1','box2','box3'].forEach(b=>{
+    S.qSorter.buckets[b]=S.qSorter.buckets[b].filter(x=>x.plain!==q.plain);
+  });
+  S.qSorter.buckets[box].push(q);
+  if(!S.qSorter.queue.length)S.qSorter.done=true;
+  renderQSorter();
+}
+function restartQSorter(){
+  S.qSorter.queue=[...S.questions];
+  S.qSorter.done=false;
+  renderQSorter();
+}
+function copyQBox(box){
+  const items=S.qSorter.buckets[box];
+  const text=items.map((q,i)=>`${i+1}. ${q.plain}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector(`[data-qbox="${box}"]`);
+    if(btn){const o=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=o,1500);}
+  });
+}
+function renderQSorter(){
+  const body=document.getElementById('qs-modal-body');
+  if(!body)return;
+  const qs=S.qSorter;
+  const sorted=Object.values(qs.buckets).flat().length;
+  const total=qs.queue.length+sorted;
+
+  if(qs.done||(!qs.queue.length&&sorted>0)){
+    const boxCfg=[
+      {id:'box1',label:'Box 1 – Review Every Session',cls:'box1',desc:"Don't Know — study these first, every session"},
+      {id:'box2',label:'Box 2 – Review Every Other Session',cls:'box2',desc:'Unsure — nearly there, keep practising'},
+      {id:'box3',label:'Box 3 – Review Weekly',cls:'box3',desc:'Confident — maintain with spaced review'},
+    ];
+    body.innerHTML=`
+      <div class="leitner-tip">
+        <strong>The Leitner System:</strong> Focus each study session on <strong>Box 1</strong> first, then Box 2, then Box 3.
+        If you get a Box 3 question wrong in a later session, move it straight back to Box 1.
+        The goal is to move every question to Box 3 through repeated, spaced practice.
+      </div>
+      <div class="qs-boxes">
+        ${boxCfg.map(b=>{
+          const items=qs.buckets[b.id];
+          return`<div class="qs-box ${b.cls}">
+            <div class="qs-box-hdr">
+              <div>
+                <div class="qs-box-label">${b.label}</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px">${b.desc}</div>
+              </div>
+              <span class="qs-box-cnt">${items.length}</span>
+            </div>
+            <div class="qs-box-body">
+              ${items.length===0?'<div style="font-size:12px;color:var(--text3);padding:6px">None here.</div>':
+                items.map(q=>`<div class="qs-box-item">${q.plain}</div>`).join('')}
+            </div>
+            ${items.length>0?`<div style="padding:8px 10px;border-top:1px solid var(--border)"><button class="btn btn-ghost btn-sm btn-full" data-qbox="${b.id}" onclick="copyQBox('${b.id}')">Copy this box</button></div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <button class="btn btn-ghost" onclick="restartQSorter()">Sort Again</button>
+        <button class="btn btn-ghost" onclick="closeQSorter()">Close</button>
+      </div>`;
+    return;
+  }
+
+  const q=qs.queue[0];
+  body.innerHTML=`
+    <div style="text-align:center;font-size:14px;color:var(--text3);margin-bottom:16px">
+      Question <strong>${sorted+1}</strong> of <strong>${total}</strong>
+    </div>
+    <div class="qs-card">
+      <div class="qs-card-po"><span class="po-badge po${q.po}">PO${q.po}</span> &nbsp; [${q.marks} marks]</div>
+      <div class="qs-card-q">${q.html}</div>
+    </div>
+    <div class="qs-sort-btns">
+      <button class="qs-sort-btn box1" onclick="sortQCard('box1')">
+        <span>Don't Know</span><span class="qs-sort-btn-sub">Box 1 – Review every session</span>
+      </button>
+      <button class="qs-sort-btn box2" onclick="sortQCard('box2')">
+        <span>Unsure</span><span class="qs-sort-btn-sub">Box 2 – Review every other session</span>
+      </button>
+      <button class="qs-sort-btn box3" onclick="sortQCard('box3')">
+        <span>Confident</span><span class="qs-sort-btn-sub">Box 3 – Review weekly</span>
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" onclick="closeQSorter()">Save &amp; Close</button>
+    </div>`;
+}
+
+// =============================================================
+// EXAM SUPPORT PAGE
+// =============================================================
+function renderSupport(){
+  const el=document.getElementById('support-content');
+  if(el.dataset.rendered)return;
+  el.dataset.rendered='1';
+  el.innerHTML=`
+
+  <div class="sup-section">
+    <div class="sup-h">Understanding Performance Objectives</div>
+    <div class="sup-sub">Every exam question is linked to one of three Performance Objectives. The PO tells you the depth and type of response required.</div>
+    <div class="po-grid">
+      <div class="po-card p1">
+        <div class="po-card-badge">PO1</div>
+        <div class="po-card-title">Show Knowledge &amp; Understanding</div>
+        <div class="po-card-row"><b>Scenario:</b> Not required — answer generically</div>
+        <div class="po-card-row"><b>Marks:</b> 1–4 marks</div>
+        <div class="po-card-row"><b>Verbs:</b> State, Outline, Define, Explain (generic)</div>
+        <div class="po-card-row" style="margin-top:10px">Direct recall of facts and definitions. No context needed.</div>
+      </div>
+      <div class="po-card p2">
+        <div class="po-card-badge">PO2</div>
+        <div class="po-card-title">Apply Knowledge &amp; Understanding</div>
+        <div class="po-card-row"><b>Scenario:</b> Must apply to the given scenario</div>
+        <div class="po-card-row"><b>Marks:</b> 1–4 marks</div>
+        <div class="po-card-row"><b>Verbs:</b> Identify, Explain, Describe, Compare</div>
+        <div class="po-card-row" style="margin-top:10px">Marks awarded in pairs: 1 for the point + 1 for explaining how it applies to the scenario.</div>
+      </div>
+      <div class="po-card p3">
+        <div class="po-card-badge">PO3</div>
+        <div class="po-card-title">Analyse &amp; Evaluate</div>
+        <div class="po-card-row"><b>Scenario:</b> High-level application required for top marks</div>
+        <div class="po-card-row"><b>Marks:</b> 6 or 9 marks (Level of Response)</div>
+        <div class="po-card-row"><b>Verbs:</b> Analyse, Discuss, Justify</div>
+        <div class="po-card-row" style="margin-top:10px">No point-scoring — answers are judged holistically across levels. You must show a logical chain of reasoning.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sup-section">
+    <div class="sup-h">Command Word Guide</div>
+    <div class="sup-sub">Use only these board-approved words. Each defines the exact depth of response the examiner expects.</div>
+    <div class="cw-grid">
+      <div class="cw-card"><div class="cw-word">State</div><span class="cw-po p1">PO1</span><div class="cw-def">Give short, factual answers or factors. No explanation is needed.</div></div>
+      <div class="cw-card"><div class="cw-word">Outline</div><span class="cw-po p1">PO1</span><div class="cw-def">Give a brief account or summary of one aspect. More than a list, less than a full explanation.</div></div>
+      <div class="cw-card"><div class="cw-word">Define</div><span class="cw-po p1">PO1</span><div class="cw-def">Give the exact meaning of a term. A precise, concise definition.</div></div>
+      <div class="cw-card"><div class="cw-word">Explain</div><span class="cw-po p12">PO1 / PO2</span><div class="cw-def">Give reasons for or causes of something. PO1 = generic explanation. PO2 = must link to the scenario.</div></div>
+      <div class="cw-card"><div class="cw-word">Identify</div><span class="cw-po p2">PO2</span><div class="cw-def">Name or provide factors or features from the stimulus or scenario. Points must come from the given context.</div></div>
+      <div class="cw-card"><div class="cw-word">Describe</div><span class="cw-po p2">PO2</span><div class="cw-def">Give an account of relevant characteristics, qualities, or events as they relate to the scenario.</div></div>
+      <div class="cw-card"><div class="cw-word">Compare</div><span class="cw-po p2">PO2</span><div class="cw-def">Give an account of similarities and differences between two items, applied to the scenario.</div></div>
+      <div class="cw-card"><div class="cw-word">Analyse</div><span class="cw-po p3">PO3</span><div class="cw-def">Break information into parts. Use a logical chain of reasoning — A leads to B, which results in C.</div></div>
+      <div class="cw-card"><div class="cw-word">Discuss</div><span class="cw-po p3">PO3</span><div class="cw-def">Present and evaluate points for and against to arrive at a reasoned judgement.</div></div>
+      <div class="cw-card"><div class="cw-word">Justify</div><span class="cw-po p3">PO3</span><div class="cw-def">Give evidence and reasoning to support a recommendation. Show why your choice is the best fit.</div></div>
+    </div>
+  </div>
+
+  <div class="sup-section">
+    <div class="sup-h">Key Marking Rules</div>
+    <div class="sup-sub">Understand how marks are awarded so you can target them precisely in your answers.</div>
+    <div class="rules-list">
+      <div class="rule-card"><div class="rule-num">1</div><div class="rule-text"><b>Numbers are always emboldened</b> — "State <strong>TWO</strong> characteristics…" means you must give exactly two distinct points. One merged point will not earn both marks.</div></div>
+      <div class="rule-card"><div class="rule-num">2</div><div class="rule-text"><b>PO2 marks come in pairs</b> — one mark for identifying a valid point, one mark for explaining how it specifically improves or applies to the scenario. A point without application earns only half the marks.</div></div>
+      <div class="rule-card"><div class="rule-num">3</div><div class="rule-text"><b>PO3 is Level of Response (LOR)</b> — there is no point-scoring. The examiner reads your whole answer and places it in a level. To reach the top level you need: a logical chain of reasoning, multiple connected points, and direct application to the scenario.</div></div>
+      <div class="rule-card"><div class="rule-num">4</div><div class="rule-text"><b>Acronyms</b> — always write the full term first with the acronym in brackets: Human Computer Interface (HCI). After that, you may use the acronym alone.</div></div>
+    </div>
+  </div>
+
+  <div class="sup-section">
+    <div class="sup-h">The QEC Method for Active Recall</div>
+    <div class="sup-sub">Transform your generated questions into a complete, evidence-based revision system.</div>
+    <div class="qec-big-card">
+      <div class="qec-big-title">Q &nbsp;&middot;&nbsp; E &nbsp;&middot;&nbsp; C &nbsp;&nbsp;— Question · Evidence · Conclusion</div>
+      <div class="qec-big-sub">Each letter is a stage of your revision cycle. The Question Generator gives you the Q. You do the rest.</div>
+
+      <div class="qec-step">
+        <div class="qec-letter q">Q</div>
+        <div>
+          <div class="qec-step-title">Question &nbsp;<span style="font-size:13px;color:var(--green);font-weight:600">&#10003; Already done</span></div>
+          <div class="qec-step-body">Your generated questions are your retrieval cues. Each one targets a specific examiner demand — recall, application, or analysis. The wording matches the exact command word and PO, so you are practising exactly what the exam tests.</div>
+        </div>
+      </div>
+
+      <div class="qec-step">
+        <div class="qec-letter e">E</div>
+        <div>
+          <div class="qec-step-title">Evidence &nbsp;<span style="font-size:13px;color:var(--po2);font-weight:600">Your mark scheme</span></div>
+          <div class="qec-step-body">Before any recall session, create your own mark scheme using your course materials, textbook, or e-book. Write the key points, technical terms, and examples that a strong answer must contain. <strong>Store this evidence separately</strong> from your revision space — you must not look at it while answering.</div>
+        </div>
+      </div>
+
+      <div class="qec-step">
+        <div class="qec-letter c">C</div>
+        <div>
+          <div class="qec-step-title">Conclusion &nbsp;<span style="font-size:13px;color:var(--green);font-weight:600">Active recall in action</span></div>
+          <div class="qec-step-body">This is the most important stage — and the one most students skip.</div>
+          <ol class="qec-ol">
+            <li>Close all notes and course materials completely.</li>
+            <li>Read the question only.</li>
+            <li>Write a full answer from memory — as if in an exam. Use complete sentences.</li>
+            <li>Open your evidence and compare your answer honestly.</li>
+            <li>Note every gap or error. These are your revision priorities for the next session.</li>
+          </ol>
+        </div>
+      </div>
+
+      <hr class="qec-divider">
+
+      <div class="qec-why">
+        <div class="qec-why-title">Why active recall works</div>
+        <div class="qec-why-body">Retrieval practice — the "testing effect" — consistently outperforms re-reading in research on long-term retention. Every time you struggle to recall something and succeed, the memory trace becomes stronger. Getting an answer wrong is not failure; it is the most useful information your revision session can produce.</div>
+      </div>
+
+      <div class="recall-rules">
+        <div class="recall-rule"><div class="recall-rule-dot">&#8594;</div><div>Never passively re-read your notes. This creates an illusion of knowing without building actual memory.</div></div>
+        <div class="recall-rule"><div class="recall-rule-dot">&#8594;</div><div>Write complete sentences, not bullet points. Mirror real exam conditions in your practice.</div></div>
+        <div class="recall-rule"><div class="recall-rule-dot">&#8594;</div><div>Attempt the full question before checking evidence. No partial peeking.</div></div>
+        <div class="recall-rule"><div class="recall-rule-dot">&#8594;</div><div>Leave a gap between creating your evidence and doing your recall — at least a few hours, ideally a day.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sup-section">
+    <div class="sup-h">The Leitner System — Spaced Repetition</div>
+    <div class="sup-sub">Use the "Sort by Confidence" button in the Question Generator to sort your questions into these three boxes. Study Box 1 most, Box 3 least.</div>
+    <div class="leitner-boxes">
+      <div class="lbox b1">
+        <div class="lbox-num">Box 1</div>
+        <div class="lbox-title">Don't Know</div>
+        <div class="lbox-freq">Review: Every study session</div>
+        <div class="lbox-desc">Your highest priority. These are the questions you cannot yet answer with confidence. Spend the most time here.</div>
+      </div>
+      <div class="lbox b2">
+        <div class="lbox-num">Box 2</div>
+        <div class="lbox-title">Unsure</div>
+        <div class="lbox-freq">Review: Every other session</div>
+        <div class="lbox-desc">Almost there. You have some understanding but need reinforcement before these become reliable.</div>
+      </div>
+      <div class="lbox b3">
+        <div class="lbox-num">Box 3</div>
+        <div class="lbox-title">Confident</div>
+        <div class="lbox-freq">Review: Once a week</div>
+        <div class="lbox-desc">Maintained through light, spaced review. Never assume these are permanent — always verify by testing.</div>
+      </div>
+    </div>
+    <div class="leitner-rules-list">
+      <div class="l-rule"><div class="l-rule-arrow">&#8594;</div><div>Start every study session with <strong>Box 1</strong> questions. Work through Box 2, then Box 3.</div></div>
+      <div class="l-rule"><div class="l-rule-arrow">&#8594;</div><div>Answer a Box 1 question correctly &#8594; move it to Box 2. Answer a Box 2 correctly &#8594; move it to Box 3.</div></div>
+      <div class="l-rule"><div class="l-rule-arrow">&#8594;</div><div>Get a Box 3 question wrong at any point &#8594; return it <strong>immediately to Box 1</strong>.</div></div>
+      <div class="l-rule"><div class="l-rule-arrow">&#8594;</div><div>The goal is to move all questions to Box 3 — but always prove it by attempting, never by assuming.</div></div>
+    </div>
+  </div>`;
+}
+
+// =============================================================
+// INIT
+// =============================================================
+render();
+</script>
+</body>
+</html>
