@@ -65,6 +65,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .q-text{font-size:13px;line-height:1.5;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .q-del{flex-shrink:0;background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 5px;border-radius:4px;font-size:13px;line-height:1;transition:var(--t);font-family:var(--font)}
 .q-del:hover{color:var(--red);background:var(--red-bg)}
+.q-edit{flex-shrink:0;background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 5px;border-radius:4px;font-size:13px;line-height:1;transition:var(--t);font-family:var(--font)}
+.q-edit:hover{color:var(--primary);background:var(--primary-bg)}
+.q-item.editing{border-color:var(--amber)!important;background:var(--amber-bg)!important}
 .sidebar-footer{padding:10px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:6px}
 
 /* GENERATOR MAIN */
@@ -179,6 +182,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .qec-link{color:var(--primary);cursor:pointer;font-weight:600}
 .qec-link:hover{text-decoration:underline}
 
+/* Edit mode banner */
+.edit-banner{background:var(--amber-bg);border:1.5px solid var(--amber);border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.edit-banner-text{font-weight:500;flex:1}
+.edit-banner-cancel{background:none;border:1.5px solid var(--amber);cursor:pointer;font-size:12px;color:var(--amber);font-weight:600;font-family:var(--font);padding:5px 10px;border-radius:var(--radius-sm);transition:var(--t)}
+.edit-banner-cancel:hover{background:var(--amber);color:#fff}
+/* Step navigation */
+.step-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:8px}
+.nav-back-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:var(--t);font-family:var(--font);display:inline-flex;align-items:center;gap:5px;box-shadow:var(--shadow)}
+.nav-back-btn:hover{border-color:var(--border-strong);background:var(--surface2);color:var(--text)}
+.nav-home-btn{background:none;border:1.5px solid transparent;border-radius:var(--radius-sm);padding:7px 12px;font-size:13px;color:var(--text3);cursor:pointer;transition:var(--t);font-family:var(--font)}
+.nav-home-btn:hover{border-color:var(--border);color:var(--text2);background:var(--surface2)}
+/* Copy options */
+.copy-opts{display:flex;flex-direction:column;gap:3px;padding:4px 0 6px}
+.copy-opt{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer;line-height:1.3;padding:2px 0;user-select:none}
+.copy-opt input{cursor:pointer;accent-color:var(--primary);flex-shrink:0}
 /* MODAL */
 .modal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px)}
 .modal.hidden{display:none}
@@ -342,6 +360,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         </div>
       </div>
       <div class="sidebar-footer">
+        <div class="copy-opts" id="copy-opts" style="display:none">
+          <label class="copy-opt">
+            <input type="checkbox" id="opt-subtopic" onchange="S.copySubtopic=this.checked">
+            Include subtopic in copy
+          </label>
+          <label class="copy-opt">
+            <input type="checkbox" id="opt-totals" onchange="S.copyTotals=this.checked">
+            Include totals summary
+          </label>
+        </div>
         <button class="btn btn-primary btn-sm btn-full" id="copy-all-btn" disabled onclick="copyAll()">Copy All Questions</button>
         <button class="btn btn-ghost btn-sm btn-full" id="qs-btn" disabled onclick="openQSorter()">Sort by Confidence (Leitner)</button>
         <button class="btn btn-ghost btn-sm btn-full" onclick="clearAll()">Clear List</button>
@@ -673,6 +701,9 @@ let S = {
   number:null, marks:null, scenario:null,
   questions:[],
   dragSrc:null,
+  editingIdx:null,
+  copySubtopic:false,
+  copyTotals:false,
   // Question Paper Sorter (Leitner)
   qSorter:{open:false,queue:[],buckets:{box1:[],box2:[],box3:[]},done:false},
 };
@@ -774,7 +805,11 @@ function buildQuestion(){
       plain=`Justify a recommendation of ${label(it)} for ${sc}`;
       break;
   }
-  return{html:`${html} [${marks}]`,plain:`${plain} [${marks}]`,marks,po:t.po,tmplId:t.id};
+  return{html:`${html} [${marks}]`,plain:`${plain} [${marks}]`,marks,po:t.po,tmplId:t.id,
+    sub:S.sub,subLabel:SUBTOPICS[S.sub].label,
+    buildState:{ta:S.ta,sub:S.sub,po:S.po,tmplId:t.id,
+      itemId:S.item?.id||null,itemBId:S.itemB?.id||null,
+      ct:S.ct,number:S.number,marks:S.marks,scenario:S.scenario}};
 }
 
 function isReadyToPreview(){
@@ -829,8 +864,8 @@ function renderBreadcrumb(){
 }
 
 function goToStep(n){
-  if(n<=1){S.ta=null;S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
-  else if(n<=2){S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
+  if(n<=1){S.ta=null;S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;S.editingIdx=null;}
+  else if(n<=2){S.sub=null;S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;S.editingIdx=null;}
   else if(n<=3){S.po=null;S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
   else if(n<=4){S.tmpl=null;S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;}
   S.step=n;
@@ -868,7 +903,7 @@ function renderStep1(w){
 
 function renderStep2(w){
   const ta=TOPIC_AREAS.find(t=>t.id===S.ta);
-  w.innerHTML=`<h1 class="step-heading">Choose a Subtopic</h1>
+  w.innerHTML=renderNav(2)+`<h1 class="step-heading">Choose a Subtopic</h1>
   <p class="step-sub">${ta.label}</p>
   <div class="sub-list">
   ${ta.subtopics.map(sid=>{
@@ -884,7 +919,7 @@ function renderStep2(w){
 
 function renderStep3(w){
   const sub=SUBTOPICS[S.sub];
-  w.innerHTML=`<h1 class="step-heading">Choose a Performance Objective</h1>
+  w.innerHTML=renderNav(3)+`<h1 class="step-heading">Choose a Performance Objective</h1>
   <p class="step-sub">${S.sub} — ${sub.label}</p>
   <div class="po-pills">
     <button class="po-pill p1${S.po===1?' sel':''}" onclick="selectPO(1)">
@@ -908,11 +943,11 @@ function renderStep3(w){
 function renderStep4(w){
   const templates=getTemplates();
   if(templates.length===0){
-    w.innerHTML=`<h1 class="step-heading">No Templates Available</h1>
+    w.innerHTML=renderNav(4)+`<h1 class="step-heading">No Templates Available</h1>
     <p class="step-sub">No valid templates exist for this combination. Please go back and choose a different PO level or subtopic.</p>`;
     return;
   }
-  w.innerHTML=`<h1 class="step-heading">Choose a Question Template</h1>
+  w.innerHTML=renderNav(4)+`<h1 class="step-heading">Choose a Question Template</h1>
   <p class="step-sub">PO${S.po} templates valid for ${S.sub} — ${SUBTOPICS[S.sub].label}</p>
   <div class="tmpl-list">
   ${templates.map(t=>`
@@ -938,7 +973,10 @@ function getMarksLabel(t){
 function renderStep5(w){
   const t=S.tmpl;
   const items=getItems(t);
-  w.innerHTML=`<h1 class="step-heading">Configure Your Question</h1>
+  const editBanner=S.editingIdx!==null
+    ?`<div class="edit-banner"><span class="edit-banner-text">Editing Question ${S.editingIdx+1}</span><button class="edit-banner-cancel" onclick="cancelEdit()">Cancel Edit</button></div>`
+    :'';
+  w.innerHTML=renderNav(5)+editBanner+`<h1 class="step-heading">Configure Your Question</h1>
   <p class="step-sub">${t.verb} — ${t.label}</p>
   <div class="config-section" id="cfg-section"></div>`;
 
@@ -1027,7 +1065,13 @@ function renderStep5(w){
 function renderStep6(w){
   if(!isReadyToPreview()){S.step=5;render();return;}
   const q=buildQuestion();
-  w.innerHTML=`<h1 class="step-heading">Question Preview</h1>
+  const editBanner=S.editingIdx!==null
+    ?`<div class="edit-banner"><span class="edit-banner-text">Editing Question ${S.editingIdx+1}</span><button class="edit-banner-cancel" onclick="cancelEdit()">Cancel Edit</button></div>`
+    :'';
+  const addBtn=S.editingIdx!==null
+    ?`<button class="btn btn-primary" onclick="addQuestion()">&#10003; Update Question ${S.editingIdx+1}</button>`
+    :`<button class="btn btn-success" onclick="addQuestion()">+ Add to Question Paper</button>`;
+  w.innerHTML=renderNav(6)+editBanner+`<h1 class="step-heading">Question Preview</h1>
   <p class="step-sub">Review your generated question before adding it to the list.</p>
   <div class="preview-card">
     <div class="preview-label">Generated Question</div>
@@ -1040,7 +1084,7 @@ function renderStep6(w){
     </div>
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-    <button class="btn btn-success" onclick="addQuestion()">+ Add to Question Paper</button>
+    ${addBtn}
     <button class="btn btn-ghost" onclick="goToStep(5)">&#8592; Edit</button>
     <button class="btn btn-ghost" onclick="goToStep(4)">Change Template</button>
   </div>
@@ -1060,16 +1104,20 @@ function renderList(){
   const cnt=document.getElementById('sidebar-count');
   const copyBtn=document.getElementById('copy-all-btn');
   const qsBtn=document.getElementById('qs-btn');
-  cnt.textContent=`${S.questions.length} question${S.questions.length!==1?'s':''}`;
-  copyBtn.disabled=S.questions.length===0;
-  qsBtn.disabled=S.questions.length===0;
+  const copyOpts=document.getElementById('copy-opts');
+  const qCount=S.questions.length;
+  const totalMarks=S.questions.reduce((s,q)=>s+q.marks,0);
+  cnt.textContent=qCount===0?'0 questions':`${qCount} question${qCount!==1?'s':''} · ${totalMarks} mark${totalMarks!==1?'s':''}`;
+  copyBtn.disabled=qCount===0;
+  qsBtn.disabled=qCount===0;
+  if(copyOpts)copyOpts.style.display=qCount===0?'none':'';
 
-  if(S.questions.length===0){
+  if(qCount===0){
     ql.innerHTML=`<div class="q-empty"><div class="q-empty-icon">&#9998;</div><div>Questions you build will<br>appear here.</div></div>`;
     return;
   }
   ql.innerHTML=S.questions.map((q,i)=>`
-    <div class="q-item" draggable="true" data-idx="${i}"
+    <div class="q-item${S.editingIdx===i?' editing':''}" draggable="true" data-idx="${i}"
       ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
       ondrop="dragDrop(event,${i})" ondragend="dragEnd()">
       <div class="q-handle">&#8942;&#8942;</div>
@@ -1081,6 +1129,7 @@ function renderList(){
         </div>
         <div class="q-text">${q.plain}</div>
       </div>
+      <button class="q-edit" onclick="editQuestion(${i})" title="Edit">&#9998;</button>
       <button class="q-del" onclick="deleteQ(${i})" title="Delete">&#10005;</button>
     </div>`).join('');
 }
@@ -1121,20 +1170,41 @@ function goPreview(){if(isReadyToPreview()){S.step=6;render();}}
 
 function addQuestion(){
   const q=buildQuestion();
-  S.questions.push(q);
-  // Go back to template step for quick next question
-  S.step=4;
-  S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;
-  render();
-  // Flash the last item in sidebar
-  setTimeout(()=>{
-    const items=document.querySelectorAll('.q-item');
-    const last=items[items.length-1];
-    if(last)last.classList.add('pulse-green');
-  },50);
+  if(S.editingIdx!==null){
+    const idx=S.editingIdx;
+    S.questions[idx]=q;
+    S.editingIdx=null;
+    S.step=4;
+    S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;
+    render();
+    setTimeout(()=>{
+      const items=document.querySelectorAll('.q-item');
+      if(items[idx])items[idx].classList.add('pulse-green');
+    },50);
+  } else {
+    S.questions.push(q);
+    S.step=4;
+    S.item=null;S.itemB=null;S.ct=null;S.number=null;S.marks=null;S.scenario=null;
+    render();
+    setTimeout(()=>{
+      const items=document.querySelectorAll('.q-item');
+      const last=items[items.length-1];
+      if(last)last.classList.add('pulse-green');
+    },50);
+  }
 }
 
-function deleteQ(i){S.questions.splice(i,1);renderList();}
+function deleteQ(i){
+  if(S.editingIdx===i){
+    S.editingIdx=null;
+    S.questions.splice(i,1);
+    render();
+  } else {
+    if(S.editingIdx!==null&&i<S.editingIdx)S.editingIdx--;
+    S.questions.splice(i,1);
+    renderList();
+  }
+}
 
 function clearAll(){
   if(S.questions.length===0)return;
@@ -1144,7 +1214,15 @@ function clearAll(){
 }
 
 function copyAll(){
-  const text=S.questions.map((q,i)=>`${i+1}. ${q.plain}`).join('\n\n');
+  let text=S.questions.map((q,i)=>{
+    let line=`${i+1}. ${q.plain}`;
+    if(S.copySubtopic&&q.sub)line+=`\n   [${q.sub} — ${q.subLabel}]`;
+    return line;
+  }).join('\n\n');
+  if(S.copyTotals){
+    const total=S.questions.reduce((s,q)=>s+q.marks,0);
+    text+=`\n\n---\nTotal: ${S.questions.length} question${S.questions.length!==1?'s':''} · ${total} mark${total!==1?'s':''}`;
+  }
   navigator.clipboard.writeText(text).then(()=>{
     const btn=document.getElementById('copy-all-btn');
     const orig=btn.textContent;
@@ -1429,6 +1507,43 @@ function renderSupport(){
       <div class="l-rule"><div class="l-rule-arrow">&#8594;</div><div>The goal is to move all questions to Box 3 — but always prove it by attempting, never by assuming.</div></div>
     </div>
   </div>`;
+}
+
+// =============================================================
+// EDIT QUESTION / NAV HELPERS
+// =============================================================
+function renderNav(step){
+  if(step<=1)return'';
+  const labels={2:'Topics',3:'Subtopics',4:'PO Level',5:'Template',6:'Configure'};
+  const showHome=step>2;
+  return`<div class="step-nav">
+    <button class="nav-back-btn" onclick="goToStep(${step-1})">&#8592; ${labels[step]}</button>
+    ${showHome?`<button class="nav-home-btn" onclick="goToStep(1)">&#8962; Start over</button>`:''}
+  </div>`;
+}
+
+function editQuestion(i){
+  const q=S.questions[i];
+  if(!q||!q.buildState)return;
+  const bs=q.buildState;
+  S.ta=bs.ta;
+  S.sub=bs.sub;
+  S.po=bs.po;
+  S.tmpl=TEMPLATES.find(t=>t.id===bs.tmplId)||null;
+  S.item=bs.itemId?SUBTOPICS[bs.sub].items.find(it=>it.id===bs.itemId)||null:null;
+  S.itemB=bs.itemBId?SUBTOPICS[bs.sub].items.find(it=>it.id===bs.itemBId)||null:null;
+  S.ct=bs.ct;
+  S.number=bs.number;
+  S.marks=bs.marks;
+  S.scenario=bs.scenario;
+  S.editingIdx=i;
+  S.step=5;
+  render();
+}
+
+function cancelEdit(){
+  S.editingIdx=null;
+  render();
 }
 
 // =============================================================
